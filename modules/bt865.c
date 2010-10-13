@@ -24,9 +24,7 @@
 
 #include <linux/version.h>
 #include <linux/module.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,10)
 #include <linux/moduleparam.h>
-#endif
 #include <linux/init.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
@@ -65,11 +63,7 @@ MODULE_VERSION(EM8300_VERSION);
 EXPORT_NO_SYMBOLS;
 
 static int color_bars[EM8300_MAX] = { [ 0 ... EM8300_MAX-1 ] = 0 };
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,10)
-MODULE_PARM(color_bars, "1-" __MODULE_STRING(EM8300_MAX) "i");
-#else
 module_param_array(color_bars, bool, NULL, 0444);
-#endif
 MODULE_PARM_DESC(color_bars, "If you set this to 1 a set of color bars will be displayed on your screen (used for testing if the chip is working). Defaults to 0.");
 
 typedef enum {
@@ -85,12 +79,7 @@ struct output_conf_s {
 
 static output_mode_t output_mode_nr[EM8300_MAX] = { [ 0 ... EM8300_MAX-1 ] = MODE_COMPOSITE_SVIDEO };
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,10)
-static char *output_mode[EM8300_MAX] = { [ 0 ... EM8300_MAX-1 ] = NULL };
-MODULE_PARM(output_mode, "1-" __MODULE_STRING(EM8300_MAX) "s");
-#else
 module_param_array_named(output_mode, output_mode_nr, output_mode_t, NULL, 0444);
-#endif
 MODULE_PARM_DESC(output_mode, "Specifies the output mode to use for the BT865 video encoder. See the README-modoptions file for the list of mode names to use. Default is SVideo + composite (\"comp+svideo\").");
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,26)
@@ -1046,20 +1035,6 @@ static int bt865_command(struct i2c_client *client, unsigned int cmd, void *arg)
 
 int __init bt865_init(void)
 {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,10)
-	int i;
-	for (i=0; i < EM8300_MAX; i++)
-		if ((output_mode[i]) && (output_mode[i][0])) {
-			int j;
-			for (j=0; j < MODE_MAX; j++)
-				if (strcmp(output_mode[i], mode_info[j].name) == 0) {
-					output_mode_nr[i] = j;
-					break;
-				}
-			if (j == MODE_MAX)
-				printk(KERN_WARNING "bt865: Unknown output mode: %s\n", output_mode[i]);
-		}
-#endif /* ! CONFIG_MODULEPARAM */
 	//request_module("i2c-algo-bit");
 	return i2c_add_driver(&bt865_driver);
 }

@@ -20,9 +20,7 @@
 */
 #include <linux/version.h>
 #include <linux/module.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,10)
 #include <linux/moduleparam.h>
-#endif
 #include <linux/init.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
@@ -65,43 +63,23 @@ MODULE_VERSION(EM8300_VERSION);
 EXPORT_NO_SYMBOLS;
 
 int pixelport_16bit[EM8300_MAX] = { [ 0 ... EM8300_MAX-1 ] = -1 };
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,10)
-MODULE_PARM(pixelport_16bit, "1-" __MODULE_STRING(EM8300_MAX) "i");
-#else
 module_param_array(pixelport_16bit, bool, NULL, 0444);
-#endif
 MODULE_PARM_DESC(pixelport_16bit, "Changes how the ADV717x expects its input data to be formatted. If the colours on the TV appear green, try changing this. Defaults to 1.");
 
 int pixelport_other_pal[EM8300_MAX] = { [ 0 ... EM8300_MAX-1 ] = -1 };
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,10)
-MODULE_PARM(pixelport_other_pal, "1-" __MODULE_STRING(EM8300_MAX) "i");
-#else
 module_param_array(pixelport_other_pal, bool, NULL, 0444);
-#endif
 MODULE_PARM_DESC(pixelport_other_pal, "If this is set to 1, then the pixelport setting is swapped for PAL from the setting given with pixelport_16bit. Defaults to 1.");
 
 int pixeldata_adjust_ntsc[EM8300_MAX] = { [ 0 ... EM8300_MAX-1 ] = -1 };
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,10)
-MODULE_PARM(pixeldata_adjust_ntsc, "1-" __MODULE_STRING(EM8300_MAX) "i");
-#else
 module_param_array(pixeldata_adjust_ntsc, int, NULL, 0444);
-#endif
 MODULE_PARM_DESC(pixeldata_adjust_ntsc, "If your red and blue colours are swapped in NTSC, try setting this to 0,1,2 or 3. Defaults to 1.");
 
 int pixeldata_adjust_pal[EM8300_MAX] = { [ 0 ... EM8300_MAX-1 ] = -1 };
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,10)
-MODULE_PARM(pixeldata_adjust_pal, "1-" __MODULE_STRING(EM8300_MAX) "i");
-#else
 module_param_array(pixeldata_adjust_pal, int, NULL, 0444);
-#endif
 MODULE_PARM_DESC(pixeldata_adjust_pal, "If your red and blue colours are swapped in PAL, try setting this to 0,1,2 or 3. Defaults to 1.");
 
 static int color_bars[EM8300_MAX] = { [ 0 ... EM8300_MAX-1 ] = 0 };
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,10)
-MODULE_PARM(color_bars, "1-" __MODULE_STRING(EM8300_MAX) "i");
-#else
 module_param_array(color_bars, bool, NULL, 0444);
-#endif
 MODULE_PARM_DESC(color_bars, "If you set this to 1 a set of color bars will be displayed on your screen (used for testing if the chip is working). Defaults to 0.");
 
 typedef enum {
@@ -132,12 +110,7 @@ struct output_conf_s {
 #include "encoder_output_mode.h"
 
 static output_mode_t output_mode_nr[EM8300_MAX] = { [ 0 ... EM8300_MAX-1 ] = MODE_COMPOSITE_SVIDEO };
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,10)
-static char *output_mode[EM8300_MAX] = { [ 0 ... EM8300_MAX-1 ] = NULL };
-MODULE_PARM(output_mode, "1-" __MODULE_STRING(EM8300_MAX) "s");
-#else
 module_param_array_named(output_mode, output_mode_nr, output_mode_t, NULL, 0444);
-#endif
 MODULE_PARM_DESC(output_mode, "Specifies the output mode to use for the ADV717x video encoder. See the README-modoptions file for the list of mode names to use. Default is SVideo + composite (\"comp+svideo\").");
 
 
@@ -899,20 +872,6 @@ static int adv717x_command(struct i2c_client *client, unsigned int cmd, void *ar
 
 int __init adv717x_init(void)
 {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,10)
-	int i;
-	for (i=0; i < EM8300_MAX; i++)
-		if ((output_mode[i]) && (output_mode[i][0])) {
-			int j;
-			for (j=0; j < MODE_MAX; j++)
-				if (strcmp(output_mode[i], mode_info[j].name) == 0) {
-					output_mode_nr[i] = j;
-					break;
-				}
-			if (j == MODE_MAX)
-				printk(KERN_WARNING "adv717x.o: Unknown output mode: %s\n", output_mode[i]);
-		}
-#endif /* ! CONFIG_MODULEPARAM */
 	//request_module("i2c-algo-bit");
 	return i2c_add_driver(&adv717x_driver);
 }

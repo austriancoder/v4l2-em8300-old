@@ -70,13 +70,4 @@ extern char *alsa_id[];
 /* Option to disable the video output when there is nothing to display */
 extern int stop_video[];
 
-/* Initialization function */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,10)
-extern void em8300_params_init(void);
-#else
-static inline void em8300_params_init(void)
-{
-}
-#endif
-
 #endif /* _EM8300_PARAMS_H */

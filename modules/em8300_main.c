@@ -20,9 +20,7 @@
 */
 #include <linux/version.h>
 #include <linux/module.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,10)
 #include <linux/moduleparam.h>
-#endif
 #include <linux/delay.h>
 #include <linux/init.h>
 #include <linux/errno.h>
@@ -381,13 +379,7 @@ int em8300_io_mmap(struct file *file, struct vm_area_struct *vma)
 		vma->vm_flags |= VM_LOCKED;
 
 		/* remap the memory to user space */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,3)
-		if (remap_page_range(vma->vm_start, virt_to_phys((void *)mem), size, vma->vm_page_prot)) {
-#elif LINUX_VERSION_CODE < KERNEL_VERSION(2,6,10)
-		if (remap_page_range(vma, vma->vm_start, virt_to_phys((void *)mem), size, vma->vm_page_prot)) {
-#else
 		if (remap_pfn_range(vma, vma->vm_start, virt_to_phys((void *)mem) >> PAGE_SHIFT, size, vma->vm_page_prot)) {
-#endif
 			kfree(mem);
 			return -EAGAIN;
 		}
@@ -412,13 +404,7 @@ int em8300_io_mmap(struct file *file, struct vm_area_struct *vma)
 		if (size > em->memsize)
 			return -EINVAL;
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,3)
-		remap_page_range(vma->vm_start, em->adr, vma->vm_end - vma->vm_start, vma->vm_page_prot);
-#elif LINUX_VERSION_CODE < KERNEL_VERSION(2,6,10)
-		remap_page_range(vma, vma->vm_start, em->adr, vma->vm_end - vma->vm_start, vma->vm_page_prot);
-#else
 		remap_pfn_range(vma, vma->vm_start, em->adr >> PAGE_SHIFT, vma->vm_end - vma->vm_start, vma->vm_page_prot);
-#endif
 		vma->vm_file = file;
 		atomic_inc(&file->f_dentry->d_inode->i_count);
 		break;
@@ -969,8 +955,6 @@ static void __exit em8300_exit(void)
 static int __init em8300_init(void)
 {
 	int err;
-
-	em8300_params_init();
 
 	/*memset(&em8300, 0, sizeof(em8300) * EM8300_MAX);*/
 #if defined(CONFIG_SOUND) || defined(CONFIG_SOUND_MODULE)
