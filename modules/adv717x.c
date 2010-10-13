@@ -791,8 +791,6 @@ static int adv717x_probe(struct i2c_client *client,
 
 	adv717x_update(client);
 
-	EM8300_MOD_INC_USE_COUNT;
-
 	return 0;
 
  cleanup:
@@ -804,8 +802,6 @@ static int adv717x_probe(struct i2c_client *client,
 static int adv717x_remove(struct i2c_client *client)
 {
 	struct adv717x_data_s *data = i2c_get_clientdata(client);
-
-	EM8300_MOD_DEC_USE_COUNT;
 
 	kfree(data->conf);
 	kfree(data);

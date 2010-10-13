@@ -990,8 +990,6 @@ static int bt865_probe(struct i2c_client *client,
 	if ((err = bt865_setup(client)))
 		goto cleanup;
 
-	EM8300_MOD_INC_USE_COUNT;
-
 	return 0;
 
  cleanup:
@@ -1002,8 +1000,6 @@ static int bt865_probe(struct i2c_client *client,
 static int bt865_remove(struct i2c_client *client)
 {
 	struct bt865_data_s *data = i2c_get_clientdata(client);
-
-	EM8300_MOD_DEC_USE_COUNT;
 
 	kfree(data);
 
