@@ -1,0 +1,113 @@
+General fixes:
+
+ em8300:
+   activate_loopback   -- set to 1 if you lose video signal
+                          when uploading the microcode
+   bt865_ucode_timeout -- set to 1 if you have a bt865 and get timeouts
+                          when uploading the microcode.
+   use_bt865           -- set to 1 if you have a bt865.  Modifies some
+                          initialization values.
+			  This now works with multiple cards, so you can
+                          do use_bt865=0,1 if you have two cards and the
+                          second uses a bt865.
+   major               -- set the major number of /dev/em8300* character
+                          device files, or 0 for automatic assignment. Usually
+                          devices use 121, which is officially reserved for
+                          "LOCAL/EXPERIMENTAL USE", since em8300 has not been
+                          assigned any official device number. If you are
+                          already using device major number 121 for some other
+                          device you'll have to change this.
+   alsa_id             -- set the ID string for ALSA audio.
+   alsa_index          -- set the index value for ALSA audio.
+   dsp_num             -- set the /dev/dsp number to assign to the card for OSS
+                          audio. -1 for automatic (this is the default). If
+                          em8300 is being loaded before your sound card module
+                          you can use this to force em8300 to use a more
+                          sensible dsp number.
+   stop_video          -- set to 1 if you want to stop video output instead of
+                          outputting black when there's nothing to display
+
+ bt865:
+   output_mode         -- select the output mode to use:
+     comp+svideo       -- both svideo and composite video output
+                          for use with the provided composite video adapter
+                          or a svideo cable (default)
+     rgb               -- separated rgb
+                          for use with modified boards to get the required 4th
+                            signal, for high quality video
+   color_bars          -- set to 1 to enable color bars
+                          (only used to test the chip)
+
+ adv717x:
+   output_mode         -- select the output mode to use:
+     comp+svideo       -- both svideo and composite video output
+                          for use with the provided composite video adapter
+                          or a svideo cable (default)
+     svideo            -- svideo only
+     comp              -- composite video only
+                          for use with the provided composite video adapter
+     comp+psvideo      -- both svideo with luminance replaced by composite
+                            video and composite
+                          for use either with the provided composite video
+                            adapter, or with ones that use svideo luma as
+                            composite video, or as degraded svideo
+                          (especially useful if you don't know what kind of
+                            cabling you will use)
+     psvideo           -- svideo with luminance replaced by composite video
+                          for use with svideo to video composite adapter that
+                            use svideo luma as composite video, or as degraded
+                            svideo
+     composvideo       -- composite svideo on the luminance pin of the svideo
+                            connector
+                          for use with svideo to composite video adapter that
+                            use svideo luma as composite video
+     yuv               -- separated yuv
+                          for use with special-purpose cables, such as the ones
+                            provided with Sigma Designs' Xcard boards, and with
+                            high-end tv sets or video projectors
+     rgb               -- separated rgb
+                          for use with modified boards to get the required 4th
+                            signal, for high quality video
+     rgbs              -- separated rgb with sync on each signal
+                          might be usable with no hardware modification of the
+                            board, with high-end tv sets or video projectors
+                            that support such signals
+   color_bars          -- set to 1 to enable color bars
+                          (only used to test the chip)
+
+
+If your red and blue colors channels are switched:
+
+ adv717x:
+   pixeldata_adjust_ntsc -- If your red and blue colours are swapped in NTSC,
+                            try setting this to 0,1,2 or 3. Defaults to 1.
+   pixeldata_adjust_pal  -- If your red and blue colours are swapped in PAL,
+                            try setting this to 0,1,2 or 3. Defaults to 1.
+
+
+Greenscreen (tvout only) fixes:
+
+ adv717x:
+   pixelport_16bit     -- use 16bit pixelport control
+   pixelport_other_pal -- use the opposite pixelport control for pal mode
+                          if you only use/care about NTSC or PAL ignore this
+
+ em8300:
+   dicom_fix       -- set register 0x1f5e to 0x1efe instead of 0x1afe
+   dicom_control   -- set dicom control register to 0x9efe instead of 0x9afe
+   dicom_other_pal -- use the opposite fix values for pal mode
+                      if you only use/care about NTSC or PAL ignore this.
+
+Common settings to fix greenscreen:
+
+adv717x pixelport_16bit=1 pixelport_other_pal=1
+em8300  dicom_fix=1 dicom_control=1 dicom_other_pal=1
+
+adv717x pixelport_16bit=0 pixelport_other_pal=0
+em8300  dicom_fix=1 dicom_control=1 dicom_other_pal=0
+
+adv717x pixelport_16bit=0 pixelport_other_pal=1
+em8300  dicom_fix=1 dicom_control=1 dicom_other_pal=1
+
+adv717x pixelport_16bit=1 pixelport_other_pal=0
+em8300  dicom_fix=0 dicom_control=0 dicom_other_pal=0

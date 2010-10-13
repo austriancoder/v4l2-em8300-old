@@ -1,0 +1,2 @@
+# Set appropriate permissions for the em8300 devices.
+SUBSYSTEM=="em8300", GROUP="video", MODE="0660"

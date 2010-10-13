@@ -1,0 +1,10 @@
+#!/bin/sh
+fuser -k /dev/em8300-0
+fuser -k /dev/em8300_mv-0
+fuser -k /dev/em8300_ma-0
+rmmod em8300
+rmmod adv717x
+rmmod bt865
+rmmod i2c-algo-bit
+rmmod i2c-core
+

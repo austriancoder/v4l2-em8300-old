@@ -1,0 +1,113 @@
+Kernel 2.2 & 2.4 Instructions
+-----------------------------
+2.2 users make sure you check the extra instructions further down.
+Non devfs users make sure you check Device Creation
+Devsfs users make sure you check the devfs instructions.
+And finally check for problems in miscellaneous section at end, here
+we will try and collect problems and solutions.
+
+To build the modules for the em8300 driver the headers from the kernel you
+wish to use must be available. If you have built a kernel yourself then
+they are quite often in /usr/src/linux*. If you are using a pre-built
+kernel from your distribution then they may be somewhere slightly
+different. You may also need to install the kernel-headers package
+as it is not always installed by default.
+
+The Makefile has this line at the top of it
+
+KERNEL_LOCATION=/lib/modules/$(shell uname -r)/build
+
+This will detect the headers for the currently running kernel if
+they are installed correctly. If this doesnt work for your setup
+then you will need to change this line to point to the correct
+directory, quite often the following line works.
+
+KERNEL_LOCATION=/usr/src/linux
+
+If you are using a custom built kernel then you must include or
+build as a module I2C Bit Banging interfaces. This is the first
+option on the I2C configuration screen.
+
+the instructions to run after this configuration are
+
+make
+make install (must be run as root, if you are not root use su)
+
+These two stages should procede without error, if you get
+compile errors or errors about symbols not found then the
+KERNEL_LOCATION line is probably incorrect. Any other
+problems let us know on dxr3-devel@lists.sf.net and we'll
+try to help you or improve the instructions.
+
+Kernel 2.2 only extra instructions
+----------------------------------
+If you are building for a 2.2 kernel then you will need
+to build the externel I2C package. This is available from
+http://www2.lm-sensors.nu/~lm78/download.html you want the
+version 2.6.2 or later.
+
+In the Makefile for em8300 modules there is a line
+
+I2C_LOCATION=
+
+Fill this in with the install location of the i2c headers, if
+you left it as default this will become.
+
+I2C_LOCATION=/usr/local/include
+
+Then use the compile method given above.
+
+Device Creation
+---------------
+
+For software to access the h+/dxr3 card it needs device nodes to
+be created in the /dev/ directory. The device nodes can be created
+by issuing the command
+
+make devices
+
+If you have devfs mounted the command will issue an error and not
+touch your /dev folder.
+
+OPTIONAL:
+
+If you wish to do this by hand the following set of commands
+will create the basic set of device nodes.
+
+mknod /dev/em8300-0    c 121 0
+mknod /dev/em8300_mv-0 c 121 1
+mknod /dev/em8300_ma-0 c 121 2
+mknod /dev/em8300_sp-0 c 121 3
+
+You will probably want to set these so that a normal user can
+read/write them
+
+chmod 666 /dev/em8300*
+
+These instructions must be executed as root.
+
+Devfs Instructions
+------------------
+
+For users running devfs (i.e. Mandrake 8.1), cat /proc/filesystems,
+if it mentions devfs you are likely running it:
+You need to tell the devfs daemon (referred to as devfsd) to create symlinks
+to support the old naming scheme. This is handled different on different
+distros, for example debian places it's entries in /etc/devfs/compat_symlinks,
+gentoo places it in /etc/devfs.conf. For your particular distro you will have
+to find out yourself (and please notify us so we can add info on it in this
+doc and maybe one day compile a script to automate the process).
+Anyway, the lines that are supposed to go into this config file are in the
+devfs_symlinks file located in this dir, you will probably figure out how
+it works. If not, don't worry, just add those lines to your devfs config
+and restart devfsd (usually "killall -HUP devfsd") and you'll be just fine.
+
+Miscellaneous
+-------------
+If you get an error message saying "mtrr_reg undeclared" or similar try updating
+your kernel. Old 2.2 and 2.4 kernels seems to have a bug with it's mtrr code
+(whether you use it or not).
+
+If sound is configured in your kernel, the driver will register a /dev/dsp
+device.
+

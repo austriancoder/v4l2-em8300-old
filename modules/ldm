@@ -1,0 +1,13 @@
+#!/bin/sh
+
+modprobe i2c-algo-bit
+
+if uname -r | sed -e 's/^\([[:digit:]]\+\)\.\([[:digit:]]\+\)\.\([[:digit:]]\+\).*/\1 * 65536 + \2 * 256 + \3 >= 2 * 65536 + 5 * 256 + 51/' | xargs expr > /dev/null; then
+    insmod adv717x.ko # pixelport_16bit=1 pixelport_other_pal=0 swap_redblue_pal=0 color_bars=1
+    insmod bt865.ko   # color_bars=1
+    insmod em8300.ko  # use_bt865=0 bt865_ucode_timeout=1 dicom_fix=0 dicom_control=0 dicom_other_pal=0
+else
+    insmod adv717x.o # pixelport_16bit=1 pixelport_other_pal=0 swap_redblue_pal=0 color_bars=1
+    insmod bt865.o   # color_bars=1
+    insmod em8300.o  # use_bt865=0 bt865_ucode_timeout=1 dicom_fix=0 dicom_control=0 dicom_other_pal=0
+fi
