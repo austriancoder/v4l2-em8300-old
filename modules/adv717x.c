@@ -158,10 +158,6 @@ MODULE_PARM_DESC(output_mode, "Specifies the output mode to use for the ADV717x 
 #define ADV7170_REG_PCR3	0x15
 #define ADV7170_REG_TTXRQ_CTRL	0x19
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,26)
-#define adv717x_probe(client, id) adv717x_probe(client)
-#endif
-
 static int adv717x_probe(struct i2c_client *client, const struct i2c_device_id *id);
 static int adv717x_remove(struct i2c_client *client);
 static int adv717x_command(struct i2c_client *client, unsigned int cmd, void *arg);
@@ -207,101 +203,14 @@ static struct i2c_device_id adv717x_idtable[] = {
 MODULE_DEVICE_TABLE(i2c, adv717x_idtable);
 #endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)
-static struct i2c_driver adv717x_driver;
-
-static int adv717x_attach_adapter(struct i2c_adapter *adapter)
-{
-	struct i2c_client *new_client;
-	int reg, result;
-
-	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
-		return 0;
-
-	if (!(new_client = kmalloc(sizeof(struct i2c_client), GFP_KERNEL)))
-		return -ENOMEM;
-
-	memset(new_client, 0, sizeof(struct i2c_client));
-	new_client->addr = 0x6a;
-	new_client->adapter = adapter;
-	new_client->driver = &adv717x_driver;
-
-	for (reg = 0; reg < 0x25; reg++) {
-		result = i2c_smbus_read_byte_data(new_client, reg);
-		if (result < 0)
-			goto cleanup;
-	}
-
-	result = i2c_smbus_read_byte_data(new_client, 0x25);
-	if (result >= 0) {
-		for (reg = 0x26; reg < 0x30; reg++) {
-			result = i2c_smbus_read_byte_data(new_client, reg);
-			if (result < 0)
-				goto cleanup;
-		}
-
-		result = i2c_smbus_read_byte_data(new_client, 0x30);
-		if (result >= 0)
-			goto cleanup;
-	}
-
-	if (adv717x_probe(new_client, NULL))
-		goto cleanup;
-
-	if (i2c_attach_client(new_client)) {
-		adv717x_remove(new_client);
-		goto cleanup;
-	}
-
-	return 0;
-
- cleanup:
-	kfree(new_client);
-	return 0;
-}
-
-static int adv717x_detach_client(struct i2c_client *client)
-{
-	int err;
-
-	if ((err = i2c_detach_client(client))) {
-		printk(KERN_ERR "adv717x.o: Client deregistration failed, client not detached.\n");
-		return err;
-	}
-
-	if ((err = adv717x_remove(client))) {
-		printk(KERN_ERR "adv717x.o: Client removal failed, client not detached.\n");
-		return err;
-	}
-
-	kfree(client);
-	return 0;
-}
-#endif
-
 /* This is the driver that will be inserted */
 static struct i2c_driver adv717x_driver = {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,16)
 	.driver = {
 		.name =		"adv717x",
 	},
-#else
-#if defined(EM8300_I2C_FORCE_NEW_API) || LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,54)
-	.owner =		THIS_MODULE,
-#endif
-	.name =			"adv717x",
-	.flags =		I2C_DF_NOTIFY,
-#endif
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)
-	.attach_adapter =	&adv717x_attach_adapter,
-	.detach_client =	&adv717x_detach_client,
-#else
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
 	.id_table =		adv717x_idtable,
-#endif
 	.probe =		&adv717x_probe,
 	.remove =		&adv717x_remove,
-#endif
 	.command =		&adv717x_command
 };
 
