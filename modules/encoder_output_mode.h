@@ -25,8 +25,6 @@ typedef struct {
 
 static const mode_info_t mode_info[];
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
-
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,36)
 static int param_set_output_mode_t(const char *val, const struct kernel_param *kp)
 #else
@@ -61,5 +59,4 @@ struct kernel_param_ops param_ops_output_mode_t = {
 	.get = param_get_output_mode_t,
 };
 
-#endif
 #endif

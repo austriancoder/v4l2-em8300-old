@@ -250,10 +250,8 @@ struct em8300_s
 	int overlay_70;
 	int overlay_dword_24bb8;
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,4,0)
 	/* Memory exported via mmap() */
 	struct list_head  memory;
-#endif
 
 	/* Checksum for the on-board eeprom */
 	u8 *eeprom_checksum;

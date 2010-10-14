@@ -51,16 +51,6 @@
 #define EM8300_IMINOR(inode) (minor((inode)->i_rdev))
 #endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,14)
-#define kzalloc(size, flags)						\
-({									\
-	void *__ret = kmalloc(size, flags);				\
-	if (__ret)							\
-		memset(__ret, 0, size);					\
-	__ret;								\
-})
-#endif
-
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,24)
 #define pr_warning(fmt, arg...) \
   printk(KERN_WARNING fmt, ##arg)
