@@ -22,7 +22,6 @@
 #include "em8300_registration.h"
 
 #include "em8300_procfs.h"
-#include "em8300_devfs.h"
 #include "em8300_udev.h"
 #include "em8300_sysfs.h"
 #include "em8300_alsa.h"
@@ -30,7 +29,6 @@
 static struct em8300_registrar_s *registrars[] =
 {
 	&em8300_procfs_registrar,
-	&em8300_devfs_registrar,
 	&em8300_udev_registrar,
 	&em8300_sysfs_registrar,
 	&em8300_alsa_registrar,
