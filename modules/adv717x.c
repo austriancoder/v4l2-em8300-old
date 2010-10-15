@@ -194,14 +194,12 @@ struct adv717x_data_s {
 	struct mode_config_s *conf;
 };
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
 static struct i2c_device_id adv717x_idtable[] = {
 	{ "adv717x", 0 },
 	{ }
 };
 
 MODULE_DEVICE_TABLE(i2c, adv717x_idtable);
-#endif
 
 /* This is the driver that will be inserted */
 static struct i2c_driver adv717x_driver = {

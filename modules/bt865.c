@@ -82,10 +82,6 @@ static output_mode_t output_mode_nr[EM8300_MAX] = { [ 0 ... EM8300_MAX-1 ] = MOD
 module_param_array_named(output_mode, output_mode_nr, output_mode_t, NULL, 0444);
 MODULE_PARM_DESC(output_mode, "Specifies the output mode to use for the BT865 video encoder. See the README-modoptions file for the list of mode names to use. Default is SVideo + composite (\"comp+svideo\").");
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,26)
-#define bt865_probe(client, id) bt865_probe(client)
-#endif
-
 static int bt865_probe(struct i2c_client *client, const struct i2c_device_id *id);
 static int bt865_remove(struct i2c_client *client);
 static int bt865_command(struct i2c_client *client, unsigned int cmd, void *arg);
@@ -107,97 +103,21 @@ struct bt865_data_s {
 	int configlen;
 };
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
 static struct i2c_device_id bt865_idtable[] = {
 	{ "bt865", 0 },
 	{ }
 };
 
 MODULE_DEVICE_TABLE(i2c, bt865_idtable);
-#endif
-
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)
-static struct i2c_driver bt865_driver;
-
-static int bt865_attach_adapter(struct i2c_adapter *adapter)
-{
-	struct i2c_client *new_client;
-	int result;
-
-	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_READ_BYTE | I2C_FUNC_SMBUS_WRITE_BYTE_DATA))
-		return 0;
-
-	if (!(new_client = kmalloc(sizeof(struct i2c_client), GFP_KERNEL)))
-		return -ENOMEM;
-
-	memset(new_client, 0, sizeof(struct i2c_client));
-	new_client->addr = 0x45;
-	new_client->adapter = adapter;
-	new_client->driver = &bt865_driver;
-
-	result = i2c_smbus_read_byte(new_client);
-	if (result < 0)
-		goto cleanup;
-	if ((result & 0xe0) != 0xa0)
-		goto cleanup;
-
-	if (bt865_probe(new_client, NULL))
-		goto cleanup;
-
-	if (i2c_attach_client(new_client)) {
-		bt865_remove(new_client);
-		goto cleanup;
-	}
-
-	return 0;
-
- cleanup:
-	kfree(new_client);
-	return 0;
-}
-
-static int bt865_detach_client(struct i2c_client *client)
-{
-	int err;
-
-	if ((err = i2c_detach_client(client))) {
-		printk(KERN_ERR "bt865.o: Client deregistration failed, client not detached.\n");
-		return err;
-	}
-
-	if ((err = bt865_remove(client))) {
-		printk(KERN_ERR "bt865.o: Client removal failed, client not detached.\n");
-		return err;
-	}
-
-	kfree(client);
-	return 0;
-}
-#endif
 
 /* This is the driver that will be inserted */
 static struct i2c_driver bt865_driver = {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,16)
 	.driver = {
 		.name =		"bt865",
 	},
-#else
-#if defined(EM8300_I2C_FORCE_NEW_API) || LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,54)
-	.owner =		THIS_MODULE,
-#endif
-	.name =			"bt865",
-	.flags =		I2C_DF_NOTIFY,
-#endif
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)
-	.attach_adapter =	&bt865_attach_adapter,
-	.detach_client =	&bt865_detach_client,
-#else
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
 	.id_table =		bt865_idtable,
-#endif
 	.probe =		&bt865_probe,
 	.remove =		&bt865_remove,
-#endif
 	.command =		&bt865_command
 };
 
