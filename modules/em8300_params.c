@@ -78,11 +78,7 @@ audio_driver_t audio_driver_nr[EM8300_MAX] = { [0 ... EM8300_MAX-1] = AUDIO_DRIV
 audio_driver_t audio_driver_nr[EM8300_MAX] = { [0 ... EM8300_MAX-1] = AUDIO_DRIVER_OSSLIKE };
 #endif
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,36)
 static int param_set_audio_driver_t(const char *val, const struct kernel_param *kp)
-#else
-static int param_set_audio_driver_t(const char *val, struct kernel_param *kp)
-#endif
 {
 	pr_warning("em8300: %s: deprecated module parameter: all audio interfaces are now enabled\n", kp->name);
 	if (val) {
@@ -98,21 +94,16 @@ static int param_set_audio_driver_t(const char *val, struct kernel_param *kp)
 	return -EINVAL;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,36)
 static int param_get_audio_driver_t(char *buffer, const struct kernel_param *kp)
-#else
-static int param_get_audio_driver_t(char *buffer, struct kernel_param *kp)
-#endif
 {
 	return sprintf(buffer, "%s", audio_driver_name[*(audio_driver_t *)kp->arg]);
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,36)
 struct kernel_param_ops param_ops_audio_driver_t = {
 	.set = param_set_audio_driver_t,
 	.get = param_get_audio_driver_t,
 };
-#endif
+
 
 module_param_array_named(audio_driver, audio_driver_nr, audio_driver_t, NULL, 0444);
 MODULE_PARM_DESC(audio_driver, "[DEPRECATED] The audio driver to use (none, osslike, oss, or alsa).");

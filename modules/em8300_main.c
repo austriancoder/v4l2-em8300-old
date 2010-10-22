@@ -48,10 +48,7 @@
 #include <asm/uaccess.h>
 #include <linux/i2c.h>
 #include <linux/i2c-algo-bit.h>
-
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,36)
 #include <linux/smp_lock.h>
-#endif
 
 #include "em8300_compat24.h"
 #include "encoder.h"
@@ -112,11 +109,7 @@ static struct pci_device_id em8300_ids[] = {
 
 MODULE_DEVICE_TABLE(pci, em8300_ids);
 
-static irqreturn_t em8300_irq(int irq, void *dev_id
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,19)
-			      , struct pt_regs *regs
-#endif
-			      )
+static irqreturn_t em8300_irq(int irq, void *dev_id)
 {
 	struct em8300_s *em = (struct em8300_s *) dev_id;
 	int irqstatus;
@@ -195,7 +188,6 @@ static void release_em8300(struct em8300_s *em)
 	kfree(em);
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,36)
 static long em8300_io_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
 	struct em8300_s *em = filp->private_data;
@@ -218,28 +210,7 @@ static long em8300_io_ioctl(struct file *filp, unsigned int cmd, unsigned long a
 	unlock_kernel();
 
 	return ret;
-
 }
-#else
-static int em8300_io_ioctl(struct inode *inode, struct file *filp, unsigned int cmd, unsigned long arg)
-{
-	struct em8300_s *em = filp->private_data;
-	int subdevice = EM8300_IMINOR(inode) % 4;
-
-	switch (subdevice) {
-	case EM8300_SUBDEVICE_AUDIO:
-		return em8300_audio_ioctl(em, cmd, arg);
-	case EM8300_SUBDEVICE_VIDEO:
-		return em8300_video_ioctl(em, cmd, arg);
-	case EM8300_SUBDEVICE_SUBPICTURE:
-		return em8300_spu_ioctl(em, cmd, arg);
-	case EM8300_SUBDEVICE_CONTROL:
-		return em8300_control_ioctl(em, cmd, arg);
-	}
-
-	return -EINVAL;
-}
-#endif
 
 static int em8300_io_open(struct inode *inode, struct file *filp)
 {
@@ -495,11 +466,7 @@ int em8300_io_release(struct inode *inode, struct file *filp)
 struct file_operations em8300_fops = {
 	.owner = THIS_MODULE,
 	.write = em8300_io_write,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,36)
 	.unlocked_ioctl = em8300_io_ioctl,
-#else
-	.ioctl = em8300_io_ioctl,
-#endif
 	.mmap = em8300_io_mmap,
 	.poll = em8300_poll,
 	.open = em8300_io_open,
@@ -510,7 +477,6 @@ struct file_operations em8300_fops = {
 };
 
 #if defined(CONFIG_SOUND) || defined(CONFIG_SOUND_MODULE)
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,36)
 static long em8300_dsp_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
 	struct em8300_s *em = filp->private_data;
@@ -522,13 +488,6 @@ static long em8300_dsp_ioctl(struct file *filp, unsigned int cmd, unsigned long 
 	
 	return ret;
 }
-#else
-static int em8300_dsp_ioctl(struct inode *inode, struct file *filp, unsigned int cmd, unsigned long arg)
-{
-	struct em8300_s *em = filp->private_data;
-	return em8300_audio_ioctl(em, cmd, arg);
-}
-#endif
 
 static int em8300_dsp_open(struct inode *inode, struct file *filp)
 {
@@ -612,11 +571,7 @@ int em8300_dsp_release(struct inode *inode, struct file *filp)
 static struct file_operations em8300_dsp_audio_fops = {
 	.owner = THIS_MODULE,
 	.write = em8300_dsp_write,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,36)
 	.unlocked_ioctl = em8300_dsp_ioctl,
-#else
-	.ioctl = em8300_dsp_ioctl,
-#endif
 	.poll = em8300_dsp_poll,
 	.open = em8300_dsp_open,
 	.release = em8300_dsp_release,

@@ -23,15 +23,6 @@
 #ifndef _EM8300_COMPAT24_H_
 #define _EM8300_COMPAT24_H_
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,18)
-#ifndef IRQF_DISABLED
-#define IRQF_DISABLED SA_INTERRUPT
-#endif
-#ifndef IRQF_SHARED
-#define IRQF_SHARED SA_SHIRQ
-#endif
-#endif
-
 #if !defined(MODULE_LICENSE)
 #define MODULE_LICENSE(_license)
 #endif
@@ -49,11 +40,6 @@
 #define EM8300_IMINOR(inode) (MINOR((inode)->i_rdev))
 #else
 #define EM8300_IMINOR(inode) (minor((inode)->i_rdev))
-#endif
-
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,24)
-#define pr_warning(fmt, arg...) \
-  printk(KERN_WARNING fmt, ##arg)
 #endif
 
 #ifdef _LINUX_WAIT_H

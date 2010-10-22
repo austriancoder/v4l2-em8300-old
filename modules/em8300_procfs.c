@@ -154,9 +154,6 @@ static void em8300_procfs_register_card(struct em8300_s *em)
 		if (proc) {
 			proc->data = (void *) em;
 			proc->read_proc = em8300_proc_read;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,30)
-			proc->owner = THIS_MODULE;
-#endif
 		}
 	}
 }
@@ -184,10 +181,6 @@ static void em8300_procfs_register_driver(void)
 					NULL);
 	if (!em8300_proc)
 		printk(KERN_ERR "em8300: unable to register proc entry!\n");
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,30)
-	else
-		em8300_proc->owner = THIS_MODULE;
-#endif
 }
 
 struct em8300_registrar_s em8300_procfs_registrar =

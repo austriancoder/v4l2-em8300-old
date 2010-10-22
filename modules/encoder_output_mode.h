@@ -25,11 +25,7 @@ typedef struct {
 
 static const mode_info_t mode_info[];
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,36)
 static int param_set_output_mode_t(const char *val, const struct kernel_param *kp)
-#else
-static int param_set_output_mode_t(const char *val, struct kernel_param *kp)
-#endif
 {
 	if (val) {
 		int i;
@@ -44,19 +40,12 @@ static int param_set_output_mode_t(const char *val, struct kernel_param *kp)
 	return -EINVAL;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,36)
 static int param_get_output_mode_t(char *buffer, const struct kernel_param *kp)
-#else
-static int param_get_output_mode_t(char *buffer, struct kernel_param *kp)
-#endif
 {
 	return sprintf(buffer, "%s", mode_info[*(output_mode_t *)kp->arg].name);
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,36)
 struct kernel_param_ops param_ops_output_mode_t = {
 	.set = param_set_output_mode_t,
 	.get = param_get_output_mode_t,
 };
-
-#endif

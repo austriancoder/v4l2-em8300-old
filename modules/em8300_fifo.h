@@ -23,11 +23,7 @@
 #ifndef EM8300_FIFO_H
 #define EM8300_FIFO_H
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,27)
 #include <linux/semaphore.h>
-#else
-#include <asm/semaphore.h>
-#endif
 
 #define FIFOTYPE_AUDIO 1
 #define FIFOTYPE_VIDEO 2

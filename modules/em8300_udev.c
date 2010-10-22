@@ -26,29 +26,6 @@
 #include <linux/pci.h>
 #include <linux/kdev_t.h>
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,13)
-#define class class_simple
-#define class_create class_simple_create
-#define class_destroy class_simple_destroy
-#define device_create(cls, parent, devt, drvdata, fmt, args...) \
-	class_simple_device_add(cls, devt, parent, fmt, ## args)
-#define device_destroy(cls, devt) \
-	class_simple_device_remove(devt)
-#elif LINUX_VERSION_CODE < KERNEL_VERSION(2,6,15)
-#define device_create(cls, parent, devt, drvdata, fmt, args...) \
-	class_device_create(cls, devt, parent, fmt, ## args)
-#define device_destroy(cls, devt) \
-	class_device_destroy(cls, devt)
-#elif LINUX_VERSION_CODE < KERNEL_VERSION(2,6,18)
-#define device_create(cls, parent, devt, drvdata, fmt, args...) \
-	class_device_create(cls, NULL, devt, parent, fmt, ## args)
-#define device_destroy(cls, devt) \
-	class_device_destroy(cls, devt)
-#elif LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-#define device_create(cls, parent, devt, drvdata, fmt, args...) \
-	device_create(cls, parent, devt, fmt, ## args)
-#endif
-
 #include "em8300_params.h"
 
 struct class *em8300_class;

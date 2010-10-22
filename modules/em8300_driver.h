@@ -43,19 +43,10 @@ extern int major;
 #include <linux/time.h> /* struct timeval */
 #include <linux/wait.h> /* wait_queue_head_t */
 #include <linux/list.h> /* struct list_head */
-
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,34)
 #include <linux/semaphore.h> /* struct semaphore */
-#endif
 
 #if defined(CONFIG_SND) || defined(CONFIG_SND_MODULE)
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,16)
 #define snd_card_t struct snd_card
-#else
-#include <sound/driver.h>
-#include <sound/core.h>
-#include <sound/pcm.h>
-#endif
 #endif
 
 struct dicom_s {
@@ -265,9 +256,7 @@ struct em8300_s
 };
 
 #if defined(CONFIG_SND) || defined(CONFIG_SND_MODULE)
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,16)
 #undef snd_card_t
-#endif
 #endif
 
 #define TIMEDIFF(a,b) a.tv_usec - b.tv_usec + \

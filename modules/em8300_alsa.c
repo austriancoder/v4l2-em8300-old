@@ -22,9 +22,6 @@
 
 #if defined(CONFIG_SND) || defined(CONFIG_SND_MODULE)
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,25)
-#include <sound/driver.h>
-#endif
 #include <sound/core.h>
 #include <sound/pcm.h>
 #include <sound/control.h>
@@ -32,17 +29,12 @@
 #include <linux/pci.h>
 #include <linux/stringify.h>
 #include <linux/version.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,27)
 #include <linux/semaphore.h>
-#else
-#include <asm/semaphore.h>
-#endif
 
 #include "em8300_reg.h"
 
 #include "em8300_params.h"
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,16)
 #define snd_card_t struct snd_card
 #define snd_pcm_t struct snd_pcm
 #define snd_pcm_substream_t struct snd_pcm_substream
@@ -52,15 +44,6 @@
 #define snd_pcm_ops_t struct snd_pcm_ops
 #define snd_device_t struct snd_device
 #define snd_device_ops_t struct snd_device_ops
-#endif
-
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,30)
-#define snd_card_create(idx, xid, module, extra_size, card_ret)		\
-({									\
-	*(card_ret) = snd_card_new(idx, xid, module, extra_size);	\
-	*(card_ret) == NULL?-1:0;					\
-})
-#endif
 
 typedef struct snd_em8300_pcm_indirect {
 	unsigned int hw_buffer_size;    /* Byte size of hardware buffer */

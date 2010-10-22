@@ -24,24 +24,8 @@
 #include <linux/i2c.h>
 #include <linux/crypto.h>
 #include <linux/slab.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,10)
 #include <linux/scatterlist.h>
-#else
-#include <asm/scatterlist.h>
-
-static inline void sg_init_one(struct scatterlist *sg, void *buf,
-			       unsigned int buflen)
-{
-	memset(sg, 0, sizeof(*sg));
-
-	sg->page = virt_to_page(buf);
-	sg->offset = ((long)buf & ~PAGE_MASK);
-	sg->length = 128;
-}
-#endif
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,19)
 #include <linux/err.h>
-#endif
 
 #if !defined(CONFIG_CRYPTO_MD5) && !defined(CONFIG_CRYPTO_MD5_MODULE)
 #warning CONFIG_CRYPTO_MD5 is missing.
@@ -91,7 +75,6 @@ int em8300_eeprom_checksum_init(struct em8300_s *em)
 		goto cleanup1;
 	}
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,19)
 	{
 		struct crypto_hash *tfm;
 		struct hash_desc desc;
@@ -114,24 +97,6 @@ int em8300_eeprom_checksum_init(struct em8300_s *em)
 		if (err != 0)
 			goto cleanup2;
 	}
-#else
-	{
-		struct crypto_tfm *tfm;
-		struct scatterlist tmp;
-
-		tfm = crypto_alloc_tfm("md5", 0);
-		if (tfm == NULL) {
-			err = -5;
-			goto cleanup2;
-		}
-
-		sg_init_one(&tmp, buf, 128);
-
-		crypto_digest_digest(tfm, &tmp, 1, em->eeprom_checksum);
-
-		crypto_free_tfm(tfm);
-	}
-#endif
 
 	kfree(buf);
 

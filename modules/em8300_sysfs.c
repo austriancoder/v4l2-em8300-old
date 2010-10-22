@@ -44,9 +44,7 @@ static ssize_t show_version(struct device_driver *dd, char *buf)
 static DRIVER_ATTR(version, S_IRUGO, show_version, NULL);
 
 static ssize_t show_model(struct device *dev,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,13)
 			  struct device_attribute *attr,
-#endif
 			  char  *buf)
 {
 	struct em8300_s *em = dev_get_drvdata(dev);
@@ -261,9 +259,7 @@ static ssize_t show_model(struct device *dev,
 static DEVICE_ATTR(model, S_IRUGO, show_model, NULL);
 
 static ssize_t show_zoom(struct device *dev,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,13)
 			 struct device_attribute *attr,
-#endif
 			 char  *buf)
 {
 	struct em8300_s *em = dev_get_drvdata(dev);
@@ -271,9 +267,7 @@ static ssize_t show_zoom(struct device *dev,
 }
 
 static ssize_t store_zoom(struct device *dev,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,13)
 			  struct device_attribute *attr,
-#endif
 			  const char  *buf,
 			  size_t count)
 {
