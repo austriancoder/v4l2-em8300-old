@@ -34,13 +34,12 @@
 #include <linux/version.h>
 #include <linux/string.h>
 #include <linux/pci.h>
-#include <asm/io.h>
-#include <asm/uaccess.h>
+#include <linux/io.h>
+#include <linux/uaccess.h>
 
 #include <linux/i2c.h>
 #include <linux/i2c-algo-bit.h>
 
-#include "em8300_compat24.h"
 #include "em8300_reg.h"
 #include "em8300_models.h"
 #include <linux/em8300.h>
@@ -53,9 +52,9 @@
 
 #define I2C_HW_B_EM8300 0xa
 
-struct private_data_s {
-	int clk;
-	int data;
+struct i2c_bus_s {
+	int clock_pio;
+	int data_pio;
 	struct em8300_s *em;
 };
 
@@ -67,38 +66,38 @@ struct private_data_s {
 
 static void em8300_setscl(void *data, int state)
 {
-	struct private_data_s *p = (struct private_data_s *) data;
-	struct em8300_s *em = p->em;
-	int sel = p->clk << 8;
+	struct i2c_bus_s *bus = (struct i2c_bus_s *) data;
+	struct em8300_s *em = bus->em;
+	int sel = bus->clock_pio << 8;
 
-	write_register(em->i2c_oe_reg, (sel | p->clk));
-	write_register(em->i2c_pin_reg, sel | (state ? p->clk : 0));
+	write_register(em->i2c_oe_reg, (sel | bus->clock_pio));
+	write_register(em->i2c_pin_reg, sel | (state ? bus->clock_pio : 0));
 }
 
 static void em8300_setsda(void *data, int state)
 {
-	struct private_data_s *p = (struct private_data_s *) data;
-	struct em8300_s *em = p->em;
-	int sel = p->data << 8;
+	struct i2c_bus_s *bus = (struct i2c_bus_s *) data;
+	struct em8300_s *em = bus->em;
+	int sel = bus->data_pio << 8;
 
-	write_register(em->i2c_oe_reg, (sel | p->data));
-	write_register(em->i2c_pin_reg, sel | (state ? p->data : 0));
+	write_register(em->i2c_oe_reg, (sel | bus->data_pio));
+	write_register(em->i2c_pin_reg, sel | (state ? bus->data_pio : 0));
 }
 
 static int em8300_getscl(void *data)
 {
-	struct private_data_s *p = (struct private_data_s *)data;
-	struct em8300_s *em = p->em;
+	struct i2c_bus_s *bus = (struct i2c_bus_s *)data;
+	struct em8300_s *em = bus->em;
 
-	return read_register(em->i2c_pin_reg) & (p->clk << 8);
+	return read_register(em->i2c_pin_reg) & (bus->clock_pio << 8);
 }
 
 static int em8300_getsda(void *data)
 {
-	struct private_data_s *p = (struct private_data_s *)data;
-	struct em8300_s *em = p->em;
+	struct i2c_bus_s *bus = (struct i2c_bus_s *)data;
+	struct em8300_s *em = bus->em;
 
-	return read_register(em->i2c_pin_reg) & (p->data << 8);
+	return read_register(em->i2c_pin_reg) & (bus->data_pio << 8);
 }
 
 /* template for i2c_algo_bit */
@@ -209,7 +208,7 @@ static const struct i2c_adapter em8300_i2c_adap_template = {
 int em8300_i2c_init1(struct em8300_s *em)
 {
 	int ret, i;
-	struct private_data_s *pdata;
+	struct i2c_bus_s *pdata;
 
 	//request_module("i2c-algo-bit");
 
@@ -240,16 +239,16 @@ int em8300_i2c_init1(struct em8300_s *em)
 	em->i2c_algo[0] = em8300_i2c_algo_template;
 	em->i2c_algo[1] = em8300_i2c_algo_template;
 
-	pdata = kmalloc(sizeof(struct private_data_s), GFP_KERNEL);
-	pdata->clk = 0x10;
-	pdata->data = 0x8;
+	pdata = kmalloc(sizeof(struct i2c_bus_s), GFP_KERNEL);
+	pdata->clock_pio = 0x10;
+	pdata->data_pio = 0x8;
 	pdata->em = em;
 
 	em->i2c_algo[0].data = pdata;
 
-	pdata = kmalloc(sizeof(struct private_data_s), GFP_KERNEL);
-	pdata->clk = 0x4;
-	pdata->data = 0x8;
+	pdata = kmalloc(sizeof(struct i2c_bus_s), GFP_KERNEL);
+	pdata->clock_pio = 0x4;
+	pdata->data_pio = 0x8;
 	pdata->em = em;
 
 	em->i2c_algo[1].data = pdata;
