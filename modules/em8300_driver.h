@@ -151,6 +151,7 @@ struct em8300_s
 	int i2c_oe_reg;
 	struct i2c_adapter i2c_adap[2];
 	struct i2c_algo_bit_data i2c_algo[2];
+	struct i2c_client i2c_client;
 	
 	/* different between revision 1 and revision 2 boards */
 	int mystery_divisor;

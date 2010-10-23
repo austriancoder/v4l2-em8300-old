@@ -50,8 +50,6 @@
 #include "encoder.h"
 #include <linux/sysfs.h>
 
-#define I2C_HW_B_EM8300 0xa
-
 struct i2c_bus_s {
 	int clock_pio;
 	int data_pio;
@@ -285,6 +283,21 @@ int em8300_i2c_init1(struct em8300_s *em)
 	return 0;
 }
 
+static void do_i2c_scan(char *name, struct i2c_client *c)
+{
+	unsigned char buf;
+	int i, rc;
+
+	for (i = 0; i < 128; i++) {
+		c->addr = i;
+		rc = i2c_master_recv(c, &buf, 0);
+		if (rc < 0)
+			continue;
+		printk("%s: i2c scan: found device @ 0x%x  [%s]\n",
+		       name, i << 1, "???");
+	}
+}
+
 int em8300_i2c_init2(struct em8300_s *em)
 {
 	int i, ret;
@@ -293,6 +306,10 @@ int em8300_i2c_init2(struct em8300_s *em)
 	ret = i2c_bit_add_bus(&em->i2c_adap[0]);
 	if (ret)
 		return ret;;
+
+	em->i2c_client.adapter = &em->i2c_adap[0];
+	strlcpy(em->i2c_client.name, "em8300 internal", I2C_NAME_SIZE);
+	do_i2c_scan("i2c bus 0", &em->i2c_client);
 
 	if (known_models[em->model].module.name != NULL)
 		request_module(known_models[em->model].module.name);
