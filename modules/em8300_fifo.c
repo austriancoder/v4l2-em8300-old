@@ -116,7 +116,7 @@ int em8300_fifo_init(struct em8300_s *em, struct fifo_s *f, int start, int wrptr
 		}
 	}
 
-	init_MUTEX(&f->lock);
+	sema_init(&f->lock, 1);
 	f->valid = 1;
 
 	return 0;

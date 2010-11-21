@@ -470,7 +470,7 @@ static int snd_em8300_create(snd_card_t *card, struct em8300_s *em, em8300_alsa_
 
 	memset(em8300_alsa, 0, sizeof(em8300_alsa_t));
 
-	init_MUTEX(&em8300_alsa->lock);
+	sema_init(&em8300_alsa->lock, 1);
 
 	em8300_alsa->em = em;
 	em8300_alsa->card = card;
