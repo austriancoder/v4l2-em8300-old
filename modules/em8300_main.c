@@ -101,7 +101,7 @@ struct memory_info {
 	char *ptr;
 };
 
-static struct pci_device_id em8300_ids[] = {
+static DEFINE_PCI_DEVICE_TABLE(em8300_ids) = {
 	{ PCI_VENDOR_ID_SIGMADESIGNS, PCI_DEVICE_ID_SIGMADESIGNS_EM8300,
 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
 	{ 0 }
@@ -463,7 +463,7 @@ int em8300_io_release(struct inode *inode, struct file *filp)
 	return 0;
 }
 
-struct file_operations em8300_fops = {
+const struct file_operations em8300_fops = {
 	.owner = THIS_MODULE,
 	.write = em8300_io_write,
 	.unlocked_ioctl = em8300_io_ioctl,
