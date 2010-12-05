@@ -196,7 +196,7 @@ static long em8300_io_ioctl(struct file *filp, unsigned int cmd, unsigned long a
 	int subdevice = EM8300_IMINOR(inode) % 4;
 	long ret;
 
-	lock_kernel();
+	mutex_lock(&em->ioctl_mutex);
 	switch (subdevice) {
 	case EM8300_SUBDEVICE_AUDIO:
 		ret = em8300_audio_ioctl(em, cmd, arg);
@@ -207,7 +207,7 @@ static long em8300_io_ioctl(struct file *filp, unsigned int cmd, unsigned long a
 	case EM8300_SUBDEVICE_CONTROL:
 		ret = em8300_control_ioctl(em, cmd, arg);
 	}
-	unlock_kernel();
+	mutex_unlock(&em->ioctl_mutex);
 
 	return ret;
 }
@@ -482,9 +482,9 @@ static long em8300_dsp_ioctl(struct file *filp, unsigned int cmd, unsigned long 
 	struct em8300_s *em = filp->private_data;
 	long ret;
 
-	lock_kernel();
+	mutex_lock(&em->ioctl_mutex);
 	ret = em8300_audio_ioctl(em, cmd, arg);
-	unlock_kernel();
+	mutex_unlock(&em->ioctl_mutex);
 	
 	return ret;
 }

@@ -44,6 +44,7 @@ extern int major;
 #include <linux/wait.h> /* wait_queue_head_t */
 #include <linux/list.h> /* struct list_head */
 #include <linux/semaphore.h> /* struct semaphore */
+#include <linux/mutex.h>
 
 #if defined(CONFIG_SND) || defined(CONFIG_SND_MODULE)
 #define snd_card_t struct snd_card
@@ -125,6 +126,7 @@ struct em8300_s
 	volatile unsigned *mem;
 	ulong memsize;
 	
+	struct mutex ioctl_mutex;
 	int playmode;
 
 #if defined(CONFIG_SND) || defined(CONFIG_SND_MODULE)
