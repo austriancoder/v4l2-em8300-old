@@ -36,8 +36,8 @@
 #include <linux/version.h>
 #include <linux/string.h>
 #include <linux/pci.h>
-#include <asm/io.h>
-#include <asm/uaccess.h>
+#include <linux/io.h>
+#include <linux/uaccess.h>
 
 #include <linux/i2c.h>
 #include <linux/i2c-algo-bit.h>

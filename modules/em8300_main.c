@@ -36,7 +36,7 @@
 #include <linux/string.h>
 #include <linux/time.h>
 #include <linux/poll.h>
-#include <asm/io.h>
+#include <linux/io.h>
 #include <asm/pgtable.h>
 #include <asm/page.h>
 #include <linux/sched.h>
@@ -45,7 +45,7 @@
 #endif
 
 #include <linux/interrupt.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 #include <linux/i2c.h>
 #include <linux/i2c-algo-bit.h>
 #include <linux/smp_lock.h>
@@ -185,6 +185,7 @@ static void release_em8300(struct em8300_s *em)
 	if (em->mem)
 		iounmap((unsigned *) em->mem);
 
+	v4l2_device_unregister(&em->v4l2_dev);
 	kfree(em);
 }
 
@@ -568,7 +569,7 @@ int em8300_dsp_release(struct inode *inode, struct file *filp)
 	return 0;
 }
 
-static struct file_operations em8300_dsp_audio_fops = {
+static const struct file_operations em8300_dsp_audio_fops = {
 	.owner = THIS_MODULE,
 	.write = em8300_dsp_write,
 	.unlocked_ioctl = em8300_dsp_ioctl,
@@ -724,6 +725,14 @@ static int __devinit em8300_probe(struct pci_dev *dev,
 	em->pci_dev = dev;
 	em->instance = em8300_cards;
 
+	result = v4l2_device_register(&dev->dev, &em->v4l2_dev);
+	if (result) {
+		printk(KERN_ERR "em8300: v4l2_device_register of card %d failed"
+				"\n", em->instance);
+		kfree(em);
+		return result;
+	}
+
 	pci_set_drvdata(dev, em);
 	result = em8300_pci_setup(dev);
 	if (result != 0) {
@@ -848,6 +857,7 @@ irq_error:
 	iounmap(em->mem);
 
 mem_free:
+	v4l2_device_unregister(&em->v4l2_dev);
 	kfree(em);
 	return result;
 }

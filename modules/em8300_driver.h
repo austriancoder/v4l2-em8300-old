@@ -45,6 +45,7 @@ extern int major;
 #include <linux/list.h> /* struct list_head */
 #include <linux/semaphore.h> /* struct semaphore */
 #include <linux/mutex.h>
+#include <media/v4l2-device.h>
 
 #if defined(CONFIG_SND) || defined(CONFIG_SND_MODULE)
 #define snd_card_t struct snd_card
@@ -122,6 +123,7 @@ struct em8300_s
 	int ucodeloaded;
 	
 	struct pci_dev *pci_dev;
+	struct v4l2_device v4l2_dev;
 	ulong adr;
 	volatile unsigned *mem;
 	ulong memsize;
