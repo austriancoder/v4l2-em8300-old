@@ -204,13 +204,8 @@ struct em8300_s
 	uint32_t video_lastpts;
 	int video_ptsvalid,video_offset,video_count;
 	int video_ptsfifo_ptr;
-#if LINUX_VERSION_CODE < 0x020314    
-	struct wait_queue *video_ptsfifo_wait;
-	struct wait_queue *vbi_wait;
-#else
 	wait_queue_head_t video_ptsfifo_wait;
 	wait_queue_head_t vbi_wait;
-#endif
 	int video_ptsfifo_waiting;
 	int video_first;
 	int var_video_value;
@@ -218,11 +213,7 @@ struct em8300_s
 	/* Sub Picture */
 	int sp_pts, sp_ptsvalid, sp_count;
 	int sp_ptsfifo_ptr;
-#if LINUX_VERSION_CODE < 0x020314    
-	struct wait_queue *sp_ptsfifo_wait;
-#else
 	wait_queue_head_t sp_ptsfifo_wait;
-#endif
 	int sp_ptsfifo_waiting;
 	int sp_mode;
 	
