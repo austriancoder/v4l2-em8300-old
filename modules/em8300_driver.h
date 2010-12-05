@@ -113,8 +113,6 @@ struct em8300_config_s {
 
 struct em8300_s
 {
-	char name[40];
-	
 	int chip_revision;
 	int pci_revision;
 	

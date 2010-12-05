@@ -824,7 +824,9 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 	em->audio_driver_style = NONE;
 	sema_init(&em->audio_driver_style_lock, 1);
 
-	result = request_irq(pci_dev->irq, em8300_irq, IRQF_SHARED | IRQF_DISABLED, "em8300", (void *) em);
+	result = request_irq(pci_dev->irq, em8300_irq,
+						IRQF_SHARED | IRQF_DISABLED,
+						em->v4l2_dev.name, (void *)em);
 
 	if (result == -EINVAL) {
 		printk(KERN_ERR "em8300-%d: Bad irq number or handler\n", em->instance);
