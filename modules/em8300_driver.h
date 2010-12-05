@@ -246,7 +246,7 @@ struct em8300_s
 	struct em8300_config_s config;
 
 	/* To support different options for different cards */
-	unsigned int card_nr;
+	unsigned int instance;
 };
 
 #if defined(CONFIG_SND) || defined(CONFIG_SND_MODULE)

@@ -147,7 +147,7 @@ static void em8300_procfs_register_card(struct em8300_s *em)
 	char devname[64];
 	if (em8300_proc) {
 		struct proc_dir_entry *proc;
-		sprintf(devname, "%d", em->card_nr);
+		sprintf(devname, "%d", em->instance);
 		proc = create_proc_entry(devname,
 					 S_IFREG | S_IRUGO,
 					 em8300_proc);
@@ -162,7 +162,7 @@ static void em8300_procfs_unregister_card(struct em8300_s *em)
 {
 	char devname[64];
 	if (em8300_proc) {
-		sprintf(devname, "%d", em->card_nr);
+		sprintf(devname, "%d", em->instance);
 		remove_proc_entry(devname, em8300_proc);
 	}
 }

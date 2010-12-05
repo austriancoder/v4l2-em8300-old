@@ -120,7 +120,7 @@ static int snd_em8300_playback_open(snd_pcm_substream_t *substream)
 	down(&em8300_alsa->lock);
 	if (em8300_alsa->substream) {
 		up(&em8300_alsa->lock);
-		printk("em8300-%d: snd_em8300_playback_open: em->audio_driver_style == NONE but em8300_alsa->substream is not NULL !?\n", em->card_nr);
+		printk("em8300-%d: snd_em8300_playback_open: em->audio_driver_style == NONE but em8300_alsa->substream is not NULL !?\n", em->instance);
 		em->audio_driver_style = NONE;
 		return -EBUSY;
 	}
@@ -133,7 +133,7 @@ static int snd_em8300_playback_open(snd_pcm_substream_t *substream)
 		snd_em8300_playback_hw.formats = SNDRV_PCM_FMTBIT_IEC958_SUBFRAME_BE;
 	runtime->hw = snd_em8300_playback_hw;
 
-//	printk("em8300-%d: snd_em8300_playback_open called.\n", em->card_nr);
+//	printk("em8300-%d: snd_em8300_playback_open called.\n", em->instance);
 
 	em->clockgen &= ~CLOCKGEN_OUTMASK;
 	if (substream->pcm->device == EM8300_ALSA_ANALOG_DEVICENUM)
@@ -160,19 +160,19 @@ static int snd_em8300_playback_close(snd_pcm_substream_t *substream)
 
 	em8300_alsa->substream = NULL;
 	em->audio_driver_style = NONE;
-//	printk("em8300-%d: snd_em8300_playback_close called.\n", em->card_nr);
+//	printk("em8300-%d: snd_em8300_playback_close called.\n", em->instance);
 	return 0;
 }
 
 static int snd_em8300_pcm_hw_params(snd_pcm_substream_t *substream, snd_pcm_hw_params_t *hw_params)
 {
-//	printk("em8300-%d: snd_em8300_pcm_hw_params called.\n", em->card_nr);
+//	printk("em8300-%d: snd_em8300_pcm_hw_params called.\n", em->instance);
 	return snd_pcm_lib_malloc_pages(substream, params_buffer_bytes(hw_params));
 }
 
 static int snd_em8300_pcm_hw_free(snd_pcm_substream_t *substream)
 {
-//	printk("em8300-%d: snd_em8300_pcm_hw_free called.\n", em->card_nr);
+//	printk("em8300-%d: snd_em8300_pcm_hw_free called.\n", em->instance);
 	return snd_pcm_lib_free_pages(substream);
 }
 
@@ -181,24 +181,24 @@ static int snd_em8300_pcm_prepare(snd_pcm_substream_t *substream)
 	em8300_alsa_t *em8300_alsa = snd_pcm_substream_chip(substream);
 	struct em8300_s *em = em8300_alsa->em;
 	snd_pcm_runtime_t *runtime = substream->runtime;
-//	printk("em8300-%d: snd_em8300_pcm_prepare called.\n", em->card_nr);
+//	printk("em8300-%d: snd_em8300_pcm_prepare called.\n", em->instance);
 
 	em->clockgen &= ~CLOCKGEN_SAMPFREQ_MASK;
 	switch (runtime->rate) {
 	case 48000:
-//		printk("em8300-%d: runtime->rate set to 48000\n", em->card_nr);
+//		printk("em8300-%d: runtime->rate set to 48000\n", em->instance);
 		em->clockgen |= CLOCKGEN_SAMPFREQ_48;
 		break;
 	case 44100:
-//		printk("em8300-%d: runtime->rate set to 44100\n", em->card_nr);
+//		printk("em8300-%d: runtime->rate set to 44100\n", em->instance);
 		em->clockgen |= CLOCKGEN_SAMPFREQ_44;
 		break;
 	case 32000:
-//		printk("em8300-%d: runtime->rate set to 32000\n", em->card_nr);
+//		printk("em8300-%d: runtime->rate set to 32000\n", em->instance);
 		em->clockgen |= CLOCKGEN_SAMPFREQ_32;
 		break;
 	default:
-//		printk("em8300-%d: bad runtime->rate\n", em->card_nr);
+//		printk("em8300-%d: bad runtime->rate\n", em->instance);
 		em->clockgen |= CLOCKGEN_SAMPFREQ_48;
 	}
 	em8300_clockgen_write(em, em->clockgen);
@@ -223,7 +223,7 @@ static int snd_em8300_pcm_trigger(snd_pcm_substream_t *substream, int cmd)
 	em8300_alsa_t *em8300_alsa = snd_pcm_substream_chip(substream);
 	struct em8300_s *em = em8300_alsa->em;
 //	snd_pcm_runtime_t *runtime = substream->runtime;
-//	printk("em8300-%d: snd_em8300_pcm_trigger(%d) called.\n", em->card_nr, cmd);
+//	printk("em8300-%d: snd_em8300_pcm_trigger(%d) called.\n", em->instance, cmd);
 	switch (cmd) {
 	case SNDRV_PCM_TRIGGER_START:
 		em8300_alsa->indirect.hw_io =
@@ -281,7 +281,7 @@ static snd_pcm_uframes_t snd_em8300_pcm_pointer(snd_pcm_substream_t *substream)
 //	snd_pcm_uframes_t ret = snd_pcm_indirect_playback_pointer(substream,
 //								  &em8300_alsa->indirect,
 //								  hw_ptr);
-//	printk("em8300-%d: snd_em8300_pcm_pointer called: %d\n", em->card_nr, ret);
+//	printk("em8300-%d: snd_em8300_pcm_pointer called: %d\n", em->instance, ret);
 //	return ret;
 	return snd_em8300_pcm_indirect_playback_pointer(substream,
 							&em8300_alsa->indirect,
@@ -305,11 +305,11 @@ static void snd_em8300_pcm_trans_dma(snd_pcm_substream_t *substream,
 	       ((uint32_t *)ucregister_ptr(MA_PCIStart))+3*writeindex+2);
 	writeindex += 1;
 	writeindex %= read_ucregister(MA_PCISize) / 3;
-//	printk("em8300-%d: snd_em8300_pcm_trans_dma(%d) called.\n", em->card_nr, bytes);
+//	printk("em8300-%d: snd_em8300_pcm_trans_dma(%d) called.\n", em->instance, bytes);
 	if (readindex != writeindex)
 		write_ucregister(MA_PCIWrPtr, ucregister(MA_PCIStart) - 0x1000 + writeindex * 3);
 	else
-		printk("em8300-%d: snd_em8300_pcm_trans_dma failed.\n", em->card_nr);
+		printk("em8300-%d: snd_em8300_pcm_trans_dma failed.\n", em->instance);
 }
 
 static inline void
@@ -355,7 +355,7 @@ snd_em8300_pcm_indirect_playback_transfer(snd_pcm_substream_t *substream,
 static int snd_em8300_pcm_ack(snd_pcm_substream_t *substream)
 {
 	em8300_alsa_t *em8300_alsa = snd_pcm_substream_chip(substream);
-//	printk("em8300-%d: snd_em8300_pcm_ack called.\n", em->card_nr);
+//	printk("em8300-%d: snd_em8300_pcm_ack called.\n", em->instance);
 	snd_em8300_pcm_indirect_playback_transfer(substream, &em8300_alsa->indirect,
 						  snd_em8300_pcm_trans_dma);
 	return 0;
@@ -494,7 +494,7 @@ static void em8300_alsa_enable_card(struct em8300_s *em)
 
 	em->alsa_card = NULL;
 
-	if ((err = snd_card_create(alsa_index[em->card_nr], alsa_id[em->card_nr], THIS_MODULE, 0, &card)) < 0)
+	if ((err = snd_card_create(alsa_index[em->instance], alsa_id[em->instance], THIS_MODULE, 0, &card)) < 0)
 		return;
 
 	if ((err = snd_em8300_create(card, em, &em8300_alsa)) < 0) {
@@ -541,7 +541,7 @@ void em8300_alsa_audio_interrupt(struct em8300_s *em)
 	if (em->alsa_card) {
 		em8300_alsa_t *em8300_alsa = (em8300_alsa_t *)(em->alsa_card->private_data);
 		if (em8300_alsa->substream) {
-//			printk("em8300-%d: calling snd_pcm_period_elapsed\n", em->card_nr);
+//			printk("em8300-%d: calling snd_pcm_period_elapsed\n", em->instance);
 			snd_pcm_period_elapsed(em8300_alsa->substream);
 		}
 	}

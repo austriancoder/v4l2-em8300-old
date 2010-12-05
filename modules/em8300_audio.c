@@ -184,7 +184,7 @@ int mpegaudio_command(struct em8300_s *em, int cmd)
 {
 	em8300_waitfor(em, ucregister(MA_Command), 0xffff, 0xffff);
 
-	pr_debug("em8300-%d: MA_Command: %d\n", em->card_nr, cmd);
+	pr_debug("em8300-%d: MA_Command: %d\n", em->instance, cmd);
 	write_ucregister(MA_Command, cmd);
 
 	return em8300_waitfor(em, ucregister(MA_Status), cmd, 0xffff);
@@ -305,12 +305,12 @@ int em8300_audio_ioctl(struct em8300_s *em, unsigned int cmd, unsigned long arg)
 
 	switch (cmd) {
 	case SNDCTL_DSP_RESET: /* reset device */
-		pr_debug("em8300-%d: SNDCTL_DSP_RESET\n", em->card_nr);
+		pr_debug("em8300-%d: SNDCTL_DSP_RESET\n", em->instance);
 		em8300_audio_flush(em);
 		return 0;
 
 	case SNDCTL_DSP_SYNC:  /* wait until last byte is played and reset device */
-		pr_debug("em8300-%d: SNDCTL_DSP_SYNC\n", em->card_nr);
+		pr_debug("em8300-%d: SNDCTL_DSP_SYNC\n", em->instance);
 		em8300_fifo_sync(em->mafifo);
 		return 0;
 
@@ -318,13 +318,13 @@ int em8300_audio_ioctl(struct em8300_s *em, unsigned int cmd, unsigned long arg)
 		if (get_user(val, (int *) arg)) {
 			return -EFAULT;
 		}
-		pr_debug("em8300-%d: SNDCTL_DSP_SPEED %i ", em->card_nr, val);
+		pr_debug("em8300-%d: SNDCTL_DSP_SPEED %i ", em->instance, val);
 		val = set_speed(em, val);
 		pr_debug("%i\n", val);
 		break;
 
 	case SOUND_PCM_READ_RATE: /* read sample rate */
-		pr_debug("em8300-%d: SNDCTL_DSP_RATE %i ", em->card_nr, val);
+		pr_debug("em8300-%d: SNDCTL_DSP_RATE %i ", em->instance, val);
 		val = em->audio.speed;
 		pr_debug("%i\n", val);
 		break;
@@ -336,13 +336,13 @@ int em8300_audio_ioctl(struct em8300_s *em, unsigned int cmd, unsigned long arg)
 		if (val > 1 || val < 0) {
 			return -EINVAL;
 		}
-		pr_debug("em8300-%d: SNDCTL_DSP_STEREO %i\n", em->card_nr, val);
+		pr_debug("em8300-%d: SNDCTL_DSP_STEREO %i\n", em->instance, val);
 		set_channels(em, val + 1);
 		break;
 
 	case SNDCTL_DSP_GETBLKSIZE: /* get fragment size */
 		val = em->audio.slotsize;
-		pr_debug("em8300-%d: SNDCTL_DSP_GETBLKSIZE %i\n", em->card_nr, val);
+		pr_debug("em8300-%d: SNDCTL_DSP_GETBLKSIZE %i\n", em->instance, val);
 		break;
 
 	case SNDCTL_DSP_CHANNELS: /* set number of channels */
@@ -352,24 +352,24 @@ int em8300_audio_ioctl(struct em8300_s *em, unsigned int cmd, unsigned long arg)
 		if (val > 2 || val < 1) {
 			return -EINVAL;
 		}
-		pr_debug("em8300-%d: SNDCTL_DSP_CHANNELS %i\n", em->card_nr, val);
+		pr_debug("em8300-%d: SNDCTL_DSP_CHANNELS %i\n", em->instance, val);
 		set_channels(em, val);
 		break;
 
 	case SOUND_PCM_READ_CHANNELS: /* read number of channels */
 		val = em->audio.channels;
-		pr_debug("em8300-%d: SOUND_PCM_READ_CHANNELS %i\n", em->card_nr, val);
+		pr_debug("em8300-%d: SOUND_PCM_READ_CHANNELS %i\n", em->instance, val);
 		break;
 
 	case SNDCTL_DSP_POST: /* "there is likely to be a pause in the output" */
-		pr_debug("em8300-%d: SNDCTL_DSP_POST\n", em->card_nr);
-		pr_debug("em8300-%d: SNDCTL_DSP_GETPOST not implemented yet\n", em->card_nr);
+		pr_debug("em8300-%d: SNDCTL_DSP_POST\n", em->instance);
+		pr_debug("em8300-%d: SNDCTL_DSP_GETPOST not implemented yet\n", em->instance);
 		return -ENOSYS;
 		break;
 
 	case SNDCTL_DSP_SETFRAGMENT: /* set fragment size */
-		pr_debug("em8300-%d: SNDCTL_DSP_SETFRAGMENT %i\n", em->card_nr, val);
-		pr_debug("em8300-%d: SNDCTL_DSP_SETFRAGMENT not supported by hardware!\n", em->card_nr);
+		pr_debug("em8300-%d: SNDCTL_DSP_SETFRAGMENT %i\n", em->instance, val);
+		pr_debug("em8300-%d: SNDCTL_DSP_SETFRAGMENT not supported by hardware!\n", em->instance);
 		break;
 
 	case SNDCTL_DSP_GETFMTS: /* get possible formats */
@@ -378,21 +378,21 @@ int em8300_audio_ioctl(struct em8300_s *em, unsigned int cmd, unsigned long arg)
 #else
 		val = AFMT_S16_BE | AFMT_S16_LE;
 #endif
-		pr_debug("em8300-%d: SNDCTL_DSP_GETFMTS\n", em->card_nr);
+		pr_debug("em8300-%d: SNDCTL_DSP_GETFMTS\n", em->instance);
 		break;
 
 	case SNDCTL_DSP_SETFMT: /* set sample format */
 		if (get_user(val, (int *) arg)) {
 			return -EFAULT;
 		}
-		pr_debug("em8300-%d: SNDCTL_DSP_SETFMT %i ", em->card_nr, val);
+		pr_debug("em8300-%d: SNDCTL_DSP_SETFMT %i ", em->instance, val);
 		val = set_format(em, val);
 		pr_debug("%i\n", val);
 		break;
 
 	case SOUND_PCM_READ_BITS: /* read sample format */
 		val = em->audio.format;
-		pr_debug("em8300-%d: SOUND_PCM_READ_BITS\n", em->card_nr);
+		pr_debug("em8300-%d: SOUND_PCM_READ_BITS\n", em->instance);
 		break;
 
 	case SNDCTL_DSP_GETOSPACE:
@@ -413,25 +413,25 @@ int em8300_audio_ioctl(struct em8300_s *em, unsigned int cmd, unsigned long arg)
 		buf_info.fragstotal = em->mafifo->nslots / 2;
 		buf_info.fragsize = em->audio.slotsize;
 		buf_info.bytes = em->mafifo->nslots * em->audio.slotsize / 2;
-		pr_debug("em8300-%d: SNDCTL_DSP_GETOSPACE\n", em->card_nr);
+		pr_debug("em8300-%d: SNDCTL_DSP_GETOSPACE\n", em->instance);
 		if (copy_to_user((void *) arg, &buf_info, sizeof(audio_buf_info)))
 			return -EFAULT;
 		return 0;
 	}
 
 	case SNDCTL_DSP_GETISPACE:
-		pr_debug("em8300-%d: SNDCTL_DSP_GETISPACE\n", em->card_nr);
+		pr_debug("em8300-%d: SNDCTL_DSP_GETISPACE\n", em->instance);
 		return -ENOSYS;
 		break;
 
 	case SNDCTL_DSP_GETCAPS:
 		val = DSP_CAP_REALTIME | DSP_CAP_BATCH | DSP_CAP_TRIGGER;
-		pr_debug("em8300-%d: SNDCTL_DSP_GETCAPS\n", em->card_nr);
+		pr_debug("em8300-%d: SNDCTL_DSP_GETCAPS\n", em->instance);
 		break;
 
 	case SNDCTL_DSP_GETTRIGGER:
 		val = em->audio.enable_bits;
-		pr_debug("em8300-%d: SNDCTL_DSP_GETTRIGGER\n", em->card_nr);
+		pr_debug("em8300-%d: SNDCTL_DSP_GETTRIGGER\n", em->instance);
 		break;
 
 	case SNDCTL_DSP_SETTRIGGER:
@@ -441,12 +441,12 @@ int em8300_audio_ioctl(struct em8300_s *em, unsigned int cmd, unsigned long arg)
 				mpegaudio_command(em, MACOMMAND_PLAY);
 			}
 		}
-		pr_debug("em8300-%d: SNDCTL_DSP_SETTRIGGER\n", em->card_nr);
-		pr_info("em8300-%d: SNDCTL_DSP_SETTRIGGER not implemented properly yet\n", em->card_nr);
+		pr_debug("em8300-%d: SNDCTL_DSP_SETTRIGGER\n", em->instance);
+		pr_info("em8300-%d: SNDCTL_DSP_SETTRIGGER not implemented properly yet\n", em->instance);
 		break;
 
 	case SNDCTL_DSP_GETIPTR:
-		pr_debug("em8300-%d: SNDCTL_DSP_GETIPTR\n", em->card_nr);
+		pr_debug("em8300-%d: SNDCTL_DSP_GETIPTR\n", em->instance);
 		return -ENOSYS;
 		break;
 
@@ -457,18 +457,18 @@ int em8300_audio_ioctl(struct em8300_s *em, unsigned int cmd, unsigned long arg)
 		if (ci.bytes < 0) ci.bytes = 0;
 		ci.blocks = 0;
 		ci.ptr = 0;
-		pr_debug("em8300-%d: SNDCTL_DSP_GETOPTR %i\n", em->card_nr, ci.bytes);
+		pr_debug("em8300-%d: SNDCTL_DSP_GETOPTR %i\n", em->instance, ci.bytes);
 		if (copy_to_user((void *) arg, &ci, sizeof(count_info)))
 			return -EFAULT;
 		return 0;
 	}
 	case SNDCTL_DSP_GETODELAY:
 		val = em8300_audio_calcbuffered(em);
-		pr_debug("em8300-%d: SNDCTL_DSP_GETODELAY %i\n", em->card_nr, val);
+		pr_debug("em8300-%d: SNDCTL_DSP_GETODELAY %i\n", em->instance, val);
 		break;
 
 	default:
-		pr_info("em8300-%d: unknown audio ioctl called\n", em->card_nr);
+		pr_info("em8300-%d: unknown audio ioctl called\n", em->instance);
 		return -EINVAL;
 	}
 
@@ -547,7 +547,7 @@ static int set_audiomode(struct em8300_s *em, int mode)
 
 		write_register(EM8300_AUDIO_RATE, 0x62);
 		em8300_setregblock(em, 2 * ucregister(Mute_Pattern), 0, 0x600);
-		printk(KERN_NOTICE "em8300-%d: Analog audio enabled\n", em->card_nr);
+		printk(KERN_NOTICE "em8300-%d: Analog audio enabled\n", em->instance);
 		break;
 	case EM8300_AUDIOMODE_DIGITALPCM:
 		em->pcm_mode = EM8300_AUDIOMODE_DIGITALPCM;
@@ -559,7 +559,7 @@ static int set_audiomode(struct em8300_s *em, int mode)
 
 		em8300_writeregblock(em, 2*ucregister(Mute_Pattern), (unsigned *)em->mafifo->preprocess_buffer, em->mafifo->slotsize);
 
-		printk(KERN_NOTICE "em8300-%d: Digital PCM audio enabled\n", em->card_nr);
+		printk(KERN_NOTICE "em8300-%d: Digital PCM audio enabled\n", em->instance);
 		break;
 	case EM8300_AUDIOMODE_DIGITALAC3:
 		write_register(EM8300_AUDIO_RATE, 0x3a0);
@@ -568,7 +568,7 @@ static int set_audiomode(struct em8300_s *em, int mode)
 		sub_prepare_SPDIF(em, (uint32_t *)em->mafifo->preprocess_buffer, NULL, 192);
 
 		em8300_writeregblock(em, 2*ucregister(Mute_Pattern), (unsigned *)em->mafifo->preprocess_buffer, em->mafifo->slotsize);
-		printk(KERN_NOTICE "em8300-%d: Digital AC3 audio enabled\n", em->card_nr);
+		printk(KERN_NOTICE "em8300-%d: Digital AC3 audio enabled\n", em->instance);
 		break;
 	}
 	return 0;
@@ -591,7 +591,7 @@ int em8300_audio_setup(struct em8300_s *em)
 	setup_mafifo(em);
 
 	if (ret) {
-		printk(KERN_ERR "em8300-%d: Couldn't zero audio buffer\n", em->card_nr);
+		printk(KERN_ERR "em8300-%d: Couldn't zero audio buffer\n", em->instance);
 		return ret;
 	}
 

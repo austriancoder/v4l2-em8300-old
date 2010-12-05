@@ -38,33 +38,33 @@ static void em8300_udev_register_driver(void)
 static void em8300_udev_register_card(struct em8300_s *em)
 {
 	device_create(em8300_class, &em->pci_dev->dev,
-		      MKDEV(major, em->card_nr * 4 + 0), NULL,
-		      "%s-%d", EM8300_LOGNAME, em->card_nr);
+		      MKDEV(major, em->instance * 4 + 0), NULL,
+		      "%s-%d", EM8300_LOGNAME, em->instance);
 }
 
 static void em8300_udev_enable_card(struct em8300_s *em)
 {
 	device_create(em8300_class, &em->pci_dev->dev,
-		      MKDEV(major, em->card_nr * 4 + 1), NULL,
-		      "%s_mv-%d", EM8300_LOGNAME, em->card_nr);
+		      MKDEV(major, em->instance * 4 + 1), NULL,
+		      "%s_mv-%d", EM8300_LOGNAME, em->instance);
 	device_create(em8300_class, &em->pci_dev->dev,
-		      MKDEV(major, em->card_nr * 4 + 2), NULL,
-		      "%s_ma-%d", EM8300_LOGNAME, em->card_nr);
+		      MKDEV(major, em->instance * 4 + 2), NULL,
+		      "%s_ma-%d", EM8300_LOGNAME, em->instance);
 	device_create(em8300_class, &em->pci_dev->dev,
-		      MKDEV(major, em->card_nr * 4 + 3), NULL,
-		      "%s_sp-%d", EM8300_LOGNAME, em->card_nr);
+		      MKDEV(major, em->instance * 4 + 3), NULL,
+		      "%s_sp-%d", EM8300_LOGNAME, em->instance);
 }
 
 static void em8300_udev_disable_card(struct em8300_s *em)
 {
-	device_destroy(em8300_class, MKDEV(major, em->card_nr * 4 + 1));
-	device_destroy(em8300_class, MKDEV(major, em->card_nr * 4 + 2));
-	device_destroy(em8300_class, MKDEV(major, em->card_nr * 4 + 3));
+	device_destroy(em8300_class, MKDEV(major, em->instance * 4 + 1));
+	device_destroy(em8300_class, MKDEV(major, em->instance * 4 + 2));
+	device_destroy(em8300_class, MKDEV(major, em->instance * 4 + 3));
 }
 
 static void em8300_udev_unregister_card(struct em8300_s *em)
 {
-	device_destroy(em8300_class, MKDEV(major, em->card_nr * 4 + 0));
+	device_destroy(em8300_class, MKDEV(major, em->instance * 4 + 0));
 }
 
 static void em8300_udev_unregister_driver(void)

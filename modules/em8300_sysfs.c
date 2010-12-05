@@ -210,35 +210,35 @@ static ssize_t show_model(struct device *dev,
 		       " [ ] was not tried\n"
 		       "\n",
 		       ((em->chip_revision == 2) && ((0x60 & read_register(0x1c08)) == 0x60)) ? "[important] " : "",
-		       use_bt865[em->card_nr] ? "off" : "on");
+		       use_bt865[em->instance] ? "off" : "on");
 	if ((em->encoder_type != ENCODER_ADV7170) && (em->encoder_type != ENCODER_ADV7175))
 		len += sprintf(buf + len,
 			       "changing the bt865_ucode_timeout option (bt865_ucode_timeout=%s)\n"
 			       " [ ] makes no difference\n"
 			       " [ ] breaks something (please describe problem)\n"
 			       " [ ] was not tried\n"
-			       "\n", bt865_ucode_timeout[em->card_nr] ? "off" : "on");
+			       "\n", bt865_ucode_timeout[em->instance] ? "off" : "on");
 	len += sprintf(buf + len,
 		       "changing the activate_loopback option (activate_loopback=%s)\n"
 		       "(relevant even if you only use video out)\n"
 		       " [ ] makes no difference\n"
 		       " [ ] breaks something (please describe problem)\n"
 		       " [ ] was not tried\n"
-		       "\n", activate_loopback[em->card_nr] ? "off" : "on");
+		       "\n", activate_loopback[em->instance] ? "off" : "on");
 	len += sprintf(buf + len,
 		       "changing the dicom_other_pal option (dicom_other_pal=%s)\n"
 		       "(only relevant for PAL mode)\n"
 		       " [ ] makes no difference\n"
 		       " [ ] breaks something (please describe problem)\n"
 		       " [ ] was not tried\n"
-		       "\n", dicom_other_pal[em->card_nr] ? "off" : "on");
+		       "\n", dicom_other_pal[em->instance] ? "off" : "on");
 	if (em->encoder_type != ENCODER_BT865)
 		len += sprintf(buf + len,
 			       "[important] changing the dicom_fix option (dicom_fix=%s)\n"
 			       " [ ] makes no difference\n"
 			       " [ ] breaks something (please describe problem)\n"
 			       " [ ] was not tried\n"
-			       "\n", dicom_fix[em->card_nr] ? "off" : "on");
+			       "\n", dicom_fix[em->instance] ? "off" : "on");
 	len += sprintf(buf + len,
 		       "[optional] card model:\n"
 		       "(something like \"CT7260\" for DXR3 boards or "

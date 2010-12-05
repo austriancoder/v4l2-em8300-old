@@ -220,10 +220,10 @@ int em8300_dicom_update(struct em8300_s *em)
 		}
 	}
 
-	pr_debug("em8300-%d: vmode_ntsc: %d\n", em->card_nr, vmode_ntsc);
-	pr_debug("em8300-%d: dicom_other_pal: %d\n", em->card_nr, em->config.model.dicom_other_pal);
-	pr_debug("em8300-%d: dicom_control: %d\n", em->card_nr, em->config.model.dicom_control);
-	pr_debug("em8300-%d: dicom_fix: %d\n", em->card_nr, em->config.model.dicom_fix);
+	pr_debug("em8300-%d: vmode_ntsc: %d\n", em->instance, vmode_ntsc);
+	pr_debug("em8300-%d: dicom_other_pal: %d\n", em->instance, em->config.model.dicom_other_pal);
+	pr_debug("em8300-%d: dicom_control: %d\n", em->instance, em->config.model.dicom_control);
+	pr_debug("em8300-%d: dicom_fix: %d\n", em->instance, em->config.model.dicom_fix);
 
 	write_ucregister(DICOM_UpdateFlag, 1);
 
@@ -298,17 +298,17 @@ int em8300_dicom_get_dbufinfo(struct em8300_s *em)
 		di->unk_present = 0;
 	}
 
-	pr_debug("em8300-%d: DICOM buffer: xsize=0x%x(%d)\n", em->card_nr, di->xsize, di->xsize);
-	pr_debug("em8300-%d:               ysize=0x%x(%d)\n", em->card_nr, di->ysize, di->ysize);
-	pr_debug("em8300-%d:               xsize2=0x%x(%d)\n", em->card_nr, di->xsize2, di->xsize2);
-	pr_debug("em8300-%d:               flag1=%d, flag2=%d\n", em->card_nr, di->flag1, di->flag2);
-	pr_debug("em8300-%d:               buffer1=0x%x(%d)\n", em->card_nr, di->buffer1, di->buffer1);
-	pr_debug("em8300-%d:               buffer2=0x%x(%d)\n", em->card_nr, di->buffer2, di->buffer2);
+	pr_debug("em8300-%d: DICOM buffer: xsize=0x%x(%d)\n", em->instance, di->xsize, di->xsize);
+	pr_debug("em8300-%d:               ysize=0x%x(%d)\n", em->instance, di->ysize, di->ysize);
+	pr_debug("em8300-%d:               xsize2=0x%x(%d)\n", em->instance, di->xsize2, di->xsize2);
+	pr_debug("em8300-%d:               flag1=%d, flag2=%d\n", em->instance, di->flag1, di->flag2);
+	pr_debug("em8300-%d:               buffer1=0x%x(%d)\n", em->instance, di->buffer1, di->buffer1);
+	pr_debug("em8300-%d:               buffer2=0x%x(%d)\n", em->instance, di->buffer2, di->buffer2);
 
 	if (di->unk_present) {
-		pr_debug("em8300-%d:               unknown1=0x%x(%d)\n", em->card_nr, di->unknown1, di->unknown1);
-		pr_debug("em8300-%d:               unknown2=0x%x(%d)\n", em->card_nr, di->unknown2, di->unknown2);
-		pr_debug("em8300-%d:               unknown3=0x%x(%d)\n", em->card_nr, di->unknown3, di->unknown3);
+		pr_debug("em8300-%d:               unknown1=0x%x(%d)\n", em->instance, di->unknown1, di->unknown1);
+		pr_debug("em8300-%d:               unknown2=0x%x(%d)\n", em->instance, di->unknown2, di->unknown2);
+		pr_debug("em8300-%d:               unknown3=0x%x(%d)\n", em->instance, di->unknown3, di->unknown3);
 	}
 	return 0;
 }
@@ -326,8 +326,8 @@ void em8300_dicom_fill_dispbuffers(struct em8300_s *em, int xpos, int ypos, int 
 {
 	int i;
 
-	pr_debug("em8300-%d: ysize: %d, xsize: %d\n", em->card_nr, ysize, xsize);
-	pr_debug("em8300-%d: buffer1: %d, buffer2: %d\n", em->card_nr, em->dbuf_info.buffer1, em->dbuf_info.buffer2);
+	pr_debug("em8300-%d: ysize: %d, xsize: %d\n", em->instance, ysize, xsize);
+	pr_debug("em8300-%d: buffer1: %d, buffer2: %d\n", em->instance, em->dbuf_info.buffer1, em->dbuf_info.buffer2);
 
 	for (i = 0; i < ysize; i++) {
 		em8300_setregblock(em, em->dbuf_info.buffer1 + xpos + (ypos + i) * em->dbuf_info.xsize, pat1, xsize);

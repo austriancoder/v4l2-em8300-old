@@ -114,7 +114,7 @@ static int em8300_i2c_lock_client(struct i2c_client *client)
 
 	if (!try_module_get(client->driver->driver.owner))
 	{
-		printk(KERN_ERR "em8300-%d: i2c: Unable to lock client module\n", em->card_nr);
+		printk(KERN_ERR "em8300-%d: i2c: Unable to lock client module\n", em->instance);
 		return -ENODEV;
 	}
 	return 0;
@@ -133,17 +133,17 @@ static void em8300_adv717x_setup(struct em8300_s *em,
 
 	if (!((client->driver) && (client->driver->command))) {
 		printk("em8300-%d: cannot configure adv717x encoder: "
-		       "no client->driver->command\n", em->card_nr);
+		       "no client->driver->command\n", em->instance);
 		return;
 	}
 
 	client->driver->command(client, ENCODER_CMD_ENABLEOUTPUT, (void *)0);
 
-	data.card_nr = em->card_nr;
+	data.card_nr = em->instance;
 	if (client->driver->command(client, ENCODER_CMD_GETCONFIG,
 				    (void *) &data) != 0) {
 		printk("em8300-%d: ENCODER_CMD_GETCONFIG failed\n",
-		       em->card_nr);
+		       em->instance);
 		return;
 	}
 
@@ -258,7 +258,7 @@ int em8300_i2c_init1(struct em8300_s *em)
 		/* Setup adapter */
 		em->i2c_adap[i] = em8300_i2c_adap_template;
 		sprintf(em->i2c_adap[i].name + strlen(em->i2c_adap[i].name),
-			" #%d-%d", em->card_nr, i);
+			" #%d-%d", em->instance, i);
 		em->i2c_adap[i].algo_data = &em->i2c_algo[i];
 		em->i2c_adap[i].dev.parent = &em->pci_dev->dev;
 
@@ -277,7 +277,7 @@ int em8300_i2c_init1(struct em8300_s *em)
 		em->eeprom = i2c_new_probed_device(&em->i2c_adap[1], &i2c_info, eeprom_addr, NULL);
 		if (em->eeprom) {
 			if (sysfs_create_link(&em->pci_dev->dev.kobj, &em->eeprom->dev.kobj, "eeprom"))
-				printk(KERN_WARNING "em8300-%d: i2c: unable to create the eeprom link\n", em->card_nr);
+				printk(KERN_WARNING "em8300-%d: i2c: unable to create the eeprom link\n", em->instance);
 		}
 	}
 	return 0;
@@ -339,7 +339,7 @@ int em8300_i2c_init2(struct em8300_s *em)
 		if (em->encoder)
 			goto found;
 	}
-	printk(KERN_WARNING "em8300-%d: video encoder chip not found\n", em->card_nr);
+	printk(KERN_WARNING "em8300-%d: video encoder chip not found\n", em->instance);
 	return 0;
 
  found:
@@ -348,7 +348,7 @@ int em8300_i2c_init2(struct em8300_s *em)
 		schedule_timeout(HZ/10);
 	}
 	if (!em->encoder->driver) {	
-		printk(KERN_ERR "em8300-%d: encoder chip found but no driver found within 5 seconds\n", em->card_nr);
+		printk(KERN_ERR "em8300-%d: encoder chip found but no driver found within 5 seconds\n", em->instance);
 		i2c_unregister_device(em->encoder);
 		em->encoder = NULL;
 		return 0;
@@ -367,7 +367,7 @@ int em8300_i2c_init2(struct em8300_s *em)
 		em->encoder_type = ENCODER_BT865;
 	}
 	if (sysfs_create_link(&em->pci_dev->dev.kobj, &em->encoder->dev.kobj, "encoder"))
-		printk(KERN_WARNING "em8300-%d: i2c: unable to create the encoder link\n", em->card_nr);
+		printk(KERN_WARNING "em8300-%d: i2c: unable to create the encoder link\n", em->instance);
 	return 0;
 }
 

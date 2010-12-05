@@ -565,7 +565,7 @@ static int adv7170_setup(struct i2c_client *client)
 		common:
 			if (strncmp(client->adapter->name, "EM8300", 6) == 0) {
 				struct em8300_s *em = i2c_get_adapdata(client->adapter);
-				SET_REG(data->conf[i].val[ADV717X_REG_MR1], 7, color_bars[em->card_nr]);
+				SET_REG(data->conf[i].val[ADV717X_REG_MR1], 7, color_bars[em->instance]);
 			}
 			break;
 		default:
@@ -627,7 +627,7 @@ static int adv7175a_setup(struct i2c_client *client)
 		common:
 			if (strncmp(client->adapter->name, "EM8300", 6) == 0) {
 				struct em8300_s *em = i2c_get_adapdata(client->adapter);
-				SET_REG(data->conf[i].val[ADV717X_REG_MR1], 7, color_bars[em->card_nr]);
+				SET_REG(data->conf[i].val[ADV717X_REG_MR1], 7, color_bars[em->instance]);
 			}
 			break;
 		default:

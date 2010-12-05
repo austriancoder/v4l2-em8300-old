@@ -866,8 +866,8 @@ static int bt865_setup(struct i2c_client *client)
 		return -1;
 	}
 
-	data->bars = color_bars[em->card_nr];
-	data->rgbmode = output_mode_nr[em->card_nr] == MODE_RGB;
+	data->bars = color_bars[em->instance];
+	data->rgbmode = output_mode_nr[em->instance] == MODE_RGB;
 	data->enableoutput = 0;
 
 	if (EM8300_VIDEOMODE_DEFAULT == EM8300_VIDEOMODE_PAL) {

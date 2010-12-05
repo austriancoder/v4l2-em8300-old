@@ -114,7 +114,7 @@ ssize_t em8300_spu_write(struct em8300_s *em, const char *buf, size_t count, lof
 		ret = wait_event_interruptible_timeout(em->sp_ptsfifo_wait,
 						       (read_register(ptsfifoptr + 1) & 1) == 0, HZ);
 		if (ret == 0) {
-			printk(KERN_ERR "em8300-%d: SPU Fifo timeout\n", em->card_nr);
+			printk(KERN_ERR "em8300-%d: SPU Fifo timeout\n", em->instance);
 			return -EINTR;
 		} else if (ret < 0)
 			return ret;
