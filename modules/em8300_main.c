@@ -687,30 +687,30 @@ static int init_em8300(struct em8300_s *em)
 	return 0;
 }
 
-static int em8300_pci_setup(struct pci_dev *dev)
+static int em8300_pci_setup(struct pci_dev *pci_dev)
 {
-	struct em8300_s *em = pci_get_drvdata(dev);
+	struct em8300_s *em = pci_get_drvdata(pci_dev);
 	unsigned char revision;
 	int rc = 0;
 
-	rc = pci_enable_device(dev);
+	rc = pci_enable_device(pci_dev);
 	if (rc < 0) {
 		printk(KERN_ERR "em8300-%d: Unable to enable PCI device\n", em->instance);
 		return rc;
 	}
 
-	pci_set_master(dev);
+	pci_set_master(pci_dev);
 
-	em->adr = pci_resource_start(dev, 0);
-	em->memsize = pci_resource_len(dev, 0);
+	em->adr = pci_resource_start(pci_dev, 0);
+	em->memsize = pci_resource_len(pci_dev, 0);
 
-	pci_read_config_byte(dev, PCI_CLASS_REVISION, &revision);
+	pci_read_config_byte(pci_dev, PCI_CLASS_REVISION, &revision);
 	em->pci_revision = revision;
 
 	return 0;
 }
 
-static int __devinit em8300_probe(struct pci_dev *dev,
+static int __devinit em8300_probe(struct pci_dev *pci_dev,
 				  const struct pci_device_id *pci_id)
 {
 	struct em8300_s *em;
@@ -722,10 +722,10 @@ static int __devinit em8300_probe(struct pci_dev *dev,
 		return -ENOMEM;
 	}
 
-	em->pci_dev = dev;
+	em->pci_dev = pci_dev;
 	em->instance = em8300_cards;
 
-	result = v4l2_device_register(&dev->dev, &em->v4l2_dev);
+	result = v4l2_device_register(&pci_dev->dev, &em->v4l2_dev);
 	if (result) {
 		printk(KERN_ERR "em8300: v4l2_device_register of card %d failed"
 				"\n", em->instance);
@@ -733,8 +733,8 @@ static int __devinit em8300_probe(struct pci_dev *dev,
 		return result;
 	}
 
-	pci_set_drvdata(dev, em);
-	result = em8300_pci_setup(dev);
+	pci_set_drvdata(pci_dev, em);
+	result = em8300_pci_setup(pci_dev);
 	if (result != 0) {
 		printk(KERN_ERR "em8300-%d: pci setup failed\n", em->instance);
 		goto mem_free;
@@ -796,8 +796,8 @@ static int __devinit em8300_probe(struct pci_dev *dev,
 
 	em->model = card_model[em8300_cards];
 
-	pr_info("em8300-%d: EM8300 %x (rev %d) ", em->instance, dev->device, em->pci_revision);
-	pr_info("bus: %d, devfn: %d, irq: %d, ", dev->bus->number, dev->devfn, dev->irq);
+	pr_info("em8300-%d: EM8300 %x (rev %d) ", em->instance, pci_dev->device, em->pci_revision);
+	pr_info("bus: %d, devfn: %d, irq: %d, ", pci_dev->bus->number, pci_dev->devfn, pci_dev->irq);
 	pr_info("memory: 0x%08lx.\n", em->adr);
 
 	em->mem = ioremap(em->adr, em->memsize);
@@ -821,7 +821,7 @@ static int __devinit em8300_probe(struct pci_dev *dev,
 	em->audio_driver_style = NONE;
 	sema_init(&em->audio_driver_style_lock, 1);
 
-	result = request_irq(dev->irq, em8300_irq, IRQF_SHARED | IRQF_DISABLED, "em8300", (void *) em);
+	result = request_irq(pci_dev->irq, em8300_irq, IRQF_SHARED | IRQF_DISABLED, "em8300", (void *) em);
 
 	if (result == -EINVAL) {
 		printk(KERN_ERR "em8300-%d: Bad irq number or handler\n", em->instance);
@@ -862,9 +862,9 @@ mem_free:
 	return result;
 }
 
-static void __devexit em8300_remove(struct pci_dev *pci)
+static void __devexit em8300_remove(struct pci_dev *pci_dev)
 {
-	struct em8300_s *em = pci_get_drvdata(pci);
+	struct em8300_s *em = pci_get_drvdata(pci_dev);
 
 	if (em) {
 #if defined(CONFIG_FW_LOADER) || defined(CONFIG_FW_LOADER_MODULE)
@@ -883,8 +883,8 @@ static void __devexit em8300_remove(struct pci_dev *pci)
 		release_em8300(em);
 	}
 
-	pci_set_drvdata(pci, NULL);
-	pci_disable_device(pci);
+	pci_set_drvdata(pci_dev, NULL);
+	pci_disable_device(pci_dev);
 }
 
 struct pci_driver em8300_driver = {
