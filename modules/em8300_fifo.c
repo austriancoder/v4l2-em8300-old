@@ -93,7 +93,7 @@ int em8300_fifo_init(struct em8300_s *em, struct fifo_s *f, int start, int wrptr
 		kfree(f->fifobuffer);
 	}
 
-	f->fifobuffer = pci_alloc_consistent(f->em->dev, f->nslots * f->slotsize, &f->phys_base);
+	f->fifobuffer = pci_alloc_consistent(f->em->pci_dev, f->nslots * f->slotsize, &f->phys_base);
 	if (f->fifobuffer == NULL) {
 		return -ENOMEM;
 	}
@@ -126,7 +126,7 @@ void em8300_fifo_free(struct fifo_s *f)
 {
 	if (f) {
 		if (f->valid && f->fifobuffer) {
-			pci_free_consistent(f->em->dev, f->nslots * f->slotsize, f->fifobuffer, f->phys_base);
+			pci_free_consistent(f->em->pci_dev, f->nslots * f->slotsize, f->fifobuffer, f->phys_base);
 		}
 		if (f->valid && f->preprocess_buffer) {
 			kfree(f->preprocess_buffer);

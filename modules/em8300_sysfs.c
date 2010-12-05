@@ -294,14 +294,14 @@ static void em8300_sysfs_postregister_driver(void)
 
 static void em8300_sysfs_register_card(struct em8300_s *em)
 {
-	device_create_file(&em->dev->dev, &dev_attr_model);
-	device_create_file(&em->dev->dev, &dev_attr_zoom);
+	device_create_file(&em->pci_dev->dev, &dev_attr_model);
+	device_create_file(&em->pci_dev->dev, &dev_attr_zoom);
 }
 
 static void em8300_sysfs_unregister_card(struct em8300_s *em)
 {
-	device_remove_file(&em->dev->dev, &dev_attr_model);
-	device_remove_file(&em->dev->dev, &dev_attr_zoom);
+	device_remove_file(&em->pci_dev->dev, &dev_attr_model);
+	device_remove_file(&em->pci_dev->dev, &dev_attr_zoom);
 }
 
 static void em8300_sysfs_preunregister_driver(void)

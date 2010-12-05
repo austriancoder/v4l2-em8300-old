@@ -37,20 +37,20 @@ static void em8300_udev_register_driver(void)
 
 static void em8300_udev_register_card(struct em8300_s *em)
 {
-	device_create(em8300_class, &em->dev->dev,
+	device_create(em8300_class, &em->pci_dev->dev,
 		      MKDEV(major, em->card_nr * 4 + 0), NULL,
 		      "%s-%d", EM8300_LOGNAME, em->card_nr);
 }
 
 static void em8300_udev_enable_card(struct em8300_s *em)
 {
-	device_create(em8300_class, &em->dev->dev,
+	device_create(em8300_class, &em->pci_dev->dev,
 		      MKDEV(major, em->card_nr * 4 + 1), NULL,
 		      "%s_mv-%d", EM8300_LOGNAME, em->card_nr);
-	device_create(em8300_class, &em->dev->dev,
+	device_create(em8300_class, &em->pci_dev->dev,
 		      MKDEV(major, em->card_nr * 4 + 2), NULL,
 		      "%s_ma-%d", EM8300_LOGNAME, em->card_nr);
-	device_create(em8300_class, &em->dev->dev,
+	device_create(em8300_class, &em->pci_dev->dev,
 		      MKDEV(major, em->card_nr * 4 + 3), NULL,
 		      "%s_sp-%d", EM8300_LOGNAME, em->card_nr);
 }

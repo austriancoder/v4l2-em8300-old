@@ -197,8 +197,8 @@ void em8300_require_ucode(struct em8300_s *em)
 	if (!em->ucodeloaded) {
 		const struct firmware *fw_entry = NULL;
 
-		if (request_firmware(&fw_entry, "em8300.bin", &em->dev->dev) != 0) {
-			dev_err(&em->dev->dev,
+		if (request_firmware(&fw_entry, "em8300.bin", &em->pci_dev->dev) != 0) {
+			dev_err(&em->pci_dev->dev,
 				"firmware %s is missing, cannot start.\n",
 				"em8300.bin");
 			return;

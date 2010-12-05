@@ -121,7 +121,7 @@ struct em8300_s
 	int nonblock[4];
 	int ucodeloaded;
 	
-	struct pci_dev *dev;
+	struct pci_dev *pci_dev;
 	ulong adr;
 	volatile unsigned *mem;
 	ulong memsize;

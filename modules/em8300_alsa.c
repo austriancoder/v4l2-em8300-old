@@ -400,7 +400,7 @@ static int snd_em8300_pcm_analog(em8300_alsa_t *em8300_alsa)
 	em8300_alsa->pcm_analog = pcm;
 
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
-					      snd_dma_pci_data(em->dev),
+					      snd_dma_pci_data(em->pci_dev),
 					      0,
 					      EM8300_MID_BUFFER_SIZE);
 
@@ -434,7 +434,7 @@ static int snd_em8300_pcm_digital(em8300_alsa_t *em8300_alsa)
 	em8300_alsa->pcm_digital = pcm;
 
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
-					      snd_dma_pci_data(em->dev),
+					      snd_dma_pci_data(em->pci_dev),
 					      0,
 					      EM8300_MID_BUFFER_SIZE);
 
@@ -480,7 +480,7 @@ static int snd_em8300_create(snd_card_t *card, struct em8300_s *em, em8300_alsa_
 		return err;
 	}
 
-	snd_card_set_dev(card, &em->dev->dev);
+	snd_card_set_dev(card, &em->pci_dev->dev);
 
 	*rem8300_alsa = em8300_alsa;
 	return 0;
@@ -517,7 +517,7 @@ static void em8300_alsa_enable_card(struct em8300_s *em)
 	strcpy(card->driver, "EM8300");
 	strcpy(card->shortname, "Sigma Designs' EM8300");
 	sprintf(card->longname, "%s at %#lx irq %d",
-		card->shortname, (unsigned long int)em->mem, em->dev->irq);
+		card->shortname, (unsigned long int)em->mem, em->pci_dev->irq);
 
 	if ((err = snd_card_register(card)) < 0) {
 		snd_card_free(card);

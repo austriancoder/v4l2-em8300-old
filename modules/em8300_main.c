@@ -179,7 +179,7 @@ static void release_em8300(struct em8300_s *em)
 	em8300_fifo_free(em->spfifo);
 
 	/* free it */
-	free_irq(em->dev->irq, em);
+	free_irq(em->pci_dev->irq, em);
 
 	/* unmap and free memory */
 	if (em->mem)
@@ -721,7 +721,7 @@ static int __devinit em8300_probe(struct pci_dev *dev,
 		return -ENOMEM;
 	}
 
-	em->dev = dev;
+	em->pci_dev = dev;
 	em->card_nr = em8300_cards;
 
 	pci_set_drvdata(dev, em);

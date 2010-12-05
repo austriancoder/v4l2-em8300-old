@@ -260,7 +260,7 @@ int em8300_i2c_init1(struct em8300_s *em)
 		sprintf(em->i2c_adap[i].name + strlen(em->i2c_adap[i].name),
 			" #%d-%d", em->card_nr, i);
 		em->i2c_adap[i].algo_data = &em->i2c_algo[i];
-		em->i2c_adap[i].dev.parent = &em->dev->dev;
+		em->i2c_adap[i].dev.parent = &em->pci_dev->dev;
 
 		i2c_set_adapdata(&em->i2c_adap[i], (void *)em);
 	}
@@ -276,7 +276,7 @@ int em8300_i2c_init1(struct em8300_s *em)
 		i2c_info = (struct i2c_board_info){ I2C_BOARD_INFO("eeprom", 0) };
 		em->eeprom = i2c_new_probed_device(&em->i2c_adap[1], &i2c_info, eeprom_addr, NULL);
 		if (em->eeprom) {
-			if (sysfs_create_link(&em->dev->dev.kobj, &em->eeprom->dev.kobj, "eeprom"))
+			if (sysfs_create_link(&em->pci_dev->dev.kobj, &em->eeprom->dev.kobj, "eeprom"))
 				printk(KERN_WARNING "em8300-%d: i2c: unable to create the eeprom link\n", em->card_nr);
 		}
 	}
@@ -366,7 +366,7 @@ int em8300_i2c_init2(struct em8300_s *em)
 	if (!strncmp(em->encoder->name, "BT865", 5)) {
 		em->encoder_type = ENCODER_BT865;
 	}
-	if (sysfs_create_link(&em->dev->dev.kobj, &em->encoder->dev.kobj, "encoder"))
+	if (sysfs_create_link(&em->pci_dev->dev.kobj, &em->encoder->dev.kobj, "encoder"))
 		printk(KERN_WARNING "em8300-%d: i2c: unable to create the encoder link\n", em->card_nr);
 	return 0;
 }
@@ -376,13 +376,13 @@ void em8300_i2c_exit(struct em8300_s *em)
 	int i;
 
 	if (em->eeprom) {
-		sysfs_remove_link(&em->dev->dev.kobj, "eeprom");
+		sysfs_remove_link(&em->pci_dev->dev.kobj, "eeprom");
 		i2c_unregister_device(em->eeprom);
 		em->eeprom = NULL;
 	}
 	if (em->encoder) {
 		em8300_i2c_unlock_client(em->encoder);
-		sysfs_remove_link(&em->dev->dev.kobj, "encoder");
+		sysfs_remove_link(&em->pci_dev->dev.kobj, "encoder");
 		i2c_unregister_device(em->encoder);
 		em->encoder = NULL;
 	}
