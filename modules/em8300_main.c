@@ -733,6 +733,9 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 		return result;
 	}
 
+	snprintf(em->v4l2_dev.name, sizeof(em->v4l2_dev.name), "em8300-%d",
+				em->instance);
+
 	pci_set_drvdata(pci_dev, em);
 	result = em8300_pci_setup(pci_dev);
 	if (result != 0) {
