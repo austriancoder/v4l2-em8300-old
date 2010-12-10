@@ -53,7 +53,6 @@
 
 #include "encoder.h"
 
-#include "em8300_registration.h"
 #include "em8300_compat24.h"
 #include "em8300_params.h"
 

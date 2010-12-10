@@ -18,8 +18,6 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include "em8300_alsa.h"
-
 #if defined(CONFIG_SND) || defined(CONFIG_SND_MODULE)
 
 #include <sound/core.h>
@@ -32,6 +30,7 @@
 #include <linux/semaphore.h>
 
 #include "em8300_reg.h"
+#include "em8300_driver.h"
 
 #include "em8300_params.h"
 
@@ -486,7 +485,7 @@ static int snd_em8300_create(snd_card_t *card, struct em8300_s *em, em8300_alsa_
 	return 0;
 }
 
-static void em8300_alsa_enable_card(struct em8300_s *em)
+void em8300_alsa_enable_card(struct em8300_s *em)
 {
 	snd_card_t *card;
 	em8300_alsa_t *em8300_alsa;
@@ -527,7 +526,7 @@ static void em8300_alsa_enable_card(struct em8300_s *em)
 	em->alsa_card = card;
 }
 
-static void em8300_alsa_disable_card(struct em8300_s *em)
+void em8300_alsa_disable_card(struct em8300_s *em)
 {
 	if (em->alsa_card)
 		snd_card_free(em->alsa_card);
@@ -546,31 +545,5 @@ void em8300_alsa_audio_interrupt(struct em8300_s *em)
 		}
 	}
 }
-
-struct em8300_registrar_s em8300_alsa_registrar = {
-	.register_driver   = NULL,
-	.register_card     = NULL,
-	.enable_card       = &em8300_alsa_enable_card,
-	.disable_card      = &em8300_alsa_disable_card,
-	.unregister_card   = NULL,
-	.unregister_driver = NULL,
-	.audio_interrupt   = em8300_alsa_audio_interrupt,
-	.video_interrupt   = NULL,
-	.vbl_interrupt     = NULL,
-};
-
-#else
-
-struct em8300_registrar_s em8300_alsa_registrar = {
-	.register_driver   = NULL,
-	.register_card     = NULL,
-	.enable_card       = NULL,
-	.disable_card      = NULL,
-	.unregister_card   = NULL,
-	.unregister_driver = NULL,
-	.audio_interrupt   = NULL,
-	.video_interrupt   = NULL,
-	.vbl_interrupt     = NULL,
-};
 
 #endif

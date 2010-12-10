@@ -124,11 +124,9 @@ static irqreturn_t em8300_irq(int irq, void *dev_id)
 
 		if (irqstatus & IRQSTATUS_VIDEO_FIFO) {
 			em8300_fifo_check(em->mvfifo);
-			em8300_video_interrupt(em);
 		}
 
 		if (irqstatus & IRQSTATUS_AUDIO_FIFO) {
-			em8300_audio_interrupt(em);
 			if (em->audio_driver_style == OSS)
 				em8300_fifo_check(em->mafifo);
 		}
@@ -143,7 +141,6 @@ static irqreturn_t em8300_irq(int irq, void *dev_id)
 			em->tv = tv;
 			em->irqcount++;
 			wake_up(&em->vbi_wait);
-			em8300_vbl_interrupt(em);
 		}
 
 		write_ucregister(Q_IrqMask, em->irqmask);
