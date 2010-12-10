@@ -57,7 +57,6 @@
 #include <linux/em8300.h>
 #include "em8300_driver.h"
 #include "em8300_fifo.h"
-#include "em8300_registration.h"
 #include "em8300_params.h"
 #include "em8300_eeprom.h"
 #include "em8300_models.h"
@@ -835,8 +834,6 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 
 	init_em8300(em);
 
-	em8300_register_card(em);
-
 #if defined(CONFIG_SOUND) || defined(CONFIG_SOUND_MODULE)
 	em->dsp_num = register_sound_dsp(&em8300_dsp_audio_fops, dsp_num[em->instance]);
 	if (em->dsp_num < 0) {
@@ -845,10 +842,6 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 		dsp_num_table[em->dsp_num >> 4 & 0x0f] = em8300_cards + 1;
 		pr_debug("em8300-%d: registered dsp %i for device %i\n", em->instance, em->dsp_num >> 4 & 0x0f, em8300_cards);
 	}
-#endif
-
-#if defined(CONFIG_FW_LOADER) || defined(CONFIG_FW_LOADER_MODULE)
-	em8300_enable_card(em);
 #endif
 
 	em8300[em8300_cards++] = em;
@@ -872,19 +865,9 @@ static void __devexit em8300_remove(struct pci_dev *pci_dev)
 	struct em8300_s *em = pci_get_drvdata(pci_dev);
 
 	if (em) {
-#if defined(CONFIG_FW_LOADER) || defined(CONFIG_FW_LOADER_MODULE)
-		em8300_disable_card(em);
-#else
-		if (em->ucodeloaded == 1)
-			em8300_disable_card(em);
-#endif
-
 #if defined(CONFIG_SOUND) || defined(CONFIG_SOUND_MODULE)
 		unregister_sound_dsp(em->dsp_num);
 #endif
-
-		em8300_unregister_card(em);
-
 		release_em8300(em);
 	}
 
@@ -904,14 +887,8 @@ static void __exit em8300_exit(void)
 #if defined(CONFIG_EM8300_IOCTL32) && !defined(HAVE_COMPAT_IOCTL)
 	em8300_ioctl32_exit();
 #endif
-
-	em8300_preunregister_driver();
-
 	pci_unregister_driver(&em8300_driver);
-
 	unregister_chrdev(major, EM8300_LOGNAME);
-
-	em8300_unregister_driver();
 }
 
 static int __init em8300_init(void)
@@ -922,8 +899,6 @@ static int __init em8300_init(void)
 #if defined(CONFIG_SOUND) || defined(CONFIG_SOUND_MODULE)
 	memset(&dsp_num_table, 0, sizeof(dsp_num_table));
 #endif
-
-	em8300_register_driver();
 
 	if (major) {
 		if (register_chrdev(major, EM8300_LOGNAME, &em8300_fops)) {
@@ -948,8 +923,6 @@ static int __init em8300_init(void)
 		goto err_init;
 	}
 
-	em8300_postregister_driver();
-
 #if defined(CONFIG_EM8300_IOCTL32) && !defined(HAVE_COMPAT_IOCTL)
 	em8300_ioctl32_init();
 #endif
@@ -960,7 +933,6 @@ static int __init em8300_init(void)
 	unregister_chrdev(major, EM8300_LOGNAME);
 
  err_chrdev:
-	em8300_unregister_driver();
 	return err;
 }
 
