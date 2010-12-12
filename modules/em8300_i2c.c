@@ -203,6 +203,21 @@ static const struct i2c_adapter em8300_i2c_adap_template = {
 	.owner = THIS_MODULE,
 };
 
+static void do_i2c_scan(char *name, struct i2c_client *c)
+{
+	unsigned char buf;
+	int i, rc;
+
+	for (i = 0; i < 128; i++) {
+		c->addr = i;
+		rc = i2c_master_recv(c, &buf, 0);
+		if (rc < 0)
+			continue;
+		printk("%s: i2c scan: found device @ 0x%x  [%s]\n",
+		       name, i << 1, "???");
+	}
+}
+
 int em8300_i2c_init1(struct em8300_s *em)
 {
 	int ret, i;
@@ -280,22 +295,13 @@ int em8300_i2c_init1(struct em8300_s *em)
 				printk(KERN_WARNING "em8300-%d: i2c: unable to create the eeprom link\n", em->instance);
 		}
 	}
+
+
+	em->i2c_client.adapter = &em->i2c_adap[1];
+	strlcpy(em->i2c_client.name, "em8300 internal", I2C_NAME_SIZE);
+	do_i2c_scan("i2c bus 1", &em->i2c_client);
+
 	return 0;
-}
-
-static void do_i2c_scan(char *name, struct i2c_client *c)
-{
-	unsigned char buf;
-	int i, rc;
-
-	for (i = 0; i < 128; i++) {
-		c->addr = i;
-		rc = i2c_master_recv(c, &buf, 0);
-		if (rc < 0)
-			continue;
-		printk("%s: i2c scan: found device @ 0x%x  [%s]\n",
-		       name, i << 1, "???");
-	}
 }
 
 int em8300_i2c_init2(struct em8300_s *em)
