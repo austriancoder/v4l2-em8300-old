@@ -88,6 +88,20 @@ static inline struct bt865 *to_bt865(struct v4l2_subdev *sd)
 	return container_of(sd, struct bt865, sd);
 }
 
+static inline int bt865_write(struct v4l2_subdev *sd, u8 reg, u8 value)
+{
+	struct i2c_client *client = v4l2_get_subdevdata(sd);
+
+	return i2c_smbus_write_byte_data(client, reg, value);
+}
+
+static inline int bt865_read(struct v4l2_subdev *sd, u8 reg)
+{
+	struct i2c_client *client = v4l2_get_subdevdata(sd);
+
+	return i2c_smbus_read_byte_data(client, reg);
+}
+
 static struct i2c_device_id bt865_idtable[] = {
 	{ "bt865", 0 },
 	{ }
