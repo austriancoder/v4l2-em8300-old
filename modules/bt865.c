@@ -74,7 +74,6 @@ static const mode_info_t mode_info[] = {
 struct bt865 {
 	struct v4l2_subdev sd;
 	v4l2_std_id norm;
-	int chiptype;
 	int rgbmode;
 	int enableoutput;
 
