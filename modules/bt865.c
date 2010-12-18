@@ -72,8 +72,8 @@ static const mode_info_t mode_info[] = {
 };
 
 struct bt865_data_s {
+	v4l2_std_id norm;
 	int chiptype;
-	int mode;
 	int bars;
 	int rgbmode;
 	int enableoutput;
@@ -155,162 +155,6 @@ static unsigned char NTSC_CONFIG_BT865[ 48 ] = {
 };
 
 // starts at register A0 by twos
-static unsigned char NTSC60_CONFIG_BT865[ 48 ] = {
-	0x00,	// EWSF2 EWSF1 RSRVD[1:0] WSDAT[4:1]
-	0x00,	// WSDAT[12:5]
-	0x00,	// WSDAT[20:13]
-	0x00,	// SRESET RSRVD[6:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// TXHS[7:0]
-	0x00,	// TXHE[7:0]
-	0x00,	// LUMADLY[1:0] TXHE[10:8] TXHS[10:8]
-	0x00,	// RSRVD[1:0] TXRM TXE TXEF2[8] TXBF2[8] TXEF1[8] TXBF1[8]
-	0x00,	// TXBF1[7:0]
-	0x00,	// TXEF1[7:0]
-	0x00,	// TXBF2[7:0]
-	0x00,	// TXEF2[7:0]
-	0x00,	// ECCF2 ECCF1 ECCGATE RSRVD DACOFF YC16 CBSWAP PORCH
-	0x00,	// CCF2B1[7:0]
-	0x00,	// CCF2B2[7:0]
-	0x00,	// CCF1B1[7:0]
-	0x00,	// CCF1B2[7:0]
-	0x00,	// HSYNCF[7:0]
-	0x00,	// HSYNCR[7:0]
-	0x00,	// SYNCDLY FIELD1 SYNCDIS ADJHSYNC HSYNCF[9:8] HSYNCR[9:8]
-	0x88,	// SETMODE SETUPDIS VIDFORM[3:0] NONINTL SQUARE
-	0x0a,	// ESTATUS RGBO DCHROMA ECBAR SCRESET EVBI EACTIVE ECLIP
-	0x00,	// RSRVD[6:0] PALN
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-};
-
-// starts at register A0 by twos
-static unsigned char PALM_CONFIG_BT865[ 48 ] = {
-	0x00,	// EWSF2 EWSF1 RSRVD[1:0] WSDAT[4:1]
-	0x00,	// WSDAT[12:5]
-	0x00,	// WSDAT[20:13]
-	0x00,	// SRESET RSRVD[6:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// TXHS[7:0]
-	0x00,	// TXHE[7:0]
-	0x00,	// LUMADLY[1:0] TXHE[10:8] TXHS[10:8]
-	0x00,	// RSRVD[1:0] TXRM TXE TXEF2[8] TXBF2[8] TXEF1[8] TXBF1[8]
-	0x00,	// TXBF1[7:0]
-	0x00,	// TXEF1[7:0]
-	0x00,	// TXBF2[7:0]
-	0x00,	// TXEF2[7:0]
-	0x00,	// ECCF2 ECCF1 ECCGATE RSRVD DACOFF YC16 CBSWAP PORCH
-	0x00,	// CCF2B1[7:0]
-	0x00,	// CCF2B2[7:0]
-	0x00,	// CCF1B1[7:0]
-	0x00,	// CCF1B2[7:0]
-	0x00,	// HSYNCF[7:0]
-	0x00,	// HSYNCR[7:0]
-	0x00,	// SYNCDLY FIELD1 SYNCDIS ADJHSYNC HSYNCF[9:8] HSYNCR[9:8]
-	0xf0,	// SETMODE SETUPDIS VIDFORM[3:0] NONINTL SQUARE
-	0x02,	// ESTATUS RGBO DCHROMA ECBAR SCRESET EVBI EACTIVE ECLIP
-	0x00,	// RSRVD[6:0] PALN
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-};
-
-// starts at register A0 by twos
-static unsigned char PALM60_CONFIG_BT865[ 48 ] = {
-	0x00,	// EWSF2 EWSF1 RSRVD[1:0] WSDAT[4:1]
-	0x00,	// WSDAT[12:5]
-	0x00,	// WSDAT[20:13]
-	0x00,	// SRESET RSRVD[6:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// TXHS[7:0]
-	0x00,	// TXHE[7:0]
-	0x00,	// LUMADLY[1:0] TXHE[10:8] TXHS[10:8]
-	0x00,	// RSRVD[1:0] TXRM TXE TXEF2[8] TXBF2[8] TXEF1[8] TXBF1[8]
-	0x00,	// TXBF1[7:0]
-	0x00,	// TXEF1[7:0]
-	0x00,	// TXBF2[7:0]
-	0x00,	// TXEF2[7:0]
-	0x00,	// ECCF2 ECCF1 ECCGATE RSRVD DACOFF YC16 CBSWAP PORCH
-	0x00,	// CCF2B1[7:0]
-	0x00,	// CCF2B2[7:0]
-	0x00,	// CCF1B1[7:0]
-	0x00,	// CCF1B2[7:0]
-	0x00,	// HSYNCF[7:0]
-	0x00,	// HSYNCR[7:0]
-	0x00,	// SYNCDLY FIELD1 SYNCDIS ADJHSYNC HSYNCF[9:8] HSYNCR[9:8]
-	0xf8,	// SETMODE SETUPDIS VIDFORM[3:0] NONINTL SQUARE
-	0x02,	// ESTATUS RGBO DCHROMA ECBAR SCRESET EVBI EACTIVE ECLIP
-	0x00,	// RSRVD[6:0] PALN
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-};
-
-// starts at register A0 by twos
 static unsigned char PAL_CONFIG_BT865[ 48 ] = {
 	0x00,	// EWSF2 EWSF1 RSRVD[1:0] WSDAT[4:1]
 	0x00,	// WSDAT[12:5]
@@ -337,58 +181,6 @@ static unsigned char PAL_CONFIG_BT865[ 48 ] = {
 	0xe4,	// SETMODE SETUPDIS VIDFORM[3:0] NONINTL SQUARE // or 0x24
 	0x02,	// ESTATUS RGBO DCHROMA ECBAR SCRESET EVBI EACTIVE ECLIP
 	0x00,	// RSRVD[6:0] PALN
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-};
-
-// starts at register A0 by twos
-static unsigned char PALNC_CONFIG_BT865[ 48 ] = {
-	0x00,	// EWSF2 EWSF1 RSRVD[1:0] WSDAT[4:1]
-	0x00,	// WSDAT[12:5]
-	0x00,	// WSDAT[20:13]
-	0x00,	// SRESET RSRVD[6:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// RSRVD[7:0]
-	0x00,	// TXHS[7:0]
-	0x00,	// TXHE[7:0]
-	0x00,	// LUMADLY[1:0] TXHE[10:8] TXHS[10:8]
-	0x00,	// RSRVD[1:0] TXRM TXE TXEF2[8] TXBF2[8] TXEF1[8] TXBF1[8]
-	0x00,	// TXBF1[7:0]
-	0x00,	// TXEF1[7:0]
-	0x00,	// TXBF2[7:0]
-	0x00,	// TXEF2[7:0]
-	0x00,	// ECCF2 ECCF1 ECCGATE RSRVD DACOFF YC16 CBSWAP PORCH
-	0x00,	// CCF2B1[7:0]
-	0x00,	// CCF2B2[7:0]
-	0x00,	// CCF1B1[7:0]
-	0x00,	// CCF1B2[7:0]
-	0x00,	// HSYNCF[7:0]
-	0x00,	// HSYNCR[7:0]
-	0x00,	// SYNCDLY FIELD1 SYNCDIS ADJHSYNC HSYNCF[9:8] HSYNCR[9:8]
-	0xf4,	// SETMODE SETUPDIS VIDFORM[3:0] NONINTL SQUARE
-	0x02,	// ESTATUS RGBO DCHROMA ECBAR SCRESET EVBI EACTIVE ECLIP
-	0x01,	// RSRVD[6:0] PALN
 	0x00,	// RSRVD[7:0]
 	0x00,	// RSRVD[7:0]
 	0x00,	// RSRVD[7:0]
@@ -444,49 +236,27 @@ static int bt865_update( struct i2c_client *client )
 	return 0;
 }
 
-static int bt865_setmode(int mode, struct i2c_client *client)
+static int bt865_setmode(v4l2_std_id std, struct i2c_client *client)
 {
 	struct bt865_data_s *data = i2c_get_clientdata(client);
 	unsigned char *config = NULL;
 
-	pr_debug("bt865_setmode( %d, %p )\n", mode, client);
+	pr_debug("bt865_setmode( %llx, %p )\n", std, client);
 
-	switch (mode) {
-	case ENCODER_MODE_NTSC:
+	if (std & V4L2_STD_NTSC) {
 		printk(KERN_NOTICE "bt865.o: Configuring for NTSC\n");
 		config = NTSC_CONFIG_BT865;
 		data->configlen = sizeof(NTSC_CONFIG_BT865);
-		break;
-	case ENCODER_MODE_NTSC60:
-		printk(KERN_NOTICE "bt865.o: Configuring for NTSC\n");
-		config = NTSC60_CONFIG_BT865;
-		data->configlen = sizeof(NTSC60_CONFIG_BT865);
-		break;
-	case ENCODER_MODE_PAL_M:
-		printk(KERN_NOTICE "bt865.o: Configuring for PAL_M\n");
-		config = PALM_CONFIG_BT865;
-		data->configlen = sizeof(PALM_CONFIG_BT865);
-		break;
-	case ENCODER_MODE_PALM60:
-		printk(KERN_NOTICE "bt865.o: Configuring for PAL_M60\n");
-		config = PALM60_CONFIG_BT865;
-		data->configlen = sizeof(PALM60_CONFIG_BT865);
-		break;
-	case ENCODER_MODE_PAL:
+	} else if (std & V4L2_STD_PAL) {
 		printk(KERN_NOTICE "bt865.o: Configuring for PAL\n");
 		config = PAL_CONFIG_BT865;
 		data->configlen = sizeof(PAL_CONFIG_BT865);
-		break;
-	case ENCODER_MODE_PALNC:
-		printk(KERN_NOTICE "bt865.o: Configuring for PAL\n");
-		config = PALNC_CONFIG_BT865;
-		data->configlen = sizeof(PALNC_CONFIG_BT865);
-		break;
-	default:
-		return -1;
+	} else {
+		printk(KERN_NOTICE "illegal norm: %llx\n", std);
+		return -EINVAL;
 	}
 
-	data->mode = mode;
+	data->norm = std;
 
 	if (config) {
 		if (memcpy(data->config, config, data->configlen) != data->config) {
@@ -514,10 +284,10 @@ static int bt865_setup(struct i2c_client *client)
 
 	if (EM8300_VIDEOMODE_DEFAULT == EM8300_VIDEOMODE_PAL) {
 		printk(KERN_NOTICE "bt865.o: Defaulting to PAL\n");
-		bt865_setmode(ENCODER_MODE_PAL, client);
+		bt865_setmode(V4L2_STD_PAL, client);
 	} else if (EM8300_VIDEOMODE_DEFAULT == EM8300_VIDEOMODE_NTSC) {
 		printk(KERN_NOTICE "bt865.o: Defaulting to NTSC\n");
-		bt865_setmode(ENCODER_MODE_NTSC, client);
+		bt865_setmode(V4L2_STD_NTSC, client);
 	}
 
 	if (bt865_update(client)) {

@@ -533,13 +533,10 @@ int em8300_ioctl_setvideomode(struct em8300_s *em, int mode)
 
 	switch (mode) {
 	case EM8300_VIDEOMODE_PAL:
-		encoder = ENCODER_MODE_PAL;
-		break;
-	case EM8300_VIDEOMODE_PAL60:
-		encoder = ENCODER_MODE_PAL60;
+		encoder = V4L2_STD_PAL;
 		break;
 	case EM8300_VIDEOMODE_NTSC:
-		encoder = ENCODER_MODE_NTSC;
+		encoder = V4L2_STD_NTSC;
 		break;
 	default:
 		return -EINVAL;
