@@ -202,7 +202,6 @@ static int bt865_update( struct i2c_client *client )
 {
 	struct bt865 *data = i2c_get_clientdata(client);
 	char tmpconfig[48];
-	int i;
 
 	if (memcpy(tmpconfig, data->config, data->configlen) != tmpconfig) {
 		printk(KERN_NOTICE "bt865_update: memcpy error\n");
@@ -211,10 +210,7 @@ static int bt865_update( struct i2c_client *client )
 
 	if (data->enableoutput) {
 		tmpconfig[23] |= 0x02;
-	}
-
-	for (i = 0; i < data->configlen; i++) {
-		i2c_smbus_write_byte_data(client, 2 * i + 0xA0, tmpconfig[i]);
+		i2c_smbus_write_byte_data(client, 2 * 23 + 0xA0, tmpconfig[23]);
 	}
 
 	return 0;
