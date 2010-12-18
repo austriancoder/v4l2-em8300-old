@@ -54,7 +54,7 @@ ifeq ($(BUILD_IOCTL32),y)
 em8300-objs += em8300_ioctl32.o
 endif
 
-obj-m += adv717x.o
+#obj-m += adv717x.o
 obj-m += bt865.o
 obj-m += em8300.o
 

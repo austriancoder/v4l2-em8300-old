@@ -125,6 +125,7 @@ static void em8300_i2c_unlock_client(struct i2c_client *client)
 	module_put(client->driver->driver.owner);
 }
 
+#if 0
 static void em8300_adv717x_setup(struct em8300_s *em,
 				 struct i2c_client *client)
 {
@@ -190,6 +191,7 @@ static void em8300_adv717x_setup(struct em8300_s *em,
 	client->driver->command(client, ENCODER_CMD_SETPARAM,
 				&param);
 }
+#endif
 
 /* ----------------------------------------------------------------------- */
 /* I2C functions							   */
@@ -363,11 +365,11 @@ int em8300_i2c_init2(struct em8300_s *em)
 	em8300_i2c_lock_client(em->encoder);
 	if (!strncmp(em->encoder->name, "ADV7175", 7)) {
 		em->encoder_type = ENCODER_ADV7175;
-		em8300_adv717x_setup(em, em->encoder);
+		/*em8300_adv717x_setup(em, em->encoder);*/
 	}
 	if (!strncmp(em->encoder->name, "ADV7170", 7)) {
 		em->encoder_type = ENCODER_ADV7170;
-		em8300_adv717x_setup(em, em->encoder);
+		/*em8300_adv717x_setup(em, em->encoder);*/
 	}
 	if (!strncmp(em->encoder->name, "BT865", 5)) {
 		em->encoder_type = ENCODER_BT865;
