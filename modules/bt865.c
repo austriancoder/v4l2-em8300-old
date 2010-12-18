@@ -41,40 +41,14 @@ MODULE_LICENSE("GPL");
 MODULE_VERSION(EM8300_VERSION);
 #endif
 
-static int color_bars[EM8300_MAX] = { [ 0 ... EM8300_MAX-1 ] = 0 };
-module_param_array(color_bars, bool, NULL, 0444);
-MODULE_PARM_DESC(color_bars, "If you set this to 1 a set of color bars will be displayed on your screen (used for testing if the chip is working). Defaults to 0.");
-
-typedef enum {
-	MODE_COMPOSITE_SVIDEO,
-	MODE_RGB,
-	MODE_MAX
-} output_mode_t;
-
-struct output_conf_s {
-};
-
-#include "encoder_output_mode.h"
-
-static output_mode_t output_mode_nr[EM8300_MAX] = { [ 0 ... EM8300_MAX-1 ] = MODE_COMPOSITE_SVIDEO };
-
-module_param_array_named(output_mode, output_mode_nr, output_mode_t, NULL, 0444);
-MODULE_PARM_DESC(output_mode, "Specifies the output mode to use for the BT865 video encoder. See the README-modoptions file for the list of mode names to use. Default is SVideo + composite (\"comp+svideo\").");
-
 static int bt865_probe(struct i2c_client *client, const struct i2c_device_id *id);
 static int bt865_remove(struct i2c_client *client);
 static int bt865_command(struct i2c_client *client, unsigned int cmd, void *arg);
 static int bt865_setup(struct i2c_client *client);
 
-static const mode_info_t mode_info[] = {
-	[ MODE_COMPOSITE_SVIDEO ] =		{ "comp+svideo" , { } },
-	[ MODE_RGB ] =				{ "rgb"         , { } },
-};
-
 struct bt865 {
 	struct v4l2_subdev sd;
 	v4l2_std_id norm;
-	int rgbmode;
 	int enableoutput;
 
 	unsigned char config[48];
@@ -239,10 +213,6 @@ static int bt865_update( struct i2c_client *client )
 		tmpconfig[23] |= 0x02;
 	}
 
-	if (data->rgbmode) {
-		tmpconfig[23] |= 0x40;
-	}
-
 	for (i = 0; i < data->configlen; i++) {
 		i2c_smbus_write_byte_data(client, 2 * i + 0xA0, tmpconfig[i]);
 	}
@@ -285,14 +255,12 @@ static int bt865_setmode(v4l2_std_id std, struct i2c_client *client)
 static int bt865_setup(struct i2c_client *client)
 {
 	struct bt865 *data = i2c_get_clientdata(client);
-	struct em8300_s *em = i2c_get_adapdata(client->adapter);
 
 	if (memset(data->config, 0, sizeof(data->config)) != data->config) {
 		printk(KERN_NOTICE "bt865_setup: memset error\n");
 		return -1;
 	}
 
-	data->rgbmode = output_mode_nr[em->instance] == MODE_RGB;
 	data->enableoutput = 0;
 
 	if (EM8300_VIDEOMODE_DEFAULT == EM8300_VIDEOMODE_PAL) {
