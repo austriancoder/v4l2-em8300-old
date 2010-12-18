@@ -22,32 +22,13 @@
    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <linux/version.h>
 #include <linux/module.h>
 #include <linux/moduleparam.h>
-#include <linux/init.h>
-#include <linux/delay.h>
-#include <linux/errno.h>
-#include <linux/fs.h>
-#include <linux/kernel.h>
-#include <linux/major.h>
 #include <linux/slab.h>
-#include <linux/mm.h>
-#include <linux/pci.h>
-#include <linux/signal.h>
-#include <asm/io.h>
-#include <asm/pgtable.h>
-#include <asm/page.h>
-#include <linux/sched.h>
 #include <linux/types.h>
 
-#include <linux/videodev.h>
-#include <asm/uaccess.h>
-
 #include <linux/i2c.h>
-#include <linux/i2c-algo-bit.h>
 
-#include "em8300_compat24.h"
 #include "bt865.h"
 #include "encoder.h"
 
@@ -59,8 +40,6 @@ MODULE_LICENSE("GPL");
 #ifdef MODULE_VERSION
 MODULE_VERSION(EM8300_VERSION);
 #endif
-
-EXPORT_NO_SYMBOLS;
 
 static int color_bars[EM8300_MAX] = { [ 0 ... EM8300_MAX-1 ] = 0 };
 module_param_array(color_bars, bool, NULL, 0444);
@@ -92,7 +71,7 @@ static const mode_info_t mode_info[] = {
 	[ MODE_RGB ] =				{ "rgb"         , { } },
 };
 
-struct bt865 {
+struct bt865_data_s {
 	int chiptype;
 	int mode;
 	int bars;
@@ -437,7 +416,7 @@ static unsigned char PALNC_CONFIG_BT865[ 48 ] = {
 
 static int bt865_update( struct i2c_client *client )
 {
-	struct bt865 *data = i2c_get_clientdata(client);
+	struct bt865_data_s *data = i2c_get_clientdata(client);
 	char tmpconfig[48];
 	int i;
 
@@ -467,7 +446,7 @@ static int bt865_update( struct i2c_client *client )
 
 static int bt865_setmode(int mode, struct i2c_client *client)
 {
-	struct bt865 *data = i2c_get_clientdata(client);
+	struct bt865_data_s *data = i2c_get_clientdata(client);
 	unsigned char *config = NULL;
 
 	pr_debug("bt865_setmode( %d, %p )\n", mode, client);
@@ -521,7 +500,7 @@ static int bt865_setmode(int mode, struct i2c_client *client)
 
 static int bt865_setup(struct i2c_client *client)
 {
-	struct bt865 *data = i2c_get_clientdata(client);
+	struct bt865_data_s *data = i2c_get_clientdata(client);
 	struct em8300_s *em = i2c_get_adapdata(client->adapter);
 
 	if (memset(data->config, 0, sizeof(data->config)) != data->config) {
@@ -552,7 +531,7 @@ static int bt865_setup(struct i2c_client *client)
 static int bt865_probe(struct i2c_client *client,
 		       const struct i2c_device_id *id)
 {
-	struct bt865 *data;
+	struct bt865_data_s *data;
 	int err = 0;
 
 /*
@@ -561,9 +540,9 @@ static int bt865_probe(struct i2c_client *client,
 	}
 */
 
-	if (!(data = kmalloc(sizeof(struct bt865), GFP_KERNEL)))
+	if (!(data = kmalloc(sizeof(struct bt865_data_s), GFP_KERNEL)))
 		return -ENOMEM;
-	memset(data, 0, sizeof(struct bt865));
+	memset(data, 0, sizeof(struct bt865_data_s));
 
 	i2c_set_clientdata(client, data);
 
@@ -582,7 +561,7 @@ static int bt865_probe(struct i2c_client *client,
 
 static int bt865_remove(struct i2c_client *client)
 {
-	struct bt865 *data = i2c_get_clientdata(client);
+	struct bt865_data_s *data = i2c_get_clientdata(client);
 
 	kfree(data);
 
@@ -591,7 +570,7 @@ static int bt865_remove(struct i2c_client *client)
 
 static int bt865_command(struct i2c_client *client, unsigned int cmd, void *arg)
 {
-	struct bt865 *data = i2c_get_clientdata(client);
+	struct bt865_data_s *data = i2c_get_clientdata(client);
 
 	switch(cmd) {
 	case ENCODER_CMD_SETMODE:
