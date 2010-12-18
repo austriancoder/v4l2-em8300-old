@@ -72,6 +72,7 @@ static const mode_info_t mode_info[] = {
 };
 
 struct bt865 {
+	struct v4l2_subdev sd;
 	v4l2_std_id norm;
 	int chiptype;
 	int bars;
@@ -81,6 +82,11 @@ struct bt865 {
 	unsigned char config[48];
 	int configlen;
 };
+
+static inline struct bt865 *to_bt865(struct v4l2_subdev *sd)
+{
+	return container_of(sd, struct bt865, sd);
+}
 
 static struct i2c_device_id bt865_idtable[] = {
 	{ "bt865", 0 },
