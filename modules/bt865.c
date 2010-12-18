@@ -337,6 +337,25 @@ static int bt865_command(struct i2c_client *client, unsigned int cmd, void *arg)
 
 /* ----------------------------------------------------------------------- */
 
+static int bt865_g_chip_ident(struct v4l2_subdev *sd, struct v4l2_dbg_chip_ident *chip)
+{
+	struct i2c_client *client = v4l2_get_subdevdata(sd);
+
+	/* reserve id */
+	return v4l2_chip_ident_i2c_client(client, chip, 70000, 0);
+}
+
+static const struct v4l2_subdev_core_ops bt865_core_ops = {
+	.g_chip_ident = bt865_g_chip_ident,
+};
+
+static const struct v4l2_subdev_video_ops bt865_video_ops = {
+};
+
+static const struct v4l2_subdev_ops bt865_ops = {
+	.core = &bt865_core_ops,
+	.video = &bt865_video_ops,
+};
 
 int __init bt865_init(void)
 {
