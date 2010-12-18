@@ -75,7 +75,6 @@ struct bt865 {
 	struct v4l2_subdev sd;
 	v4l2_std_id norm;
 	int chiptype;
-	int bars;
 	int rgbmode;
 	int enableoutput;
 
@@ -237,10 +236,6 @@ static int bt865_update( struct i2c_client *client )
 		return -1;
 	}
 
-	if (data->bars) {
-		tmpconfig[23] |= 0x10;
-	}
-
 	if (data->enableoutput) {
 		tmpconfig[23] |= 0x02;
 	}
@@ -298,7 +293,6 @@ static int bt865_setup(struct i2c_client *client)
 		return -1;
 	}
 
-	data->bars = color_bars[em->instance];
 	data->rgbmode = output_mode_nr[em->instance] == MODE_RGB;
 	data->enableoutput = 0;
 
