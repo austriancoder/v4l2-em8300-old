@@ -74,26 +74,6 @@ static inline int bt865_read(struct v4l2_subdev *sd, u8 reg)
 	return i2c_smbus_read_byte_data(client, reg);
 }
 
-static struct i2c_device_id bt865_idtable[] = {
-	{ "bt865", 0 },
-	{ }
-};
-
-MODULE_DEVICE_TABLE(i2c, bt865_idtable);
-
-/* This is the driver that will be inserted */
-static struct i2c_driver bt865_driver = {
-	.driver = {
-		.name =		"bt865",
-	},
-	.id_table =		bt865_idtable,
-	.probe =		&bt865_probe,
-	.remove =		&bt865_remove,
-	.command =		&bt865_command
-};
-
-int bt865_id = 0;
-
 // starts at register A0 by twos
 static unsigned char NTSC_CONFIG_BT865[ 48 ] = {
 /*  0 A0 */	0x00,	// EWSF2 EWSF1 RSRVD[1:0] WSDAT[4:1]
@@ -357,9 +337,27 @@ static const struct v4l2_subdev_ops bt865_ops = {
 	.video = &bt865_video_ops,
 };
 
+/* ----------------------------------------------------------------------- */
+
+static struct i2c_device_id bt865_id[] = {
+	{ "bt865", 0 },
+	{ }
+};
+MODULE_DEVICE_TABLE(i2c, bt865_id);
+
+/* This is the driver that will be inserted */
+static struct i2c_driver bt865_driver = {
+	.driver = {
+		.name =		"bt865",
+	},
+	.id_table =		bt865_id,
+	.probe =		&bt865_probe,
+	.remove =		&bt865_remove,
+	.command =		&bt865_command
+};
+
 int __init bt865_init(void)
 {
-	//request_module("i2c-algo-bit");
 	return i2c_add_driver(&bt865_driver);
 }
 
