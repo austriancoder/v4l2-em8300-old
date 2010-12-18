@@ -71,7 +71,7 @@ static const mode_info_t mode_info[] = {
 	[ MODE_RGB ] =				{ "rgb"         , { } },
 };
 
-struct bt865_data_s {
+struct bt865 {
 	v4l2_std_id norm;
 	int chiptype;
 	int bars;
@@ -208,7 +208,7 @@ static unsigned char PAL_CONFIG_BT865[ 48 ] = {
 
 static int bt865_update( struct i2c_client *client )
 {
-	struct bt865_data_s *data = i2c_get_clientdata(client);
+	struct bt865 *data = i2c_get_clientdata(client);
 	char tmpconfig[48];
 	int i;
 
@@ -238,7 +238,7 @@ static int bt865_update( struct i2c_client *client )
 
 static int bt865_setmode(v4l2_std_id std, struct i2c_client *client)
 {
-	struct bt865_data_s *data = i2c_get_clientdata(client);
+	struct bt865 *data = i2c_get_clientdata(client);
 	unsigned char *config = NULL;
 
 	pr_debug("bt865_setmode( %llx, %p )\n", std, client);
@@ -270,7 +270,7 @@ static int bt865_setmode(v4l2_std_id std, struct i2c_client *client)
 
 static int bt865_setup(struct i2c_client *client)
 {
-	struct bt865_data_s *data = i2c_get_clientdata(client);
+	struct bt865 *data = i2c_get_clientdata(client);
 	struct em8300_s *em = i2c_get_adapdata(client->adapter);
 
 	if (memset(data->config, 0, sizeof(data->config)) != data->config) {
@@ -301,7 +301,7 @@ static int bt865_setup(struct i2c_client *client)
 static int bt865_probe(struct i2c_client *client,
 		       const struct i2c_device_id *id)
 {
-	struct bt865_data_s *data;
+	struct bt865 *data;
 	int err = 0;
 
 /*
@@ -310,9 +310,9 @@ static int bt865_probe(struct i2c_client *client,
 	}
 */
 
-	if (!(data = kmalloc(sizeof(struct bt865_data_s), GFP_KERNEL)))
+	if (!(data = kmalloc(sizeof(struct bt865), GFP_KERNEL)))
 		return -ENOMEM;
-	memset(data, 0, sizeof(struct bt865_data_s));
+	memset(data, 0, sizeof(struct bt865));
 
 	i2c_set_clientdata(client, data);
 
@@ -331,7 +331,7 @@ static int bt865_probe(struct i2c_client *client,
 
 static int bt865_remove(struct i2c_client *client)
 {
-	struct bt865_data_s *data = i2c_get_clientdata(client);
+	struct bt865 *data = i2c_get_clientdata(client);
 
 	kfree(data);
 
@@ -340,7 +340,7 @@ static int bt865_remove(struct i2c_client *client)
 
 static int bt865_command(struct i2c_client *client, unsigned int cmd, void *arg)
 {
-	struct bt865_data_s *data = i2c_get_clientdata(client);
+	struct bt865 *data = i2c_get_clientdata(client);
 
 	switch(cmd) {
 	case ENCODER_CMD_SETMODE:
