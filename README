@@ -5,4 +5,8 @@ Git repo to clean up em8300 driver.
 --> will only compile with recent 2.6 kernel
 
 - use kernles encoders for adv7xx and bt865
+-- we need to extend current adv7175 and adv7170 drivers
+   to support media-bus.
+-- add bt865 driver to mainline kernel
+
 - convert to use v4l2 interface
