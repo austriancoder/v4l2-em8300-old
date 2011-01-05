@@ -400,6 +400,9 @@ void em8300_clockgen_write(struct em8300_s *em, int abyte)
 	write_register(em->i2c_pin_reg, 0x202);
 }
 
+/* ----------------------------------------------------------------------- */
+/* em9300 access  functions						   */
+/* ----------------------------------------------------------------------- */
 static void I2C_clk(struct em8300_s *em, int level)
 {
 	write_register(em->i2c_pin_reg, 0x1000 | (level ? 0x10 : 0));
@@ -517,4 +520,3 @@ void em9010_write16(struct em8300_s *em, int reg, int value)
 	em9010_write(em, 2, value & 0xff);
 	em9010_write(em, 1, value >> 8);
 }
-
