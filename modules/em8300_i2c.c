@@ -329,28 +329,29 @@ int em8300_i2c_init2(struct em8300_s *em)
 		strncpy((char *)&i2c_info.type,
 			known_models[em->model].module.name,
 			sizeof(i2c_info.type));
-
 		i2c_info.addr = known_models[em->model].module.addr;
 		em->encoder = i2c_new_device(&em->i2c_adap[0], &i2c_info);
-		if (em->encoder)
-			goto found;
+
 	} else {
 		struct i2c_board_info i2c_info;
 		const unsigned short adv717x_addr[] = { 0x6a, I2C_CLIENT_END };
 		const unsigned short bt865_addr[] = { 0x45, I2C_CLIENT_END };
+
+
 		i2c_info = (struct i2c_board_info){ I2C_BOARD_INFO("adv717x", 0) };
 		em->encoder = i2c_new_probed_device(&em->i2c_adap[0], &i2c_info, adv717x_addr, NULL);
-		if (em->encoder)
-			goto found;
-		i2c_info = (struct i2c_board_info){ I2C_BOARD_INFO("bt865", 0) };
-		em->encoder = i2c_new_probed_device(&em->i2c_adap[0], &i2c_info, bt865_addr, NULL);
-		if (em->encoder)
-			goto found;
-	}
-	printk(KERN_WARNING "em8300-%d: video encoder chip not found\n", em->instance);
-	return 0;
 
- found:
+		if (!em->encoder) {
+			i2c_info = (struct i2c_board_info){ I2C_BOARD_INFO("bt865", 0) };
+			em->encoder = i2c_new_probed_device(&em->i2c_adap[0], &i2c_info, bt865_addr, NULL);
+		}
+	}
+
+	if (em->encoder == NULL) {
+		printk(KERN_WARNING "em8300-%d: video encoder chip not found\n", em->instance);
+		return 0;
+	}
+
 	for (i = 0; (i < 50) && !em->encoder->driver; i++) {
 		set_current_state(TASK_UNINTERRUPTIBLE);
 		schedule_timeout(HZ/10);
