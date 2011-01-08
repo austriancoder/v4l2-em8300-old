@@ -95,23 +95,6 @@ static const struct i2c_algo_bit_data em8300_i2c_algo_template = {
 	.timeout = 100,
 };
 
-static int em8300_i2c_lock_client(struct i2c_client *client)
-{
-	struct em8300_s *em = i2c_get_adapdata(client->adapter);
-
-	if (!try_module_get(client->driver->driver.owner))
-	{
-		printk(KERN_ERR "em8300-%d: i2c: Unable to lock client module\n", em->instance);
-		return -ENODEV;
-	}
-	return 0;
-}
-
-static void em8300_i2c_unlock_client(struct i2c_client *client)
-{
-	module_put(client->driver->driver.owner);
-}
-
 #if 0
 static void em8300_adv717x_setup(struct em8300_s *em,
 				 struct i2c_client *client)
@@ -291,12 +274,12 @@ int em8300_i2c_init1(struct em8300_s *em)
 
 int em8300_i2c_init2(struct em8300_s *em)
 {
-	int i, ret;
+	int ret;
 
 	/* add only bus 1 */
 	ret = i2c_bit_add_bus(&em->i2c_adap[0]);
 	if (ret)
-		return ret;;
+		return ret;
 
 	em->i2c_client.adapter = &em->i2c_adap[0];
 	strlcpy(em->i2c_client.name, "em8300 internal", I2C_NAME_SIZE);
@@ -306,28 +289,20 @@ int em8300_i2c_init2(struct em8300_s *em)
 		request_module(known_models[em->model].module.name);
 
 	if (known_models[em->model].module.name != NULL) {
-		struct i2c_board_info i2c_info;
-		memset(&i2c_info, 0, sizeof(i2c_info));
-
-		strncpy((char *)&i2c_info.type,
-			known_models[em->model].module.name,
-			sizeof(i2c_info.type));
-		i2c_info.addr = known_models[em->model].module.addr;
-		em->encoder = i2c_new_device(&em->i2c_adap[0], &i2c_info);
-
+		em->encoder = v4l2_i2c_new_subdev(&em->v4l2_dev, &em->i2c_adap[0],
+				known_models[em->model].module.name, 0,
+				&known_models[em->model].module.addr);
 	} else {
-		struct i2c_board_info i2c_info;
-		const unsigned short adv717x_addr[] = { 0x6a, I2C_CLIENT_END };
-		const unsigned short bt865_addr[] = { 0x45, I2C_CLIENT_END };
+		const short unsigned int adv717x_addr = 0x6a;
+		const short unsigned int bt865_addr = 0x45;
 
+		/* simply try to find devices */
+		em->encoder = v4l2_i2c_new_subdev(&em->v4l2_dev, &em->i2c_adap[0],
+						"adv717x", 0, &adv717x_addr);
 
-		i2c_info = (struct i2c_board_info){ I2C_BOARD_INFO("adv717x", 0) };
-		em->encoder = i2c_new_probed_device(&em->i2c_adap[0], &i2c_info, adv717x_addr, NULL);
-
-		if (!em->encoder) {
-			i2c_info = (struct i2c_board_info){ I2C_BOARD_INFO("bt865", 0) };
-			em->encoder = i2c_new_probed_device(&em->i2c_adap[0], &i2c_info, bt865_addr, NULL);
-		}
+		if (!em->encoder)
+			em->encoder = v4l2_i2c_new_subdev(&em->v4l2_dev, &em->i2c_adap[0],
+									"bt865", 0, &bt865_addr);
 	}
 
 	if (em->encoder == NULL) {
@@ -335,18 +310,6 @@ int em8300_i2c_init2(struct em8300_s *em)
 		return 0;
 	}
 
-	for (i = 0; (i < 50) && !em->encoder->driver; i++) {
-		set_current_state(TASK_UNINTERRUPTIBLE);
-		schedule_timeout(HZ/10);
-	}
-	if (!em->encoder->driver) {	
-		printk(KERN_ERR "em8300-%d: encoder chip found but no driver found within 5 seconds\n", em->instance);
-		i2c_unregister_device(em->encoder);
-		em->encoder = NULL;
-		return 0;
-	}
-
-	em8300_i2c_lock_client(em->encoder);
 	if (!strncmp(em->encoder->name, "ADV7175", 7)) {
 		em->encoder_type = ENCODER_ADV7175;
 		/*em8300_adv717x_setup(em, em->encoder);*/
@@ -371,8 +334,7 @@ void em8300_i2c_exit(struct em8300_s *em)
 		em->eeprom = NULL;
 	}
 	if (em->encoder) {
-		em8300_i2c_unlock_client(em->encoder);
-		i2c_unregister_device(em->encoder);
+		//i2c_unregister_device(em->encoder);
 		em->encoder = NULL;
 	}
 

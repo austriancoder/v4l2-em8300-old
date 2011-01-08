@@ -122,6 +122,8 @@ struct em8300_s
 	
 	struct pci_dev *pci_dev;
 	struct v4l2_device v4l2_dev;
+	struct v4l2_subdev *encoder;
+
 	ulong adr;
 	volatile unsigned *mem;
 	ulong memsize;
@@ -160,7 +162,6 @@ struct em8300_s
 	
 	/* I2C clients */
 	int encoder_type;
-	struct i2c_client *encoder;
 	struct i2c_client *eeprom;
 	
 	/* Microcode registers */

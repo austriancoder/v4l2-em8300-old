@@ -152,11 +152,7 @@ static irqreturn_t em8300_irq(int irq, void *dev_id)
 
 static void release_em8300(struct em8300_s *em)
 {
-	if ((em->encoder) && (em->encoder->driver)
-	    && (em->encoder->driver->command))
-		em->encoder->driver->command(em->encoder,
-					     ENCODER_CMD_ENABLEOUTPUT,
-					     (void *) 0);
+	v4l2_subdev_call(em->encoder, core, s_power, 0);
 
 #ifdef CONFIG_MTRR
 	if (em->mtrr_reg)

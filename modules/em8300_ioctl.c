@@ -529,14 +529,14 @@ int em8300_ioctl_init(struct em8300_s *em, em8300_microcode_t *useruc)
 
 int em8300_ioctl_setvideomode(struct em8300_s *em, int mode)
 {
-	long int encoder;
+	v4l2_std_id std;
 
 	switch (mode) {
 	case EM8300_VIDEOMODE_PAL:
-		encoder = V4L2_STD_PAL;
+		std = V4L2_STD_PAL;
 		break;
 	case EM8300_VIDEOMODE_NTSC:
-		encoder = V4L2_STD_NTSC;
+		std = V4L2_STD_NTSC;
 		break;
 	default:
 		return -EINVAL;
@@ -546,9 +546,8 @@ int em8300_ioctl_setvideomode(struct em8300_s *em, int mode)
 
 	em8300_dicom_disable(em);
 
-	if ((em->encoder) && (em->encoder->driver)
-	    && (em->encoder->driver->command))
-		em->encoder->driver->command(em->encoder, ENCODER_CMD_SETMODE, (void *)encoder);
+	v4l2_subdev_call(em->encoder, video, s_std_output, std);
+
 	em8300_dicom_enable(em);
 	em8300_dicom_update(em);
 
@@ -559,11 +558,7 @@ void em8300_ioctl_enable_videoout(struct em8300_s *em, int mode)
 {
 	em8300_dicom_disable(em);
 
-	if ((em->encoder) && (em->encoder->driver)
-	    && (em->encoder->driver->command))
-		em->encoder->driver->command(em->encoder,
-					     ENCODER_CMD_ENABLEOUTPUT,
-					     (void *)(long int)(stop_video[em->instance]?mode:1));
+	v4l2_subdev_call(em->encoder, core, s_power, stop_video[em->instance]?mode:1);
 
 	em8300_dicom_enable(em);
 }
@@ -626,11 +621,8 @@ int em8300_ioctl_overlay_setmode(struct em8300_s *em, int val)
 	case EM8300_OVERLAY_MODE_RECTANGLE:
 	case EM8300_OVERLAY_MODE_OVERLAY:
 		if (!em->overlay_enabled) {
-			if ((em->encoder) && (em->encoder->driver)
-			    && (em->encoder->driver->command))
-				em->encoder->driver->command(em->encoder,
-							     ENCODER_CMD_ENABLEOUTPUT,
-							     (void *)(long int)0);
+			v4l2_subdev_call(em->encoder, core, s_power, 0);
+
 			em->clockgen = (em->clockgen & ~CLOCKGEN_MODEMASK) | em->clockgen_overlaymode;
 			em8300_clockgen_write(em, em->clockgen);
 			em->overlay_enabled = 1;
