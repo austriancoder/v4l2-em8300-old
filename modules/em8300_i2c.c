@@ -293,16 +293,14 @@ int em8300_i2c_init2(struct em8300_s *em)
 				known_models[em->model].module.name, 0,
 				&known_models[em->model].module.addr);
 	} else {
-		const short unsigned int adv717x_addr = 0x6a;
-		const short unsigned int bt865_addr = 0x45;
 
 		/* simply try to find devices */
 		em->encoder = v4l2_i2c_new_subdev(&em->v4l2_dev, &em->i2c_adap[0],
-						"adv717x", 0, &adv717x_addr);
+						"adv717x", 0, I2C_ADDRS(0x6a));
 
 		if (!em->encoder)
 			em->encoder = v4l2_i2c_new_subdev(&em->v4l2_dev, &em->i2c_adap[0],
-									"bt865", 0, &bt865_addr);
+									"bt865", 0, I2C_ADDRS(0x45));
 	}
 
 	if (em->encoder == NULL) {
