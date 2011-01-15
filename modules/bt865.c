@@ -247,46 +247,6 @@ static int bt865_setup(struct i2c_client *client)
 	return 0;
 }
 
-static int bt865_probe(struct i2c_client *client,
-		       const struct i2c_device_id *id)
-{
-	struct bt865 *data;
-	int err = 0;
-
-/*
-	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_READ_BYTE | I2C_FUNC_SMBUS_WRITE_BYTE_DATA)) {
-		return 0;
-	}
-*/
-
-	if (!(data = kmalloc(sizeof(struct bt865), GFP_KERNEL)))
-		return -ENOMEM;
-	memset(data, 0, sizeof(struct bt865));
-
-	i2c_set_clientdata(client, data);
-
-	strcpy(client->name, "BT865 chip");
-	printk(KERN_NOTICE "bt865.o: BT865 chip detected\n");
-
-	if ((err = bt865_setup(client)))
-		goto cleanup;
-
-	return 0;
-
- cleanup:
-	kfree(data);
-	return err;
-}
-
-static int bt865_remove(struct i2c_client *client)
-{
-	struct bt865 *data = i2c_get_clientdata(client);
-
-	kfree(data);
-
-	return 0;
-}
-
 static int bt865_command(struct i2c_client *client, unsigned int cmd, void *arg)
 {
 	switch(cmd) {
@@ -329,6 +289,48 @@ static const struct v4l2_subdev_ops bt865_ops = {
 	.core = &bt865_core_ops,
 	.video = &bt865_video_ops,
 };
+
+/* ----------------------------------------------------------------------- */
+
+static int bt865_probe(struct i2c_client *client,
+		       const struct i2c_device_id *id)
+{
+	struct bt865 *encoder;
+	struct v4l2_subdev *sd;
+	int err = 0;
+
+	/* Check if the adapter supports the needed features */
+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE_DATA))
+		return -ENODEV;
+
+	v4l_info(client, "chip found @ 0x%x (%s)\n",
+			client->addr << 1, client->adapter->name);
+
+	encoder = kmalloc(sizeof(struct bt865), GFP_KERNEL);
+	if (encoder == NULL)
+		return -ENOMEM;
+	sd = &encoder->sd;
+	v4l2_i2c_subdev_init(sd, client, &bt865_ops);
+	encoder->norm = V4L2_STD_PAL;
+
+	if ((err = bt865_setup(client)))
+		goto cleanup;
+
+	return 0;
+
+ cleanup:
+	kfree(encoder);
+	return err;
+}
+
+static int bt865_remove(struct i2c_client *client)
+{
+	struct bt865 *data = i2c_get_clientdata(client);
+
+	kfree(data);
+
+	return 0;
+}
 
 /* ----------------------------------------------------------------------- */
 
