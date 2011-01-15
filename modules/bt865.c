@@ -49,7 +49,6 @@ static int bt865_setup(struct i2c_client *client);
 struct bt865 {
 	struct v4l2_subdev sd;
 	v4l2_std_id norm;
-	int enableoutput;
 
 	unsigned char config[48];
 	int configlen;
@@ -188,11 +187,6 @@ static int bt865_update( struct i2c_client *client )
 		return -1;
 	}
 
-	if (data->enableoutput) {
-		tmpconfig[23] |= 0x02;
-		i2c_smbus_write_byte_data(client, 2 * 23 + 0xA0, tmpconfig[23]);
-	}
-
 	return 0;
 }
 
@@ -236,8 +230,6 @@ static int bt865_setup(struct i2c_client *client)
 		printk(KERN_NOTICE "bt865_setup: memset error\n");
 		return -1;
 	}
-
-	data->enableoutput = 0;
 
 	if (EM8300_VIDEOMODE_DEFAULT == EM8300_VIDEOMODE_PAL) {
 		printk(KERN_NOTICE "bt865.o: Defaulting to PAL\n");
@@ -297,15 +289,9 @@ static int bt865_remove(struct i2c_client *client)
 
 static int bt865_command(struct i2c_client *client, unsigned int cmd, void *arg)
 {
-	struct bt865 *data = i2c_get_clientdata(client);
-
 	switch(cmd) {
 	case ENCODER_CMD_SETMODE:
 		bt865_setmode((long int) arg, client);
-		bt865_update(client);
-		break;
-	case ENCODER_CMD_ENABLEOUTPUT:
-		data->enableoutput = (long int) arg;
 		bt865_update(client);
 		break;
 	default:
@@ -325,8 +311,15 @@ static int bt865_g_chip_ident(struct v4l2_subdev *sd, struct v4l2_dbg_chip_ident
 	return v4l2_chip_ident_i2c_client(client, chip, 70000, 0);
 }
 
+static int bt865_s_power(struct v4l2_subdev *sd, int on)
+{
+	/* TODO */
+	return 0;
+}
+
 static const struct v4l2_subdev_core_ops bt865_core_ops = {
 	.g_chip_ident = bt865_g_chip_ident,
+	.s_power = bt865_s_power,
 };
 
 static const struct v4l2_subdev_video_ops bt865_video_ops = {
