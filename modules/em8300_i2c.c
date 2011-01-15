@@ -28,6 +28,7 @@
 
 #include <linux/i2c.h>
 #include <linux/i2c-algo-bit.h>
+#include <linux/delay.h>
 
 #include "em8300_reg.h"
 #include "em8300_models.h"
