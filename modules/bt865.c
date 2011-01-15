@@ -351,16 +351,16 @@ static struct i2c_driver bt865_driver = {
 	.command =		&bt865_command
 };
 
-int __init bt865_init(void)
+int __init init_bt865(void)
 {
 	return i2c_add_driver(&bt865_driver);
 }
 
-void __exit bt865_cleanup(void)
+void __exit exit_bt865(void)
 {
 	i2c_del_driver(&bt865_driver);
 }
 
-module_init(bt865_init);
-module_exit(bt865_cleanup);
+module_init(init_bt865);
+module_exit(exit_bt865);
 
