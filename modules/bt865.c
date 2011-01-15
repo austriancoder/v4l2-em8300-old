@@ -325,10 +325,10 @@ static int bt865_probe(struct i2c_client *client,
 
 static int bt865_remove(struct i2c_client *client)
 {
-	struct bt865 *data = i2c_get_clientdata(client);
+	struct v4l2_subdev *sd = i2c_get_clientdata(client);
 
-	kfree(data);
-
+	v4l2_device_unregister_subdev(sd);
+	kfree(to_bt865(sd));
 	return 0;
 }
 
