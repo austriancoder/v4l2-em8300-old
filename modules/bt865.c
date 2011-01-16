@@ -115,7 +115,8 @@ static int bt865_s_std_output(struct v4l2_subdev *sd, v4l2_std_id std)
 	return 0;
 }
 
-static int bt865_g_chip_ident(struct v4l2_subdev *sd, struct v4l2_dbg_chip_ident *chip)
+static int bt865_g_chip_ident(struct v4l2_subdev *sd,
+		     struct v4l2_dbg_chip_ident *chip)
 {
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
 
@@ -203,7 +204,7 @@ MODULE_DEVICE_TABLE(i2c, bt865_id);
 static struct i2c_driver bt865_driver = {
 	.driver = {
 		.owner	=	THIS_MODULE,
-		.name 	=	"bt865",
+		.name	=	"bt865",
 	},
 	.id_table =		bt865_id,
 	.probe =		&bt865_probe,
