@@ -32,7 +32,6 @@
 
 #include "em8300_reg.h"
 #include "em8300_models.h"
-#include "em8300_driver.h"
 
 struct i2c_bus_s {
 	int clock_pio;

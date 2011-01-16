@@ -22,7 +22,7 @@
 
 #define __NO_VERSION__
 
-#include <linux/delay.h>
+//#include <linux/delay.h>
 #include <linux/pci.h>
 
 #include "em8300_reg.h"
@@ -534,7 +534,7 @@ int loc_2bcfe(struct em8300_s *em)
   l4 [ebp-10]
   l1 [ebp-14]
   l2 [ebp-1c]
-  l3 [ebp-24]
+  l3ï¿½[ebp-24]
  */
 int loc_2A66E(struct em8300_s *em)
 {

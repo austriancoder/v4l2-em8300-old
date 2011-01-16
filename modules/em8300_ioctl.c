@@ -27,31 +27,14 @@
 
 #define __NO_VERSION__
 
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/sched.h>
-#include <linux/string.h>
-#include <linux/timer.h>
-#include <linux/delay.h>
-#include <linux/errno.h>
-#include <linux/slab.h>
-#include <linux/version.h>
 #include <linux/string.h>
 #include <linux/pci.h>
-#include <asm/io.h>
-#include <asm/uaccess.h>
-#include <linux/wait.h>
-#include <linux/ioctl.h>
-
-#include <linux/i2c.h>
-#include <linux/i2c-algo-bit.h>
 
 #include "em8300_reg.h"
 #include <linux/em8300.h>
 #include "em8300_driver.h"
 #include "em8300_fifo.h"
 
-#include "em8300_compat24.h"
 #include "em8300_params.h"
 
 int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)

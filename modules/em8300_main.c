@@ -20,35 +20,13 @@
 */
 #include <linux/version.h>
 #include <linux/module.h>
-#include <linux/moduleparam.h>
-#include <linux/delay.h>
-#include <linux/init.h>
-#include <linux/errno.h>
-#include <linux/fs.h>
-#include <linux/kernel.h>
-#include <linux/major.h>
-#include <linux/slab.h>
-#include <linux/vmalloc.h>
-#include <linux/mm.h>
 #include <linux/pci.h>
 #include <linux/sound.h>
-#include <linux/signal.h>
-#include <linux/string.h>
-#include <linux/time.h>
-#include <linux/poll.h>
-#include <linux/io.h>
-#include <asm/pgtable.h>
-#include <asm/page.h>
-#include <linux/sched.h>
 #ifdef CONFIG_MTRR
 #include <asm/mtrr.h>
 #endif
 
 #include <linux/interrupt.h>
-#include <linux/uaccess.h>
-#include <linux/i2c.h>
-#include <linux/i2c-algo-bit.h>
-#include <linux/smp_lock.h>
 
 #include "em8300_compat24.h"
 

@@ -23,31 +23,11 @@
 
 #define __NO_VERSION__
 
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/sched.h>
-#include <linux/string.h>
-#include <linux/timer.h>
-#include <linux/delay.h>
-#include <linux/errno.h>
-#include <linux/slab.h>
-#include <linux/version.h>
-#include <linux/string.h>
 #include <linux/pci.h>
-#include <asm/io.h>
-#include <asm/uaccess.h>
-#include <linux/wait.h>
-
-#include <linux/i2c.h>
-#include <linux/i2c-algo-bit.h>
-
 #include "em8300_reg.h"
 #include <linux/em8300.h>
 #include "em8300_driver.h"
-#include <linux/ioctl.h>
 #include "em8300_fifo.h"
-
-#include "em8300_compat24.h"
 
 unsigned default_palette[16] = {
 	0xe18080, 0x2b8080, 0x847b9c, 0x51ef5a, 0x7d8080, 0xb48080, 0xa910a5,
@@ -95,9 +75,8 @@ void em8300_spu_check_ptsfifo(struct em8300_s *em)
 
 		ptsfifoptr = ucregister(SP_PTSFifo) + 2 * em->sp_ptsfifo_ptr;
 
-		if (!(read_register(ptsfifoptr + 1) & 1)) {
+		if (!(read_register(ptsfifoptr + 1) & 1))
 			wake_up_interruptible(&em->sp_ptsfifo_wait);
-		}
 	}
 
 ssize_t em8300_spu_write(struct em8300_s *em, const char *buf, size_t count, loff_t *ppos)
@@ -140,9 +119,9 @@ int em8300_spu_ioctl(struct em8300_s *em, unsigned int cmd, unsigned long arg)
 
 	switch (cmd) {
 	case EM8300_IOCTL_SPU_SETPTS:
-		if (get_user(em->sp_pts, (int *) arg)) {
+		if (get_user(em->sp_pts, (int *) arg))
 			return -EFAULT;
-		}
+
 		em->sp_pts >>= 1;
 		em->sp_ptsvalid = 1;
 		break;

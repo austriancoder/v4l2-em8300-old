@@ -21,10 +21,6 @@
 #include "em8300_params.h"
 #include <linux/em8300.h>
 #include "em8300_driver.h"
-#include <linux/module.h>
-#include <linux/string.h>
-#include <linux/kernel.h>
-#include "em8300_compat24.h"
 
 int use_bt865[EM8300_MAX] = { [0 ... EM8300_MAX-1] = -1 };
 module_param_array(use_bt865, bool, NULL, 0444);

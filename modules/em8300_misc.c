@@ -20,22 +20,7 @@
 
 #define __NO_VERSION__
 
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/sched.h>
-#include <linux/string.h>
-#include <linux/timer.h>
-#include <linux/delay.h>
-#include <linux/errno.h>
-#include <linux/slab.h>
-#include <linux/version.h>
-#include <linux/string.h>
 #include <linux/pci.h>
-#include <asm/io.h>
-#include <asm/uaccess.h>
-
-#include <linux/i2c.h>
-#include <linux/i2c-algo-bit.h>
 
 #include "em8300_reg.h"
 #include <linux/em8300.h>

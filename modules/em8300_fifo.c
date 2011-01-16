@@ -19,38 +19,11 @@
 
 #define __NO_VERSION__
 
-#include <linux/module.h>
-#include <linux/delay.h>
-#include <linux/init.h>
-#include <linux/errno.h>
-#include <linux/fs.h>
-#include <linux/kernel.h>
-#include <linux/major.h>
-#include <linux/slab.h>
-#include <linux/vmalloc.h>
-#include <linux/mm.h>
 #include <linux/pci.h>
-#include <linux/signal.h>
-#include <linux/string.h>
-#include <linux/time.h>
-#include <asm/io.h>
-#include <asm/pgtable.h>
-#include <asm/page.h>
-#include <linux/sched.h>
-#include <linux/wait.h>
-
-#include <linux/version.h>
-#include <asm/uaccess.h>
-
-#include <linux/i2c.h>
-#include <linux/i2c-algo-bit.h>
-
 #include "em8300_reg.h"
 #include <linux/em8300.h>
 #include "em8300_driver.h"
 #include "em8300_fifo.h"
-
-#include "em8300_compat24.h"
 
 int em8300_fifo_init(struct em8300_s *em, struct fifo_s *f, int start, int wrptr, int rdptr, int pcisize, int slotsize, int fifotype)
 {
