@@ -614,9 +614,6 @@ static int init_em8300(struct em8300_s *em)
 	/*
 	 * Override default (or detected) values with module parameters.
 	 */
-	if (use_bt865[em->instance] >= 0)
-		em->config.model.use_bt865 =
-			use_bt865[em->instance];
 	if (dicom_other_pal[em->instance] >= 0)
 		em->config.model.dicom_other_pal =
 			dicom_other_pal[em->instance];

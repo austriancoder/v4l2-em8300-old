@@ -27,7 +27,6 @@
 extern int major;
 
 /* Card-model-dependant parameters */
-extern int use_bt865[];
 extern int dicom_other_pal[];
 extern int dicom_fix[];
 extern int dicom_control[];

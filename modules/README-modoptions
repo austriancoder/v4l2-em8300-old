@@ -5,11 +5,6 @@ General fixes:
                           when uploading the microcode
    bt865_ucode_timeout -- set to 1 if you have a bt865 and get timeouts
                           when uploading the microcode.
-   use_bt865           -- set to 1 if you have a bt865.  Modifies some
-                          initialization values.
-			  This now works with multiple cards, so you can
-                          do use_bt865=0,1 if you have two cards and the
-                          second uses a bt865.
    major               -- set the major number of /dev/em8300* character
                           device files, or 0 for automatic assignment. Usually
                           devices use 121, which is officially reserved for

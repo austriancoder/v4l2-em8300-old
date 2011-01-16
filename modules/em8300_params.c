@@ -22,10 +22,6 @@
 #include <linux/em8300.h>
 #include "em8300_driver.h"
 
-int use_bt865[EM8300_MAX] = { [0 ... EM8300_MAX-1] = -1 };
-module_param_array(use_bt865, bool, NULL, 0444);
-MODULE_PARM_DESC(use_bt865, "Set this to 1 if you have a bt865. It changes some internal register values. Defaults to 0.");
-
 /*
  * Module params by Jonas Birmé (birme@jpl.nu)
  */
