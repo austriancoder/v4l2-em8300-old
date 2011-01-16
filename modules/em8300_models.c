@@ -38,7 +38,6 @@ const struct em8300_model_s known_models[] = {
 			.bt865_ucode_timeout = 1,
 			.activate_loopback = 0,
 		},
-		.bt865_config = {}
 	},
 	{
 		.name = "DXR3 with ADV7175A",

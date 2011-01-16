@@ -30,7 +30,6 @@ struct em8300_model_s {
 	struct { char const *name; unsigned short addr; } module;
 	struct em8300_model_config_s em8300_config;
 	struct adv717x_model_config_s adv717x_config;
-	struct bt865_model_config_s bt865_config;
 };
 
 extern const struct em8300_model_s known_models[];

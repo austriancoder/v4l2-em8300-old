@@ -102,13 +102,9 @@ struct adv717x_model_config_s {
 	int pixeldata_adjust_pal;
 };
 
-struct bt865_model_config_s {
-};
-
 struct em8300_config_s {
 	struct em8300_model_config_s model;
 	struct adv717x_model_config_s adv717x_model;
-	struct bt865_model_config_s bt865_model;
 };
 
 struct em8300_s
