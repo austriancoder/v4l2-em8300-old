@@ -81,9 +81,9 @@ static int bt865_write_block(struct v4l2_subdev *sd,
 
 /* ----------------------------------------------------------------------- */
 
-#define RESET		0xa6
-#define DACOFF		0xbc
-#define EACTIVE		0xce
+#define RESET		0x80
+#define DACOFF		0x08
+#define EACTIVE		0x02
 
 static const unsigned char init_ntsc[] = {
 	0xbc, 0xc1,
@@ -129,11 +129,11 @@ static int bt865_s_power(struct v4l2_subdev *sd, int on)
 	u8 val = bt865_read(sd, 0xce);
 
 	if (on) {
-		bt865_write(sd, DACOFF, val & ~0x8);
-		bt865_write(sd, EACTIVE, val | 0x2);
+		bt865_write(sd, 0xbc, val & ~DACOFF);
+		bt865_write(sd, 0xce, val | EACTIVE);
 	} else {
-		bt865_write(sd, EACTIVE, val & ~0x2);
-		bt865_write(sd, DACOFF, val | 0x8);
+		bt865_write(sd, 0xce, val & ~EACTIVE);
+		bt865_write(sd, 0xbc, val | DACOFF);
 	}
 
 	return 0;
@@ -178,7 +178,7 @@ static int bt865_probe(struct i2c_client *client,
 	encoder->norm = V4L2_STD_PAL;
 
 	/* reset all registers to 0 */
-	bt865_write(sd, RESET, 0x80);
+	bt865_write(sd, 0xa6, RESET);
 
 	return 0;
 }
