@@ -82,6 +82,7 @@ static int bt865_write_block(struct v4l2_subdev *sd,
 
 /* ----------------------------------------------------------------------- */
 
+#define RESET		0xa6
 #define DACOFF		0xbc
 #define EACTIVE		0xce
 
@@ -178,7 +179,7 @@ static int bt865_probe(struct i2c_client *client,
 	encoder->norm = V4L2_STD_PAL;
 
 	/* reset all registers to 0 */
-	bt865_write(sd, 0xa6, 0x80);
+	bt865_write(sd, RESET, 0x80);
 
 	return 0;
 }
