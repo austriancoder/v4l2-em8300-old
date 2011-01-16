@@ -1,11 +1,10 @@
 /*
- *  BT865A - Brook Tree BT865A video encoder driver version 0.0.4
+ * BT865A - Brook Tree BT865A video encoder driver version 0.0.4
  *
  * Henrik Johannson <henrikjo@post.utfors.se>
  * As modified by Chris C. Hoover <cchoover@home.com>
  *
- * Modified by Luis Correia <lfcorreia@users.sourceforge.net>
- * added rgb_mode (requires hacking DXR3 hardware)
+ * Copyright (C) 2011 Christian Gmeiner <christian.gminer@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
