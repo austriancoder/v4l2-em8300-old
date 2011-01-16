@@ -34,9 +34,6 @@
 #include "em8300_models.h"
 #include "em8300_driver.h"
 
-#include "adv717x.h"
-#include "bt865.h"
-
 struct i2c_bus_s {
 	int clock_pio;
 	int data_pio;
