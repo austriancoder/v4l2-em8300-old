@@ -51,8 +51,6 @@
 #include "em8300_driver.h"
 #include "em8300_fifo.h"
 
-#include "encoder.h"
-
 #include "em8300_compat24.h"
 #include "em8300_params.h"
 

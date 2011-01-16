@@ -36,7 +36,6 @@
 
 #include "adv717x.h"
 #include "bt865.h"
-#include "encoder.h"
 
 struct i2c_bus_s {
 	int clock_pio;

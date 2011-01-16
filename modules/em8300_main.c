@@ -51,7 +51,6 @@
 #include <linux/smp_lock.h>
 
 #include "em8300_compat24.h"
-#include "encoder.h"
 
 #include "em8300_reg.h"
 #include <linux/em8300.h>
