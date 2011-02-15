@@ -170,12 +170,16 @@ static long em8300_io_ioctl(struct file *filp, unsigned int cmd, unsigned long a
 	switch (subdevice) {
 	case EM8300_SUBDEVICE_AUDIO:
 		ret = em8300_audio_ioctl(em, cmd, arg);
+		break;
 	case EM8300_SUBDEVICE_VIDEO:
 		ret = em8300_video_ioctl(em, cmd, arg);
+		break;
 	case EM8300_SUBDEVICE_SUBPICTURE:
 		ret =  em8300_spu_ioctl(em, cmd, arg);
+		break;
 	case EM8300_SUBDEVICE_CONTROL:
 		ret = em8300_control_ioctl(em, cmd, arg);
+		break;
 	}
 	mutex_unlock(&em->ioctl_mutex);
 
