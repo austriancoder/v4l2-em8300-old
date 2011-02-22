@@ -23,18 +23,6 @@
 #ifndef _EM8300_COMPAT24_H_
 #define _EM8300_COMPAT24_H_
 
-#if !defined(MODULE_LICENSE)
-#define MODULE_LICENSE(_license)
-#endif
-
-#if !defined(MODULE_ALIAS_CHARDEV_MAJOR)
-#define MODULE_ALIAS_CHARDEV_MAJOR(major)
-#endif
-
-#if !defined(EXPORT_NO_SYMBOLS)
-#define EXPORT_NO_SYMBOLS
-#endif
-
 /* EM8300_IMINOR */
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,2) || LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
 #define EM8300_IMINOR(inode) (MINOR((inode)->i_rdev))

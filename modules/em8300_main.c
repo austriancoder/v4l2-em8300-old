@@ -59,8 +59,6 @@ MODULE_ALIAS_CHARDEV_MAJOR(EM8300_MAJOR);
 MODULE_VERSION(EM8300_VERSION);
 #endif
 
-EXPORT_NO_SYMBOLS;
-
 static int em8300_cards, clients;
 
 static struct em8300_s *em8300[EM8300_MAX];
