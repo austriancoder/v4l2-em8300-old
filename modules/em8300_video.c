@@ -37,9 +37,14 @@
 
 #include <linux/soundcard.h>
 
+static int video_open(struct file *file)
+{
+	return 0;
+}
 
 static struct v4l2_file_operations em8300_v4l2_fops = {
 	.owner      = THIS_MODULE,
+	.open		= video_open,
 	.ioctl      = video_ioctl2,
 };
 
@@ -66,6 +71,7 @@ int em8300_register_video(struct em8300_s *em)
 	}
 
 	*em->vdev = em8300_video_template;
+	em->vdev->parent = &em->pci_dev->dev;
 	strcpy(em->vdev->name, "em8300 video");
 
 	/* register the v4l2 device */

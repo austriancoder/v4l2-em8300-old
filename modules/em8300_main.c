@@ -29,7 +29,6 @@
 #include <linux/interrupt.h>
 #include <linux/atomic.h>
 
-#include "em8300_compat24.h"
 
 #include "em8300_reg.h"
 #include <linux/em8300.h>
@@ -38,11 +37,6 @@
 #include "em8300_params.h"
 #include "em8300_eeprom.h"
 #include "em8300_models.h"
-
-#ifdef CONFIG_EM8300_IOCTL32
-#include "em8300_ioctl32.h"
-#endif
-
 #include "em8300_version.h"
 
 #if !defined(CONFIG_I2C_ALGOBIT) && !defined(CONFIG_I2C_ALGOBIT_MODULE)
@@ -58,17 +52,7 @@ MODULE_VERSION(EM8300_VERSION);
 #endif
 
 static atomic_t em8300_instance = ATOMIC_INIT(0);
-static int clients;
-
 static struct em8300_s *em8300[EM8300_MAX];
-
-/* structure to keep track of the memory that has been allocated by
-   the user via mmap() */
-struct memory_info {
-	struct list_head item;
-	long length;
-	char *ptr;
-};
 
 static DEFINE_PCI_DEVICE_TABLE(em8300_ids) = {
 	{ PCI_VENDOR_ID_SIGMADESIGNS, PCI_DEVICE_ID_SIGMADESIGNS_EM8300,
@@ -152,298 +136,6 @@ static void release_em8300(struct em8300_s *em)
 	v4l2_device_unregister(&em->v4l2_dev);
 	kfree(em);
 }
-
-static long em8300_io_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
-{
-	struct em8300_s *em = filp->private_data;
-	struct inode *inode = filp->f_path.dentry->d_inode;
-
-	int subdevice = EM8300_IMINOR(inode) % 4;
-	long ret;
-
-	mutex_lock(&em->ioctl_mutex);
-	switch (subdevice) {
-	case EM8300_SUBDEVICE_AUDIO:
-		ret = em8300_audio_ioctl(em, cmd, arg);
-		break;
-	case EM8300_SUBDEVICE_VIDEO:
-		ret = em8300_video_ioctl(em, cmd, arg);
-		break;
-	case EM8300_SUBDEVICE_SUBPICTURE:
-		ret =  em8300_spu_ioctl(em, cmd, arg);
-		break;
-	case EM8300_SUBDEVICE_CONTROL:
-		ret = em8300_control_ioctl(em, cmd, arg);
-		break;
-	}
-	mutex_unlock(&em->ioctl_mutex);
-
-	return ret;
-}
-
-static int em8300_io_open(struct inode *inode, struct file *filp)
-{
-	int card = EM8300_IMINOR(inode) / 4;
-	int subdevice = EM8300_IMINOR(inode) % 4;
-	struct em8300_s *em = em8300[card];
-	int err = 0;
-
-	if (card >= atomic_read(&em8300_instance))
-		return -ENODEV;
-
-	if (subdevice != EM8300_SUBDEVICE_CONTROL) {
-		if (em->inuse[subdevice])
-			return -EBUSY;
-	}
-
-	filp->private_data = em;
-
-	/* initalize the memory list */
-	INIT_LIST_HEAD(&em->memory);
-
-	switch (subdevice) {
-	case EM8300_SUBDEVICE_CONTROL:
-		em->nonblock[0] = ((filp->f_flags&O_NONBLOCK) == O_NONBLOCK);
-		break;
-	case EM8300_SUBDEVICE_AUDIO:
-		down(&em->audio_driver_style_lock);
-		if (em->audio_driver_style != NONE) {
-			up(&em->audio_driver_style_lock);
-			return -EBUSY;
-		}
-		em->audio_driver_style = OSS;
-		up(&em->audio_driver_style_lock);
-
-		em->nonblock[1] = ((filp->f_flags&O_NONBLOCK) == O_NONBLOCK);
-		err = em8300_audio_open(em);
-		if (err)
-			em->audio_driver_style = NONE;
-		break;
-	case EM8300_SUBDEVICE_VIDEO:
-		em8300_require_ucode(em);
-		if (!em->ucodeloaded)
-			return -ENODEV;
-
-		em->nonblock[2] = ((filp->f_flags&O_NONBLOCK) == O_NONBLOCK);
-		em8300_video_open(em);
-
-		if (!em->overlay_enabled)
-			em8300_ioctl_enable_videoout(em, 1);
-
-		em8300_video_setplaymode(em, EM8300_PLAYMODE_PLAY);
-		break;
-	case EM8300_SUBDEVICE_SUBPICTURE:
-		em8300_require_ucode(em);
-		if (!em->ucodeloaded)
-			return -ENODEV;
-
-		em->nonblock[3] = ((filp->f_flags&O_NONBLOCK) == O_NONBLOCK);
-		err = em8300_spu_open(em);
-		break;
-	default:
-		return -ENODEV;
-		break;
-	}
-
-	if (err)
-		return err;
-
-	em->inuse[subdevice]++;
-
-	clients++;
-	pr_debug("em8300-%d: Opening device %d, Clients:%d\n", em->instance, subdevice, clients);
-
-	return 0;
-}
-
-static ssize_t em8300_io_write(struct file *file, const char *buf, size_t count, loff_t *ppos)
-{
-	struct em8300_s *em = file->private_data;
-	int subdevice = EM8300_IMINOR(file->f_dentry->d_inode) % 4;
-
-	switch (subdevice) {
-	case EM8300_SUBDEVICE_VIDEO:
-		em->nonblock[2] = ((file->f_flags&O_NONBLOCK) == O_NONBLOCK);
-		return em8300_video_write(em, buf, count, ppos);
-		break;
-	case EM8300_SUBDEVICE_AUDIO:
-		em->nonblock[1] = ((file->f_flags&O_NONBLOCK) == O_NONBLOCK);
-		return em8300_audio_write(em, buf, count, ppos);
-		break;
-	case EM8300_SUBDEVICE_SUBPICTURE:
-		em->nonblock[3] = ((file->f_flags&O_NONBLOCK) == O_NONBLOCK);
-		return em8300_spu_write(em, buf, count, ppos);
-		break;
-	default:
-		return -EPERM;
-	}
-}
-
-int em8300_io_mmap(struct file *file, struct vm_area_struct *vma)
-{
-	struct em8300_s *em = file->private_data;
-	unsigned long size = vma->vm_end - vma->vm_start;
-	int subdevice = EM8300_IMINOR(file->f_dentry->d_inode) % 4;
-
-	if (subdevice != EM8300_SUBDEVICE_CONTROL)
-		return -EPERM;
-
-	switch (vma->vm_pgoff) {
-	case 1: {
-		/* fixme: we should count the total size of allocated memories
-		   so we don't risk a out-of-memory or denial-of-service attack... */
-
-		char *mem = 0;
-		struct memory_info *info = NULL;
-		unsigned long adr = 0;
-		unsigned long size = vma->vm_end - vma->vm_start;
-		unsigned long pages = (size+(PAGE_SIZE-1))/PAGE_SIZE;
-		/* round up the memory */
-		size = pages * PAGE_SIZE;
-
-		/* allocate the physical contiguous memory */
-		mem = kmalloc(pages*PAGE_SIZE, GFP_KERNEL);
-		if (mem == NULL)
-			return -ENOMEM;
-
-		/* clear out the memory for sure */
-		memset(mem, 0x00, pages*PAGE_SIZE);
-
-		/* reserve all pages */
-		for (adr = (long)mem; adr < (long)mem + size; adr += PAGE_SIZE)
-			SetPageReserved(virt_to_page(adr));
-
-		/* lock the area*/
-		vma->vm_flags |= VM_LOCKED;
-
-		/* remap the memory to user space */
-		if (remap_pfn_range(vma, vma->vm_start, virt_to_phys((void *)mem) >> PAGE_SHIFT, size, vma->vm_page_prot)) {
-			kfree(mem);
-			return -EAGAIN;
-		}
-
-		/* put the physical address into the first dword of the memory */
-		*((long *)mem) = virt_to_phys((void *)mem);
-
-		/* keep track of the memory we have allocated */
-		info = (struct memory_info *)vmalloc(sizeof(struct memory_info));
-		if (NULL == info) {
-			kfree(mem);
-			return -ENOMEM;
-		}
-
-		info->ptr = mem;
-		info->length = size;
-		list_add_tail(&info->item, &em->memory);
-
-		break;
-	}
-	case 0:
-		if (size > em->memsize)
-			return -EINVAL;
-
-		remap_pfn_range(vma, vma->vm_start, em->adr >> PAGE_SHIFT, vma->vm_end - vma->vm_start, vma->vm_page_prot);
-		vma->vm_file = file;
-		atomic_inc(&file->f_dentry->d_inode->i_count);
-		break;
-	default:
-		return -EINVAL;
-	}
-
-	return 0;
-}
-
-static unsigned int em8300_poll(struct file *file, struct poll_table_struct *wait)
-{
-	struct em8300_s *em = file->private_data;
-	int subdevice = EM8300_IMINOR(file->f_dentry->d_inode) % 4;
-	unsigned int mask = 0;
-
-	switch (subdevice) {
-	case EM8300_SUBDEVICE_AUDIO:
-		poll_wait(file, &em->mafifo->wait, wait);
-		if (file->f_mode & FMODE_WRITE) {
-			if (em8300_fifo_freeslots(em->mafifo)) {
-				pr_debug("em8300-%d: Poll audio - Free slots: %d\n", em->instance, em8300_fifo_freeslots(em->mafifo));
-				mask |= POLLOUT | POLLWRNORM;
-			}
-		}
-		break;
-	case EM8300_SUBDEVICE_VIDEO:
-		poll_wait(file, &em->mvfifo->wait, wait);
-		if (file->f_mode & FMODE_WRITE) {
-			if (em8300_fifo_freeslots(em->mvfifo)) {
-				pr_debug("em8300-%d: Poll video - Free slots: %d\n", em->instance, em8300_fifo_freeslots(em->mvfifo));
-				mask |= POLLOUT | POLLWRNORM;
-			}
-		}
-		break;
-	case EM8300_SUBDEVICE_SUBPICTURE:
-		poll_wait(file, &em->spfifo->wait, wait);
-		if (file->f_mode & FMODE_WRITE) {
-			if (em8300_fifo_freeslots(em->spfifo)) {
-				pr_debug("em8300-%d: Poll subpic - Free slots: %d\n", em->instance, em8300_fifo_freeslots(em->spfifo));
-				mask |= POLLOUT | POLLWRNORM;
-			}
-		}
-	}
-
-	return mask;
-}
-
-int em8300_io_release(struct inode *inode, struct file *filp)
-{
-	struct em8300_s *em = filp->private_data;
-	int subdevice = EM8300_IMINOR(inode) % 4;
-
-	switch (subdevice) {
-	case EM8300_SUBDEVICE_AUDIO:
-		em8300_audio_release(em);
-		em->audio_driver_style = NONE;
-		break;
-	case EM8300_SUBDEVICE_VIDEO:
-		em8300_video_release(em);
-		if (!em->overlay_enabled)
-			em8300_ioctl_enable_videoout(em, 0);
-		break;
-	case EM8300_SUBDEVICE_SUBPICTURE:
-		em8300_spu_release(em);    /* Do we need this one ? */
-		break;
-	}
-
-	while (0 == list_empty(&em->memory)) {
-		unsigned long adr = 0;
-
-		struct memory_info *info = list_entry(em->memory.next, struct memory_info, item);
-		list_del(&info->item);
-
-		for (adr = (long)info->ptr; adr < (long)info->ptr + info->length; adr += PAGE_SIZE)
-			ClearPageReserved(virt_to_page(adr));
-
-		kfree(info->ptr);
-		vfree(info);
-	}
-
-	em->inuse[subdevice]--;
-
-	clients--;
-	pr_debug("em8300-%d: Releasing device %d, clients:%d\n", em->instance, subdevice, clients);
-
-	return 0;
-}
-
-const struct file_operations em8300_fops = {
-	.owner = THIS_MODULE,
-	.write = em8300_io_write,
-	.unlocked_ioctl = em8300_io_ioctl,
-	.mmap = em8300_io_mmap,
-	.poll = em8300_poll,
-	.open = em8300_io_open,
-	.release = em8300_io_release,
-#if defined(CONFIG_EM8300_IOCTL32) && defined(HAVE_COMPAT_IOCTL)
-	.compat_ioctl = em8300_compat_ioctl,
-#endif
-};
 
 static int init_em8300(struct em8300_s *em)
 {
@@ -745,9 +437,6 @@ struct pci_driver em8300_driver = {
 
 static void __exit em8300_exit(void)
 {
-#if defined(CONFIG_EM8300_IOCTL32) && !defined(HAVE_COMPAT_IOCTL)
-	em8300_ioctl32_exit();
-#endif
 	pci_unregister_driver(&em8300_driver);
 }
 
@@ -762,10 +451,6 @@ static int __init em8300_init(void)
 		printk(KERN_ERR "em8300: unable to register PCI driver\n");
 		goto err_init;
 	}
-
-#if defined(CONFIG_EM8300_IOCTL32) && !defined(HAVE_COMPAT_IOCTL)
-	em8300_ioctl32_init();
-#endif
 
 	return 0;
 
