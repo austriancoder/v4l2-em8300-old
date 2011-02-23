@@ -38,6 +38,11 @@
 
 #include <linux/soundcard.h>
 
+static const struct v4l2_queryctrl no_ctl = {
+	.name  = "42",
+	.flags = V4L2_CTRL_FLAG_DISABLED,
+};
+
 static const struct v4l2_queryctrl em8300_ctls[] = {
 	{
 		.id            = V4L2_CID_BRIGHTNESS,
@@ -73,9 +78,10 @@ static const struct v4l2_queryctrl em8300_ctls[] = {
 		.type          = V4L2_CTRL_TYPE_INTEGER,
 	}
 };
+static const int EM8300_CTLS = ARRAY_SIZE(em8300_ctls);
 
 /* Must be sorted from low to high control ID! */
-const u32 cx88_user_ctrls[] = {
+const u32 em8300_user_ctrls[] = {
 	V4L2_CID_BRIGHTNESS,
 	V4L2_CID_CONTRAST,
 	V4L2_CID_SATURATION,
@@ -84,9 +90,29 @@ const u32 cx88_user_ctrls[] = {
 };
 
 static const u32 * const ctrl_classes[] = {
-	cx88_user_ctrls,
+	em8300_user_ctrls,
 	NULL
 };
+
+static int em8300_ctrl_query(struct v4l2_queryctrl *qctrl)
+{
+	int i;
+
+	if (qctrl->id < V4L2_CID_BASE || qctrl->id >= V4L2_CID_LASTP1)
+		return -EINVAL;
+
+	for (i = 0; i < EM8300_CTLS; i++)
+		if (em8300_ctls[i].id == qctrl->id)
+			break;
+
+	if (i == EM8300_CTLS) {
+		*qctrl = no_ctl;
+		return 0;
+	}
+
+	*qctrl = em8300_ctls[i];
+	return 0;
+}
 
 static int video_open(struct file *file)
 {
@@ -121,8 +147,7 @@ static int vidioc_queryctrl (struct file *file, void *priv,
 	if (unlikely(qctrl->id == 0))
 		return -EINVAL;
 
-	*qctrl = em8300_ctls[qctrl->id];
-	return 0;
+	return em8300_ctrl_query(qctrl);
 }
 
 static const struct v4l2_ioctl_ops video_ioctl_ops = {
