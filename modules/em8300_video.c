@@ -141,9 +141,38 @@ static int vidioc_queryctrl (struct file *file, void *priv,
 	return em8300_ctrl_query(qctrl);
 }
 
+static int vidioc_g_ctrl(struct file *file, void *priv,
+				struct v4l2_control *ctl)
+{
+	struct em8300_s *em = video_drvdata(file);
+	int  val;
+
+	switch (ctl->id) {
+	case V4L2_CID_CONTRAST:
+		val = em->dicom_contrast;
+		break;
+	case V4L2_CID_BRIGHTNESS:
+		val = em->dicom_brightness;
+		return 0;
+	case V4L2_CID_SATURATION:
+		val = em->dicom_saturation;
+		return 0;
+	default:
+		return -EINVAL;
+	}
+
+	if (val < 0)
+		return val;
+
+	ctl->value = val;
+
+	return 0;
+}
+
 static const struct v4l2_ioctl_ops video_ioctl_ops = {
 	.vidioc_querycap 			= vidioc_querycap,
 	.vidioc_queryctrl			= vidioc_queryctrl,
+	.vidioc_g_ctrl				= vidioc_g_ctrl,
 };
 
 static const struct video_device em8300_video_template = {
