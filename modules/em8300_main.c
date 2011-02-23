@@ -63,10 +63,6 @@ static int em8300_cards, clients;
 
 static struct em8300_s *em8300[EM8300_MAX];
 
-#if defined(CONFIG_SOUND) || defined(CONFIG_SOUND_MODULE)
-static int dsp_num_table[16];
-#endif
-
 /* structure to keep track of the memory that has been allocated by
    the user via mmap() */
 struct memory_info {
@@ -448,108 +444,6 @@ const struct file_operations em8300_fops = {
 #endif
 };
 
-#if defined(CONFIG_SOUND) || defined(CONFIG_SOUND_MODULE)
-static long em8300_dsp_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
-{
-	struct em8300_s *em = filp->private_data;
-	long ret;
-
-	mutex_lock(&em->ioctl_mutex);
-	ret = em8300_audio_ioctl(em, cmd, arg);
-	mutex_unlock(&em->ioctl_mutex);
-	
-	return ret;
-}
-
-static int em8300_dsp_open(struct inode *inode, struct file *filp)
-{
-	int dsp_number = ((EM8300_IMINOR(inode) >> 4) & 0x0f);
-	int card = dsp_num_table[dsp_number] - 1;
-	int err = 0;
-	struct em8300_s *em = em8300[card];
-
-	pr_debug("em8300-%d: opening dsp %i for card %i\n", em->instance, dsp_number, card);
-
-	if (card < 0 || card >= em8300_cards)
-		return -ENODEV;
-
-	down(&em->audio_driver_style_lock);
-	if (em->audio_driver_style != NONE) {
-		up(&em->audio_driver_style_lock);
-		return -EBUSY;
-	}
-	em->audio_driver_style = OSS;
-	up(&em->audio_driver_style_lock);
-
-	if (em->inuse[EM8300_SUBDEVICE_AUDIO]) {
-		printk("em8300-%d: em8300_dsp_open: em->audio_driver_style == NONE but em->inuse[EM8300_SUBDEVICE_AUDIO] !?\n", em->instance);
-		em->audio_driver_style = NONE;
-		return -EBUSY;
-	}
-
-	filp->private_data = em;
-
-	err = em8300_audio_open(em);
-
-	if (err) {
-		em->audio_driver_style = NONE;
-		return err;
-	}
-
-	em->inuse[EM8300_SUBDEVICE_AUDIO]++;
-
-	clients++;
-	pr_debug("em8300-%d: Opening device %d, Clients:%d\n", em->instance, EM8300_SUBDEVICE_AUDIO, clients);
-
-	return 0;
-}
-
-static ssize_t em8300_dsp_write(struct file *file, const char *buf, size_t count, loff_t *ppos)
-{
-	struct em8300_s *em = file->private_data;
-	return em8300_audio_write(em, buf, count, ppos);
-}
-
-static unsigned int em8300_dsp_poll(struct file *file, struct poll_table_struct *wait)
-{
-	struct em8300_s *em = file->private_data;
-	unsigned int mask = 0;
-	poll_wait(file, &em->mafifo->wait, wait);
-	if (file->f_mode & FMODE_WRITE) {
-		if (em8300_fifo_freeslots(em->mafifo)) {
-			pr_debug("em8300-%d: Poll dsp - Free slots: %d\n", em->instance, em8300_fifo_freeslots(em->mafifo));
-			mask |= POLLOUT | POLLWRNORM;
-		}
-	}
-	return mask;
-}
-
-int em8300_dsp_release(struct inode *inode, struct file *filp)
-{
-	struct em8300_s *em = filp->private_data;
-
-	em8300_audio_release(em);
-
-	em->audio_driver_style = NONE;
-
-	em->inuse[EM8300_SUBDEVICE_AUDIO]--;
-
-	clients--;
-	pr_debug("em8300-%d: Releasing device %d, clients:%d\n", em->instance, EM8300_SUBDEVICE_AUDIO, clients);
-
-	return 0;
-}
-
-static const struct file_operations em8300_dsp_audio_fops = {
-	.owner = THIS_MODULE,
-	.write = em8300_dsp_write,
-	.unlocked_ioctl = em8300_dsp_ioctl,
-	.poll = em8300_dsp_poll,
-	.open = em8300_dsp_open,
-	.release = em8300_dsp_release,
-};
-#endif
-
 static int init_em8300(struct em8300_s *em)
 {
 	int identified_model;
@@ -803,16 +697,6 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 
 	init_em8300(em);
 
-#if defined(CONFIG_SOUND) || defined(CONFIG_SOUND_MODULE)
-	em->dsp_num = register_sound_dsp(&em8300_dsp_audio_fops, dsp_num[em->instance]);
-	if (em->dsp_num < 0) {
-		printk(KERN_ERR "em8300-%d: cannot register oss audio device!\n", em->instance);
-	} else {
-		dsp_num_table[em->dsp_num >> 4 & 0x0f] = em8300_cards + 1;
-		pr_debug("em8300-%d: registered dsp %i for device %i\n", em->instance, em->dsp_num >> 4 & 0x0f, em8300_cards);
-	}
-#endif
-
 	em8300[em8300_cards++] = em;
 	return 0;
 
@@ -833,12 +717,8 @@ static void __devexit em8300_remove(struct pci_dev *pci_dev)
 {
 	struct em8300_s *em = pci_get_drvdata(pci_dev);
 
-	if (em) {
-#if defined(CONFIG_SOUND) || defined(CONFIG_SOUND_MODULE)
-		unregister_sound_dsp(em->dsp_num);
-#endif
+	if (em)
 		release_em8300(em);
-	}
 
 	pci_set_drvdata(pci_dev, NULL);
 	pci_disable_device(pci_dev);
@@ -865,9 +745,6 @@ static int __init em8300_init(void)
 	int err;
 
 	/*memset(&em8300, 0, sizeof(em8300) * EM8300_MAX);*/
-#if defined(CONFIG_SOUND) || defined(CONFIG_SOUND_MODULE)
-	memset(&dsp_num_table, 0, sizeof(dsp_num_table));
-#endif
 
 	if (major) {
 		if (register_chrdev(major, EM8300_LOGNAME, &em8300_fops)) {

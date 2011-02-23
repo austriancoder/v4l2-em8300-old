@@ -57,17 +57,11 @@ MODULE_PARM_DESC(major, "Major number used for the devices. "
 
 static const char * const audio_driver_name[] = {
 	[ AUDIO_DRIVER_NONE ] = "none",
-	[ AUDIO_DRIVER_OSSLIKE ] = "osslike",
-	[ AUDIO_DRIVER_OSS ] = "oss",
 	[ AUDIO_DRIVER_ALSA ] = "alsa",
 };
 
 #if defined(CONFIG_SND) || defined(CONFIG_SND_MODULE)
 audio_driver_t audio_driver_nr[EM8300_MAX] = { [0 ... EM8300_MAX-1] = AUDIO_DRIVER_ALSA };
-#elif defined(CONFIG_SOUND) || defined(CONFIG_SOUND_MODULE)
-audio_driver_t audio_driver_nr[EM8300_MAX] = { [0 ... EM8300_MAX-1] = AUDIO_DRIVER_OSS };
-#else
-audio_driver_t audio_driver_nr[EM8300_MAX] = { [0 ... EM8300_MAX-1] = AUDIO_DRIVER_OSSLIKE };
 #endif
 
 static int param_set_audio_driver_t(const char *val, const struct kernel_param *kp)
@@ -98,13 +92,8 @@ struct kernel_param_ops param_ops_audio_driver_t = {
 
 
 module_param_array_named(audio_driver, audio_driver_nr, audio_driver_t, NULL, 0444);
-MODULE_PARM_DESC(audio_driver, "[DEPRECATED] The audio driver to use (none, osslike, oss, or alsa).");
+MODULE_PARM_DESC(audio_driver, "[DEPRECATED] The audio driver to use (none or alsa).");
 
-#if defined(CONFIG_SOUND) || defined(CONFIG_SOUND_MODULE)
-int dsp_num[EM8300_MAX] = { [0 ... EM8300_MAX-1] = -1 };
-module_param_array(dsp_num, int, NULL, 0444);
-MODULE_PARM_DESC(dsp_num, "The /dev/dsp number to assign to the card. -1 for automatic (this is the default).");
-#endif
 
 #if defined(CONFIG_SND) || defined(CONFIG_SND_MODULE)
 char *alsa_id[EM8300_MAX] = { [0 ... EM8300_MAX-1] = NULL };

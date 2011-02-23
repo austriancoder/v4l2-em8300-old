@@ -36,27 +36,16 @@ extern int activate_loopback[];
 extern int card_model[];
 
 /* Audio driver used by the driver:
-   - OSS     means OSS-compatible /dev/em8300_ma + /dev/dsp (old behavior)
-   - OSSLIKE means OSS-compatible /dev/em8300_ma only
    - ALSA    means ALSA /dev/snd
    - NONE    means no sound
 */
 typedef enum {
 	AUDIO_DRIVER_NONE,
-	AUDIO_DRIVER_OSSLIKE,
-	AUDIO_DRIVER_OSS,
 	AUDIO_DRIVER_ALSA,
 	AUDIO_DRIVER_MAX
 } audio_driver_t;
 
 extern audio_driver_t audio_driver_nr[];
-
-/* Number of the /dev/dsp device to allocate (only used with the OSS audio
-   driver.
-*/
-#if defined(CONFIG_SOUND) || defined(CONFIG_SOUND_MODULE)
-extern int dsp_num[];
-#endif
 
 /* Number and name of the ALSA card to allocate (only used with the ALSA audio
    driver.
