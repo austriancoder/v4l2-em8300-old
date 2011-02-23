@@ -312,7 +312,7 @@ int em8300_i2c_init2(struct em8300_s *em)
 		em->encoder_type = ENCODER_ADV7170;
 		/*em8300_adv717x_setup(em, em->encoder);*/
 	}
-	if (!strncmp(em->encoder->name, "BT865", 5)) {
+	if (!strncmp(em->encoder->name, "bt865", 5)) {
 		em->encoder_type = ENCODER_BT865;
 	}
 
