@@ -153,10 +153,10 @@ static int vidioc_g_ctrl(struct file *file, void *priv,
 		break;
 	case V4L2_CID_BRIGHTNESS:
 		val = em->dicom_brightness;
-		return 0;
+		break;
 	case V4L2_CID_SATURATION:
 		val = em->dicom_saturation;
-		return 0;
+		break;
 	default:
 		return -EINVAL;
 	}
@@ -169,10 +169,34 @@ static int vidioc_g_ctrl(struct file *file, void *priv,
 	return 0;
 }
 
+static int vidioc_s_ctrl(struct file *file, void *priv,
+				struct v4l2_control *ctl)
+{
+	struct em8300_s *em = video_drvdata(file);
+	int val = ctl->value;
+
+	switch (ctl->id) {
+	case V4L2_CID_CONTRAST:
+		em8300_dicom_setBCS(em, em->dicom_brightness, val, em->dicom_saturation);
+		break;
+	case V4L2_CID_BRIGHTNESS:
+		em8300_dicom_setBCS(em, val, em->dicom_contrast, em->dicom_saturation);
+		break;
+	case V4L2_CID_SATURATION:
+		em8300_dicom_setBCS(em, em->dicom_brightness, em->dicom_contrast, val);
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
 static const struct v4l2_ioctl_ops video_ioctl_ops = {
 	.vidioc_querycap 			= vidioc_querycap,
 	.vidioc_queryctrl			= vidioc_queryctrl,
 	.vidioc_g_ctrl				= vidioc_g_ctrl,
+	.vidioc_s_ctrl				= vidioc_s_ctrl,
 };
 
 static const struct video_device em8300_video_template = {
