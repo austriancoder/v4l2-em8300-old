@@ -32,10 +32,6 @@
 
 #define EM8300_MAX 4
 
-#define EM8300_MAJOR 121
-#define EM8300_LOGNAME "em8300"
-extern int major;
-
 #include <linux/version.h>
 #include <linux/types.h> /* ulong, uint32_t */
 #include <linux/i2c.h> /* struct i2c_adapter */

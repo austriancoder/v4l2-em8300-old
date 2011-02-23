@@ -5,13 +5,6 @@ General fixes:
                           when uploading the microcode
    bt865_ucode_timeout -- set to 1 if you have a bt865 and get timeouts
                           when uploading the microcode.
-   major               -- set the major number of /dev/em8300* character
-                          device files, or 0 for automatic assignment. Usually
-                          devices use 121, which is officially reserved for
-                          "LOCAL/EXPERIMENTAL USE", since em8300 has not been
-                          assigned any official device number. If you are
-                          already using device major number 121 for some other
-                          device you'll have to change this.
    alsa_id             -- set the ID string for ALSA audio.
    alsa_index          -- set the index value for ALSA audio.
    dsp_num             -- set the /dev/dsp number to assign to the card for OSS

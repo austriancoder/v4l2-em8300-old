@@ -52,9 +52,6 @@ MODULE_AUTHOR("Henrik Johansson <henrikjo@post.utfors.se>");
 MODULE_DESCRIPTION("EM8300 MPEG-2 decoder");
 MODULE_SUPPORTED_DEVICE("em8300");
 MODULE_LICENSE("GPL");
-#if EM8300_MAJOR != 0
-MODULE_ALIAS_CHARDEV_MAJOR(EM8300_MAJOR);
-#endif
 #ifdef MODULE_VERSION
 MODULE_VERSION(EM8300_VERSION);
 #endif
@@ -737,7 +734,6 @@ static void __exit em8300_exit(void)
 	em8300_ioctl32_exit();
 #endif
 	pci_unregister_driver(&em8300_driver);
-	unregister_chrdev(major, EM8300_LOGNAME);
 }
 
 static int __init em8300_init(void)
@@ -745,23 +741,6 @@ static int __init em8300_init(void)
 	int err;
 
 	/*memset(&em8300, 0, sizeof(em8300) * EM8300_MAX);*/
-
-	if (major) {
-		if (register_chrdev(major, EM8300_LOGNAME, &em8300_fops)) {
-			printk(KERN_ERR "em8300: unable to get major %d\n", major);
-			err = -ENODEV;
-			goto err_chrdev;
-		}
-	} else {
-		int m = register_chrdev(major, EM8300_LOGNAME, &em8300_fops);
-		if (m > 0) {
-			major = m;
-		} else {
-			printk(KERN_ERR "em8300: unable to get any major\n");
-			err = -ENODEV;
-			goto err_chrdev;
-		}
-	}
 
 	err = pci_register_driver(&em8300_driver);
 	if (err < 0) {
@@ -776,9 +755,6 @@ static int __init em8300_init(void)
 	return 0;
 
  err_init:
-	unregister_chrdev(major, EM8300_LOGNAME);
-
- err_chrdev:
 	return err;
 }
 

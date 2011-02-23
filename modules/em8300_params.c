@@ -49,12 +49,6 @@ int card_model[EM8300_MAX] = { [0 ... EM8300_MAX-1] = -1 };
 module_param_array(card_model, int, NULL, 0444);
 MODULE_PARM_DESC(card_model, "Model number for the em8300-based card. -1 (default) means automatic detection; 0 means unknown model with manual setup.");
 
-int major = EM8300_MAJOR;
-module_param(major, int, 0444);
-MODULE_PARM_DESC(major, "Major number used for the devices. "
-		 "0 means automatically assigned. "
-		 "Defaults to " __MODULE_STRING(EM8300_MAJOR) ".");
-
 static const char * const audio_driver_name[] = {
 	[ AUDIO_DRIVER_NONE ] = "none",
 	[ AUDIO_DRIVER_ALSA ] = "alsa",

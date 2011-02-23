@@ -23,9 +23,6 @@
 
 #include <linux/version.h>
 
-/* Major number used by the driver */
-extern int major;
-
 /* Card-model-dependant parameters */
 extern int dicom_other_pal[];
 extern int dicom_fix[];
