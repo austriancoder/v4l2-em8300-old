@@ -61,14 +61,6 @@ static const struct v4l2_queryctrl em8300_ctls[] = {
 		.default_value = 0x7f,
 		.type          = V4L2_CTRL_TYPE_INTEGER,
 	}, {
-		.id            = V4L2_CID_HUE,
-		.name          = "Hue",
-		.minimum       = 0,
-		.maximum       = 0xff,
-		.step          = 1,
-		.default_value = 0x7f,
-		.type          = V4L2_CTRL_TYPE_INTEGER,
-	}, {
 		.id            = V4L2_CID_SATURATION,
 		.name          = "Saturation",
 		.minimum       = 0,
@@ -85,7 +77,6 @@ const u32 em8300_user_ctrls[] = {
 	V4L2_CID_BRIGHTNESS,
 	V4L2_CID_CONTRAST,
 	V4L2_CID_SATURATION,
-	V4L2_CID_HUE,
 	0
 };
 
