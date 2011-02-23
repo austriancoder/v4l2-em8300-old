@@ -131,8 +131,7 @@ static void release_em8300(struct em8300_s *em)
 	if (em->mem)
 		iounmap((unsigned *) em->mem);
 
-	/* free video_device !! */
-
+	video_unregister_device(em->vdev);
 	v4l2_device_unregister(&em->v4l2_dev);
 	kfree(em);
 }
