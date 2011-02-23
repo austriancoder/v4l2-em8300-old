@@ -41,7 +41,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 {
 	em8300_register_t reg;
 	int val, len;
-	em8300_bcs_t bcs;
 	em8300_overlay_window_t ov_win;
 	em8300_overlay_screen_t ov_scr;
 	em8300_overlay_calibrate_t ov_cal;
@@ -388,8 +387,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 				return -EFAULT;
 
 			switch (val) {
-			case EM8300_SUBDEVICE_CONTROL:
-				return -ENOSYS;
 			case EM8300_SUBDEVICE_VIDEO:
 				return em8300_video_flush(em);
 			case EM8300_SUBDEVICE_AUDIO:
