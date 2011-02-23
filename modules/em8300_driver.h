@@ -42,6 +42,9 @@
 #include <linux/semaphore.h> /* struct semaphore */
 #include <linux/mutex.h>
 #include <media/v4l2-device.h>
+#include <media/v4l2-common.h>
+#include <media/v4l2-ioctl.h>
+#include <media/v4l2-chip-ident.h>
 
 #if defined(CONFIG_SND) || defined(CONFIG_SND_MODULE)
 #define snd_card_t struct snd_card
@@ -115,6 +118,7 @@ struct em8300_s
 	struct pci_dev *pci_dev;
 	struct v4l2_device v4l2_dev;
 	struct v4l2_subdev *encoder;
+	struct video_device *vdev;
 
 	ulong adr;
 	volatile unsigned *mem;
@@ -297,6 +301,7 @@ void em8300_dicom_fill_dispbuffers(struct em8300_s *em, int xpos, int ypos, int 
 				  int ysize, unsigned int pat1, unsigned int pat2);
 
 /* em8300_video.c */
+int em8300_register_video(struct em8300_s *em);
 void em8300_video_open(struct em8300_s *em);
 int em8300_video_setplaymode(struct em8300_s *em, int mode);
 int em8300_video_sync(struct em8300_s *em);

@@ -147,6 +147,8 @@ static void release_em8300(struct em8300_s *em)
 	if (em->mem)
 		iounmap((unsigned *) em->mem);
 
+	/* free video_device !! */
+
 	v4l2_device_unregister(&em->v4l2_dev);
 	kfree(em);
 }
@@ -604,6 +606,9 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 
 	snprintf(em->v4l2_dev.name, sizeof(em->v4l2_dev.name), "em8300-%d",
 				em->instance);
+
+	/* setup video_device */
+	em8300_register_video(em);
 
 	pci_set_drvdata(pci_dev, em);
 	result = em8300_pci_setup(pci_dev);

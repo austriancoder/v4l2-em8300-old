@@ -36,7 +36,50 @@
 #include "em8300_fifo.h"
 
 #include <linux/soundcard.h>
-#include "em8300_params.h"
+
+
+static struct v4l2_file_operations em8300_v4l2_fops = {
+	.owner      = THIS_MODULE,
+	.ioctl      = video_ioctl2,
+};
+
+static const struct v4l2_ioctl_ops video_ioctl_ops = {
+};
+
+static const struct video_device em8300_video_template = {
+	.fops						= &em8300_v4l2_fops,
+	.release					= video_device_release,
+	.ioctl_ops					= &video_ioctl_ops,
+	.tvnorms					= V4L2_STD_PAL,
+	.current_norm				= V4L2_STD_PAL,
+};
+
+int em8300_register_video(struct em8300_s *em)
+{
+	int retval;
+
+	em->vdev = video_device_alloc();
+	if (!em->vdev) {
+		/* TODO error handling */
+		printk(KERN_ERR "em8300-video: kzalloc failed - out of memory!\n");
+		return -ENOMEM;
+	}
+
+	*em->vdev = em8300_video_template;
+	strcpy(em->vdev->name, "em8300 video");
+
+	/* register the v4l2 device */
+	video_set_drvdata(em->vdev, em);
+	retval = video_register_device(em->vdev, VFL_TYPE_GRABBER, -1);
+	if (retval != 0) {
+		printk(KERN_ERR "unable to register video device (error = %d).\n",
+			retval);
+		video_device_release(em->vdev);
+		return -ENODEV;
+	}
+
+	return 0;
+}
 
 static int mpegvideo_command(struct em8300_s *em, int cmd)
 {
