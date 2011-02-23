@@ -38,6 +38,56 @@
 
 #include <linux/soundcard.h>
 
+static const struct v4l2_queryctrl em8300_ctls[] = {
+	{
+		.id            = V4L2_CID_BRIGHTNESS,
+		.name          = "Brightness",
+		.minimum       = 0x00,
+		.maximum       = 0xff,
+		.step          = 1,
+		.default_value = 0x7f,
+		.type          = V4L2_CTRL_TYPE_INTEGER,
+	}, {
+		.id            = V4L2_CID_CONTRAST,
+		.name          = "Contrast",
+		.minimum       = 0,
+		.maximum       = 0xff,
+		.step          = 1,
+		.default_value = 0x7f,
+		.type          = V4L2_CTRL_TYPE_INTEGER,
+	}, {
+		.id            = V4L2_CID_HUE,
+		.name          = "Hue",
+		.minimum       = 0,
+		.maximum       = 0xff,
+		.step          = 1,
+		.default_value = 0x7f,
+		.type          = V4L2_CTRL_TYPE_INTEGER,
+	}, {
+		.id            = V4L2_CID_SATURATION,
+		.name          = "Saturation",
+		.minimum       = 0,
+		.maximum       = 0xff,
+		.step          = 1,
+		.default_value = 0x7f,
+		.type          = V4L2_CTRL_TYPE_INTEGER,
+	}
+};
+
+/* Must be sorted from low to high control ID! */
+const u32 cx88_user_ctrls[] = {
+	V4L2_CID_BRIGHTNESS,
+	V4L2_CID_CONTRAST,
+	V4L2_CID_SATURATION,
+	V4L2_CID_HUE,
+	0
+};
+
+static const u32 * const ctrl_classes[] = {
+	cx88_user_ctrls,
+	NULL
+};
+
 static int video_open(struct file *file)
 {
 	return 0;
@@ -64,8 +114,20 @@ static int vidioc_querycap (struct file *file, void  *priv,
 	return 0;
 }
 
+static int vidioc_queryctrl (struct file *file, void *priv,
+				struct v4l2_queryctrl *qctrl)
+{
+	qctrl->id = v4l2_ctrl_next(ctrl_classes, qctrl->id);
+	if (unlikely(qctrl->id == 0))
+		return -EINVAL;
+
+	*qctrl = em8300_ctls[qctrl->id];
+	return 0;
+}
+
 static const struct v4l2_ioctl_ops video_ioctl_ops = {
 	.vidioc_querycap 			= vidioc_querycap,
+	.vidioc_queryctrl			= vidioc_queryctrl,
 };
 
 static const struct video_device em8300_video_template = {
