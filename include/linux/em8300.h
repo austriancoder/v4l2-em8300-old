@@ -83,7 +83,6 @@ typedef struct {
 #define EM8300_IOCTL_INIT       _IOW('C',0,em8300_microcode_t)
 #define EM8300_IOCTL_READREG    _IOWR('C',1,em8300_register_t)
 #define EM8300_IOCTL_WRITEREG   _IOW('C',2,em8300_register_t)
-#define EM8300_IOCTL_SETBCS	_IOW('C',4,em8300_bcs_t)
 #define EM8300_IOCTL_SET_ASPECTRATIO _IOW('C',5,int)
 #define EM8300_IOCTL_GET_ASPECTRATIO _IOR('C',5,int)
 #define EM8300_IOCTL_SET_VIDEOMODE _IOW('C',6,int)
