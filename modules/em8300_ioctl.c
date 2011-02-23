@@ -130,28 +130,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 			return -EFAULT;
 		return 0;
 
-	case _IOC_NR(EM8300_IOCTL_GETBCS):
-		em8300_require_ucode(em);
-
-		if (!em->ucodeloaded) {
-			return -ENOTTY;
-		}
-
-		if (_IOC_DIR(cmd) & _IOC_WRITE) {
-			if (copy_from_user(&bcs, (void *) arg, sizeof(em8300_bcs_t)))
-				return -EFAULT;
-			em8300_dicom_setBCS(em, bcs.brightness, bcs.contrast, bcs.saturation);
-		}
-
-		if (_IOC_DIR(cmd) & _IOC_READ) {
-			bcs.brightness = em->dicom_brightness;
-			bcs.contrast = em->dicom_contrast;
-			bcs.saturation = em->dicom_saturation;
-			if (copy_to_user((void *) arg, &bcs, sizeof(em8300_bcs_t)))
-				return -EFAULT;
-		}
-		break;
-
 	case _IOC_NR(EM8300_IOCTL_SET_VIDEOMODE):
 		em8300_require_ucode(em);
 
