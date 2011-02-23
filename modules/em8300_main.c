@@ -27,6 +27,7 @@
 #endif
 
 #include <linux/interrupt.h>
+#include <linux/atomic.h>
 
 #include "em8300_compat24.h"
 
@@ -56,7 +57,8 @@ MODULE_LICENSE("GPL");
 MODULE_VERSION(EM8300_VERSION);
 #endif
 
-static int em8300_cards, clients;
+static atomic_t em8300_instance = ATOMIC_INIT(0);
+static int clients;
 
 static struct em8300_s *em8300[EM8300_MAX];
 
@@ -184,7 +186,7 @@ static int em8300_io_open(struct inode *inode, struct file *filp)
 	struct em8300_s *em = em8300[card];
 	int err = 0;
 
-	if (card >= em8300_cards)
+	if (card >= atomic_read(&em8300_instance))
 		return -ENODEV;
 
 	if (subdevice != EM8300_SUBDEVICE_CONTROL) {
@@ -574,6 +576,14 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 {
 	struct em8300_s *em;
 	int result;
+	int i;
+
+	i = atomic_inc_return(&em8300_instance) - 1;
+	if (i >= EM8300_MAX) {
+		printk(KERN_ERR "em8300: cannot manage card %d, driver has a "
+		       "limit of 0 - %d\n", i, EM8300_MAX - 1);
+		return -ENOMEM;
+	}
 
 	em = kzalloc(sizeof(struct em8300_s), GFP_KERNEL);
 	if (!em) {
@@ -582,7 +592,7 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 	}
 
 	em->pci_dev = pci_dev;
-	em->instance = em8300_cards;
+	em->instance = i;
 
 	result = v4l2_device_register(&pci_dev->dev, &em->v4l2_dev);
 	if (result) {
@@ -656,7 +666,7 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 	em->config.adv717x_model.pixeldata_adjust_ntsc = 1;
 	em->config.adv717x_model.pixeldata_adjust_pal = 1;
 
-	em->model = card_model[em8300_cards];
+	em->model = card_model[atomic_read(&em8300_instance)];
 
 	pr_info("em8300-%d: EM8300 %x (rev %d) ", em->instance, pci_dev->device, em->pci_revision);
 	pr_info("bus: %d, devfn: %d, irq: %d, ", pci_dev->bus->number, pci_dev->devfn, pci_dev->irq);
@@ -694,7 +704,7 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 
 	init_em8300(em);
 
-	em8300[em8300_cards++] = em;
+	em8300[i] = em;
 	return 0;
 
 irq_error:
