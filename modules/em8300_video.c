@@ -48,7 +48,23 @@ static struct v4l2_file_operations em8300_v4l2_fops = {
 	.ioctl      = video_ioctl2,
 };
 
+static int vidioc_querycap (struct file *file, void  *priv,
+					struct v4l2_capability *cap)
+{
+	struct em8300_s *em = video_drvdata(file);
+
+	strcpy(cap->driver, "em8300");
+	strlcpy(cap->card, "BOARD", sizeof(cap->card));
+	sprintf(cap->bus_info,"PCI:%s",pci_name(em->pci_dev));
+	cap->version = 0;
+	cap->capabilities =
+			V4L2_CAP_VIDEO_OUTPUT |
+			V4L2_CAP_READWRITE;
+	return 0;
+}
+
 static const struct v4l2_ioctl_ops video_ioctl_ops = {
+	.vidioc_querycap 			= vidioc_querycap,
 };
 
 static const struct video_device em8300_video_template = {
