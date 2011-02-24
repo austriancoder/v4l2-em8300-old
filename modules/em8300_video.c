@@ -47,26 +47,26 @@ static const struct v4l2_queryctrl em8300_ctls[] = {
 	{
 		.id            = V4L2_CID_BRIGHTNESS,
 		.name          = "Brightness",
-		.minimum       = 0x00,
-		.maximum       = 0xff,
+		.minimum       = 0,
+		.maximum       = 1000,
 		.step          = 1,
-		.default_value = 0x7f,
+		.default_value = 500,
 		.type          = V4L2_CTRL_TYPE_INTEGER,
 	}, {
 		.id            = V4L2_CID_CONTRAST,
 		.name          = "Contrast",
 		.minimum       = 0,
-		.maximum       = 0xff,
+		.maximum       = 1000,
 		.step          = 1,
-		.default_value = 0x7f,
+		.default_value = 500,
 		.type          = V4L2_CTRL_TYPE_INTEGER,
 	}, {
 		.id            = V4L2_CID_SATURATION,
 		.name          = "Saturation",
 		.minimum       = 0,
-		.maximum       = 0xff,
+		.maximum       = 1000,
 		.step          = 1,
-		.default_value = 0x7f,
+		.default_value = 500,
 		.type          = V4L2_CTRL_TYPE_INTEGER,
 	}
 };
