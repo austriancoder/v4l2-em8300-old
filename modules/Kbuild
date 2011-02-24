@@ -15,16 +15,6 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-BUILD_IOCTL32 := n
-
-ifeq ($(ARCH),sparc64)
-BUILD_IOCTL32 := $(CONFIG_SPARC32_COMPAT)
-endif
-
-ifeq ($(ARCH),x86_64)
-BUILD_IOCTL32 := $(CONFIG_IA32_EMULATION)
-endif
-
 EXTRA_CFLAGS := -I$(EM8300_DIR)/include \
 		-DEM8300_VIDEOMODE_DEFAULT=EM8300_VIDEOMODE_PAL \
 		-DEM8300_AUDIOMODE_DEFAULT=EM8300_AUDIOMODE_ANALOG \
@@ -47,9 +37,6 @@ em8300-objs := em8300_main.o em8300_i2c.o em8300_audio.o em8300_fifo.o \
 		em8300_video.o em8300_misc.o em8300_dicom.o em8300_ucode.o \
 		em8300_ioctl.o em8300_spu.o em9010.o \
 		em8300_alsa.o em8300_params.o em8300_eeprom.o em8300_models.o
-ifeq ($(BUILD_IOCTL32),y)
-em8300-objs += em8300_ioctl32.o
-endif
 
 #obj-m += adv717x.o
 obj-m += bt865.o
