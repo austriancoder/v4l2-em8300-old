@@ -571,7 +571,7 @@ int em8300_ioctl_overlay_setmode(struct em8300_s *em, int val)
 			em->overlay_mode = val;
 			em8300_ioctl_setvideomode(em, em->video_mode);
 			em9010_overlay_update(em);
-			em8300_ioctl_enable_videoout(em, (em->video_mode == EM8300_PLAYMODE_STOPPED)?0:1);
+			em8300_ioctl_enable_videoout(em, (em->video_playmode == EM8300_PLAYMODE_STOPPED)?0:1);
 		}
 		break;
 	case EM8300_OVERLAY_MODE_RECTANGLE:
