@@ -398,6 +398,13 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 		goto irq_error;
 	}
 
+	/* load fw */
+	em8300_require_ucode(em);
+	if (!em->ucodeloaded) {
+		result = -ENOTTY;
+		goto irq_error;
+	}
+
 	init_em8300(em);
 
 	em8300[i] = em;
