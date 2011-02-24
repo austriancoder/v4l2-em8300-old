@@ -80,7 +80,6 @@ typedef struct {
 
 #define MAX_UCODE_REGISTER 110
 
-#define EM8300_IOCTL_INIT       _IOW('C',0,em8300_microcode_t)
 #define EM8300_IOCTL_READREG    _IOWR('C',1,em8300_register_t)
 #define EM8300_IOCTL_WRITEREG   _IOW('C',2,em8300_register_t)
 #define EM8300_IOCTL_SET_ASPECTRATIO _IOW('C',5,int)

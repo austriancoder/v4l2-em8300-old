@@ -23,14 +23,15 @@
 #define __NO_VERSION__
 
 #include <linux/pci.h>
-
-#include "em8300_reg.h"
+#include <linux/firmware.h>
 #include <linux/em8300.h>
-#include "em8300_driver.h"
-
 #include <linux/soundcard.h>
 
+#include "em8300_reg.h"
+#include "em8300_driver.h"
 #include "em8300_reg.c"
+#include "em8300_fifo.h"
+#include "em8300_params.h"
 
 static int upload_block(struct em8300_s *em, int blocktype, int offset, int len, unsigned char *buf)
 {
@@ -170,12 +171,6 @@ void em8300_ucode_upload(struct em8300_s *em, void *ucode, int ucode_size)
 	}
 }
 
-#if defined(CONFIG_FW_LOADER) || defined(CONFIG_FW_LOADER_MODULE)
-
-#include <linux/firmware.h>
-#include "em8300_fifo.h"
-#include "em8300_params.h"
-
 void em8300_require_ucode(struct em8300_s *em)
 {
 	if (!em->ucodeloaded) {
@@ -233,12 +228,3 @@ void em8300_require_ucode(struct em8300_s *em)
 
 	}
 }
-
-#else
-
-void em8300_require_ucode(struct em8300_s *em)
-{
-	return;
-}
-
-#endif

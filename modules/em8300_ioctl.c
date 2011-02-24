@@ -67,9 +67,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 	}
 
 	switch (_IOC_NR(cmd)) {
-	case _IOC_NR(EM8300_IOCTL_INIT):
-		return em8300_ioctl_init(em, (em8300_microcode_t *) arg);
-
 	case _IOC_NR(EM8300_IOCTL_WRITEREG):
 		em8300_require_ucode(em);
 
@@ -406,80 +403,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 		return -ETIME;
 	}
 
-	return 0;
-}
-
-int em8300_ioctl_init(struct em8300_s *em, em8300_microcode_t *useruc)
-{
-	em8300_microcode_t uc;
-	unsigned char *ucode;
-	int ret;
-
-	if (copy_from_user(&uc, useruc, sizeof(em8300_microcode_t)))
-		return -EFAULT;
-
-	ucode = kmalloc(uc.ucode_size, GFP_KERNEL);
-	if (!ucode) {
-		return -ENOMEM;
-	}
-
-	if (copy_from_user(ucode, uc.ucode, uc.ucode_size)) {
-		kfree(ucode);
-		return -EFAULT;
-	}
-
-	em8300_ucode_upload(em, ucode, uc.ucode_size);
-
-	kfree(ucode);
-
-	em8300_dicom_init(em);
-
-	if ((ret = em8300_video_setup(em))) {
-		return ret;
-	}
-
-	if (em->mvfifo) {
-		em8300_fifo_free(em->mvfifo);
-	}
-	if (em->mafifo) {
-		em8300_fifo_free(em->mafifo);
-	}
-	if (em->spfifo) {
-		em8300_fifo_free(em->spfifo);
-	}
-
-	if (!(em->mvfifo = em8300_fifo_alloc())) {
-		return -ENOMEM;
-	}
-
-	if (!(em->mafifo = em8300_fifo_alloc())) {
-		return -ENOMEM;
-	}
-
-	if (!(em->spfifo = em8300_fifo_alloc())) {
-		return -ENOMEM;
-	}
-
-	em8300_fifo_init(em,em->mvfifo, MV_PCIStart, MV_PCIWrPtr, MV_PCIRdPtr, MV_PCISize, 0x900, FIFOTYPE_VIDEO);
-	em8300_fifo_init(em, em->mafifo, MA_PCIStart, MA_PCIWrPtr, MA_PCIRdPtr, MA_PCISize, 0x1000, FIFOTYPE_AUDIO);
-	//	em8300_fifo_init(em,em->spfifo, SP_PCIStart, SP_PCIWrPtr, SP_PCIRdPtr, SP_PCISize, 0x1000, FIFOTYPE_VIDEO);
-	em8300_fifo_init(em, em->spfifo, SP_PCIStart, SP_PCIWrPtr, SP_PCIRdPtr, SP_PCISize, 0x800, FIFOTYPE_VIDEO);
-	em8300_spu_init(em);
-
-	if ((ret = em8300_audio_setup(em))) {
-		return ret;
-	}
-
-	em8300_ioctl_enable_videoout(em, 0);
-
-#if ! ( defined(CONFIG_FW_LOADER) || defined(CONFIG_FW_LOADER_MODULE) )
-	if (!em->ucodeloaded)
-		em8300_enable_card(em);
-#endif
-
-	em->ucodeloaded = 1;
-
-	printk(KERN_NOTICE "em8300-%d: Microcode version 0x%02x loaded\n", em->instance, read_ucregister(MicroCodeVersion));
 	return 0;
 }
 
