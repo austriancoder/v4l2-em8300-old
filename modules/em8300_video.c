@@ -35,6 +35,7 @@
 #include <linux/em8300.h>
 #include "em8300_driver.h"
 #include "em8300_fifo.h"
+#include "em8300_models.h"
 
 #include <linux/soundcard.h>
 
@@ -122,7 +123,7 @@ static int vidioc_querycap (struct file *file, void  *priv,
 	struct em8300_s *em = video_drvdata(file);
 
 	strcpy(cap->driver, "em8300");
-	strlcpy(cap->card, "BOARD", sizeof(cap->card));
+	strlcpy(cap->card, known_models[em->model].name, sizeof(cap->card));
 	sprintf(cap->bus_info,"PCI:%s",pci_name(em->pci_dev));
 	cap->version = 0;
 	cap->capabilities =
