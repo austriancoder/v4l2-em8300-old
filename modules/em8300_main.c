@@ -76,9 +76,8 @@ static irqreturn_t em8300_irq(int irq, void *dev_id)
 
 		write_ucregister(Q_IrqStatus, 0x8000);
 
-		if (irqstatus & IRQSTATUS_VIDEO_FIFO) {
+		if (irqstatus & IRQSTATUS_VIDEO_FIFO)
 			em8300_fifo_check(em->mvfifo);
-		}
 
 		if (irqstatus & IRQSTATUS_AUDIO_FIFO) {
 			if (em->audio_driver_style == OSS)

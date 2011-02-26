@@ -117,14 +117,14 @@ static struct v4l2_file_operations em8300_v4l2_fops = {
 	.ioctl      = video_ioctl2,
 };
 
-static int vidioc_querycap (struct file *file, void  *priv,
+static int vidioc_querycap(struct file *file, void  *priv,
 					struct v4l2_capability *cap)
 {
 	struct em8300_s *em = video_drvdata(file);
 
 	strcpy(cap->driver, "em8300");
 	strlcpy(cap->card, known_models[em->model].name, sizeof(cap->card));
-	sprintf(cap->bus_info,"PCI:%s",pci_name(em->pci_dev));
+	sprintf(cap->bus_info, "PCI:%s", pci_name(em->pci_dev));
 	cap->version = 0;
 	cap->capabilities =
 			V4L2_CAP_VIDEO_OUTPUT |
@@ -132,7 +132,7 @@ static int vidioc_querycap (struct file *file, void  *priv,
 	return 0;
 }
 
-static int vidioc_queryctrl (struct file *file, void *priv,
+static int vidioc_queryctrl(struct file *file, void *priv,
 				struct v4l2_queryctrl *qctrl)
 {
 	qctrl->id = v4l2_ctrl_next(ctrl_classes, qctrl->id);
@@ -238,17 +238,15 @@ int em8300_register_video(struct em8300_s *em)
 
 static int mpegvideo_command(struct em8300_s *em, int cmd)
 {
-	if (em8300_waitfor(em, ucregister(MV_Command), 0xffff, 0xffff)) {
+	if (em8300_waitfor(em, ucregister(MV_Command), 0xffff, 0xffff))
 		return -1;
-	}
 
 	write_ucregister(MV_Command, cmd);
 
-	if ((cmd == MVCOMMAND_DISPLAYBUFINFO) || (cmd == 0x10)) {
+	if ((cmd == MVCOMMAND_DISPLAYBUFINFO) || (cmd == 0x10))
 		return em8300_waitfor_not(em, ucregister(DICOM_Display_Data), 0, 0xffff);
-	} else {
+	else
 		return em8300_waitfor(em, ucregister(MV_Command), 0xffff, 0xffff);
-	}
 }
 
 int em8300_video_setplaymode(struct em8300_s *em, int mode)
@@ -266,7 +264,7 @@ int em8300_video_setplaymode(struct em8300_s *em, int mode)
 			em->video_offset = 0;
 			mpegvideo_command(em, MVCOMMAND_STOP);
 			mpegvideo_command(em, MVCOMMAND_DISPLAYBUFINFO);
-			em8300_dicom_fill_dispbuffers(em, 0, 0, em->dbuf_info.xsize, em->dbuf_info.ysize, 0x00000000, 0x80808080 );
+			em8300_dicom_fill_dispbuffers(em, 0, 0, em->dbuf_info.xsize, em->dbuf_info.ysize, 0x00000000, 0x80808080);
 			break;
 		case EM8300_PLAYMODE_PLAY:
 			em->video_pts = 0;
@@ -305,9 +303,8 @@ int em8300_video_sync(struct em8300_s *em)
 		rdptr = read_ucregister(MV_RdPtr_Lo) |
 			(read_ucregister(MV_RdPtr_Hi) << 16);
 
-		if (rdptr == wrptr) {
+		if (rdptr == wrptr)
 			break;
-		}
 
 		if (rdptr == rdptr_last) {
 			pr_debug("em8300-%d: Video sync rdptr is stuck at 0x%08x, wrptr 0x%08x, left %d\n", em->instance, rdptr, wrptr, wrptr - rdptr);
@@ -325,9 +322,8 @@ int em8300_video_sync(struct em8300_s *em)
 		}
 	} while (++synctimeout < 4);
 
-	if (rdptr != wrptr) {
+	if (rdptr != wrptr)
 		pr_debug("em8300-%d: Video sync timeout\n", em->instance);
-	}
 
 	set_current_state(TASK_RUNNING);
 
@@ -365,9 +361,9 @@ void set_dicom_kmin(struct em8300_s *em)
 	int kmin;
 
 	kmin = (em->overlay_70 + 10) * 150645 / em->mystery_divisor;
-	if (kmin > 0x900) {
+	if (kmin > 0x900)
 		kmin = 0x900;
-	}
+
 	write_ucregister(DICOM_Kmin, kmin);
 	pr_debug("em8300-%d: register DICOM_Kmin = 0x%x\n", em->instance, kmin);
 }
@@ -418,9 +414,8 @@ int em8300_video_setup(struct em8300_s *em)
 
 	em9010_write(em, 0xa, 0x0);
 
-	if (em9010_cabledetect(em)) {
+	if (em9010_cabledetect(em))
 		pr_debug("em8300-%d: overlay loop-back cable detected\n", em->instance);
-	}
 
 	pr_debug("em8300-%d: overlay reg 0x80 = %x \n", em->instance, em9010_read16(em, 0x80));
 
@@ -449,9 +444,9 @@ int em8300_video_setup(struct em8300_s *em)
 		write_register(0x1f5e, 0x9efe);
 		write_ucregister(DICOM_Control, 0x9efe);
 	} else {
-		if (!em->config.model.bt865_ucode_timeout) {
+		if (!em->config.model.bt865_ucode_timeout)
 			write_register(0x1f47, 0x18);
-		}
+
 		write_register(0x1f5e, 0x9afe);
 		write_ucregister(DICOM_Control, 0x9afe);
 	}
@@ -462,7 +457,7 @@ int em8300_video_setup(struct em8300_s *em)
 
 	write_ucregister(ForcedLeftParity, 0x2);
 
-	write_ucregister(MV_Threshold, 0x90); // was 0x50 for BT865, but this works too
+	write_ucregister(MV_Threshold, 0x90); /* was 0x50 for BT865, but this works too */
 
 	write_register(EM8300_INTERRUPT_ACK, 0x2);
 	write_ucregister(Q_IrqMask, 0x0);
@@ -525,9 +520,8 @@ void em8300_video_check_ptsfifo(struct em8300_s *em)
 
 	ptsfifoptr = ucregister(MV_PTSFifo) + 4 * em->video_ptsfifo_ptr;
 
-	if (!(read_register(ptsfifoptr + 3) & 1)) {
+	if (!(read_register(ptsfifoptr + 3) & 1))
 		wake_up_interruptible(&em->video_ptsfifo_wait);
-	}
 }
 
 ssize_t em8300_video_write(struct em8300_s *em, const char *buf, size_t count, loff_t *ppos)
@@ -566,14 +560,14 @@ ssize_t em8300_video_write(struct em8300_s *em, const char *buf, size_t count, l
 		em->video_ptsvalid = 0;
 	}
 
-	if (em->nonblock[2]) {
+	if (em->nonblock[2])
 		written = em8300_fifo_write(em->mvfifo, count, buf, flags);
-	} else {
+	else
 		written = em8300_fifo_writeblocking(em->mvfifo, count, buf, flags);
-	}
-	if (written > 0) {
+
+	if (written > 0)
 		em->video_offset += written;
-	}
+
 	return written;
 }
 
@@ -582,13 +576,11 @@ int em8300_video_ioctl(struct em8300_s *em, unsigned int cmd, unsigned long arg)
 	unsigned scr, val;
 	switch (_IOC_NR(cmd)) {
 	case _IOC_NR(EM8300_IOCTL_VIDEO_SETPTS):
-		if (get_user(em->video_pts, (int *) arg)) {
+		if (get_user(em->video_pts, (int *) arg))
 			return -EFAULT;
-		}
 
-		if (em->video_pts == 0) {
+		if (em->video_pts == 0)
 			pr_debug("em8300-%d: Video SETPTS = 0x%x\n", em->instance, em->video_pts);
-		}
 
 		if (em->video_pts != em->video_lastpts) {
 			em->video_ptsvalid = 1;
@@ -603,7 +595,8 @@ int em8300_video_ioctl(struct em8300_s *em, unsigned int cmd, unsigned long arg)
 			val >>= 1;
 			scr = read_ucregister(MV_SCRlo) | (read_ucregister(MV_SCRhi) << 16);
 			scr -= val;
-			if (scr < 0) scr = -scr;
+			if (scr < 0)
+				scr = -scr;
 			if (scr > 9000) {
 				pr_info("em8300-%d: setting scr: %i\n", em->instance, val);
 				write_ucregister(MV_SCRlo, val & 0xffff);

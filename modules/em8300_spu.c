@@ -84,7 +84,9 @@ ssize_t em8300_spu_write(struct em8300_s *em, const char *buf, size_t count, lof
 	int flags = 0;
 	long ret;
 
-	if (!(em->sp_mode)) return 0;
+	if (!(em->sp_mode))
+		return 0;
+
 //	em->sp_ptsvalid=0;
 	if (em->sp_ptsvalid) {
 		int ptsfifoptr;
@@ -106,11 +108,10 @@ ssize_t em8300_spu_write(struct em8300_s *em, const char *buf, size_t count, lof
 		em->sp_ptsvalid = 0;
 	}
 
-	if (em->nonblock[3]) {
+	if (em->nonblock[3])
 		return em8300_fifo_write(em->spfifo, count, buf, flags);
-	} else {
+	else
 		return em8300_fifo_writeblocking(em->spfifo, count, buf, flags);
-	}
 }
 
 int em8300_spu_ioctl(struct em8300_s *em, unsigned int cmd, unsigned long arg)

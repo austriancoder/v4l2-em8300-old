@@ -50,8 +50,8 @@ module_param_array(card_model, int, NULL, 0444);
 MODULE_PARM_DESC(card_model, "Model number for the em8300-based card. -1 (default) means automatic detection; 0 means unknown model with manual setup.");
 
 static const char * const audio_driver_name[] = {
-	[ AUDIO_DRIVER_NONE ] = "none",
-	[ AUDIO_DRIVER_ALSA ] = "alsa",
+	[AUDIO_DRIVER_NONE] = "none",
+	[AUDIO_DRIVER_ALSA] = "alsa",
 };
 
 #if defined(CONFIG_SND) || defined(CONFIG_SND_MODULE)
