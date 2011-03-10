@@ -386,8 +386,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 			switch (val) {
 			case EM8300_SUBDEVICE_VIDEO:
 				return em8300_video_flush(em);
-			case EM8300_SUBDEVICE_AUDIO:
-					return -EINVAL;
 			case EM8300_SUBDEVICE_SUBPICTURE:
 				return -ENOSYS;
 			default:
