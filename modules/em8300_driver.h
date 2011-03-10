@@ -184,8 +184,7 @@ struct em8300_s
 	/* Audio */
 	struct em8300_audio_s audio;
 	int audio_mode;
-        int pcm_mode;
-	int dsp_num;
+    int pcm_mode;
 	/* Channel status for S/PDIF */
 	unsigned int channel_status_pos;
 	unsigned char channel_status[24];
@@ -213,8 +212,6 @@ struct em8300_s
 	wait_queue_head_t sp_ptsfifo_wait;
 	int sp_ptsfifo_waiting;
 	int sp_mode;
-	
-	int linecounter;
 	
 	/* EM9010 overlay processor */
 	int overlay_enabled;
