@@ -489,7 +489,7 @@ int em8300_video_setup(struct em8300_s *em)
 	write_ucregister(MV_FrameEventLo, 0xffff);
 	write_ucregister(MV_FrameEventHi, 0x7fff);
 
-	em8300_ioctl_setvideomode(em, EM8300_VIDEOMODE_DEFAULT);
+	em8300_ioctl_setvideomode(em, V4L2_STD_PAL);
 	em8300_ioctl_setaspectratio(em, EM8300_ASPECTRATIO_4_3);
 
 	em8300_dicom_setBCS(em, 500, 500, 500);

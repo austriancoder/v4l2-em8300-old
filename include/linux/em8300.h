@@ -31,11 +31,6 @@
 #define LINUX_EM8300_H
 
 typedef struct {
-	void *ucode;
-	int ucode_size;
-} em8300_microcode_t;
-
-typedef struct {
 	int reg;
 	int val;
 	int microcode_register;
@@ -121,14 +116,6 @@ typedef struct {
 #define EM8300_ASPECTRATIO_4_3 0
 #define EM8300_ASPECTRATIO_16_9 1
 #define EM8300_ASPECTRATIO_LAST 1
-
-#define EM8300_VIDEOMODE_PAL	0
-#define EM8300_VIDEOMODE_PAL60	1
-#define EM8300_VIDEOMODE_NTSC	2
-#define EM8300_VIDEOMODE_LAST	2
-#ifndef EM8300_VIDEOMODE_DEFAULT
-#define EM8300_VIDEOMODE_DEFAULT EM8300_VIDEOMODE_PAL
-#endif
 
 #define EM8300_AUDIOMODE_ANALOG 0
 #define EM8300_AUDIOMODE_DIGITALPCM 1

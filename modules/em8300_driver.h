@@ -193,7 +193,7 @@ struct em8300_s
 	struct semaphore audio_driver_style_lock;
 
 	/* Video */
-	int video_mode;
+	v4l2_std_id video_mode;
 	int video_playmode;
 	int aspect_ratio;
 	int zoom;
@@ -326,10 +326,9 @@ void em8300_spu_release(struct em8300_s *em);
 
 /* em8300_ioctl.c */
 int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg);
-int em8300_ioctl_setvideomode(struct em8300_s *em, int mode);
+int em8300_ioctl_setvideomode(struct em8300_s *em, v4l2_std_id std);
 int em8300_ioctl_setaspectratio(struct em8300_s *em, int ratio);
 int em8300_ioctl_getstatus(struct em8300_s *em, char *usermsg);
-int em8300_ioctl_init(struct em8300_s *em, em8300_microcode_t *useruc);
 void em8300_ioctl_enable_videoout(struct em8300_s *em, int mode);
 int em8300_ioctl_setplaymode(struct em8300_s *em, int mode);
 int em8300_ioctl_setaudiomode(struct em8300_s *em, int mode);

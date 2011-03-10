@@ -406,22 +406,9 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 	return 0;
 }
 
-int em8300_ioctl_setvideomode(struct em8300_s *em, int mode)
+int em8300_ioctl_setvideomode(struct em8300_s *em, v4l2_std_id std)
 {
-	v4l2_std_id std;
-
-	switch (mode) {
-	case EM8300_VIDEOMODE_PAL:
-		std = V4L2_STD_PAL;
-		break;
-	case EM8300_VIDEOMODE_NTSC:
-		std = V4L2_STD_NTSC;
-		break;
-	default:
-		return -EINVAL;
-	}
-
-	em->video_mode = mode;
+	em->video_mode = std;
 
 	em8300_dicom_disable(em);
 

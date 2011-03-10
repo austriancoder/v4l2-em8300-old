@@ -41,7 +41,7 @@ struct dicom_tvmode {
 	int horizoffset;
 };
 
-struct dicom_tvmode tvmodematrix[EM8300_VIDEOMODE_LAST + 1] = {
+struct dicom_tvmode tvmodematrix[3] = {
 	{576, 720, 46, 130},     // PAL 4:3
 	{480, 720, 46, 138},     // PAL60 4:3
 	{480, 720, 31, 138},     // NTSC 4:3
@@ -83,7 +83,7 @@ int em8300_dicom_update(struct em8300_s *em)
 	int vmode_ntsc = 1;
 
 	if (em->config.model.dicom_other_pal) {
-		vmode_ntsc = (em->video_mode == EM8300_VIDEOMODE_NTSC);
+		vmode_ntsc = (em->video_mode == V4L2_STD_NTSC);
 	}
 
 	if ((ret = em8300_waitfor(em, ucregister(DICOM_UpdateFlag), 0, 1))) {
@@ -151,7 +151,7 @@ int em8300_dicom_update(struct em8300_s *em)
 
 		if (em->encoder_type == ENCODER_BT865) {
 			write_register(0x1f47, 0x0);
-			if (em->video_mode == EM8300_VIDEOMODE_NTSC) {
+			if (em->video_mode == V4L2_STD_NTSC) {
 				write_register(EM8300_HSYNC_LO, 134);
 				write_register(EM8300_HSYNC_HI, 720);
 			} else {
