@@ -111,7 +111,6 @@ struct em8300_s
 	int chip_revision;
 	int pci_revision;
 	
-	int inuse[4];
 	int nonblock[4];
 	
 	struct pci_dev *pci_dev;
