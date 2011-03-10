@@ -387,9 +387,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 			case EM8300_SUBDEVICE_VIDEO:
 				return em8300_video_flush(em);
 			case EM8300_SUBDEVICE_AUDIO:
-				if (em->audio_driver_style == OSS)
-					return em8300_audio_flush(em);
-				else
 					return -EINVAL;
 			case EM8300_SUBDEVICE_SUBPICTURE:
 				return -ENOSYS;

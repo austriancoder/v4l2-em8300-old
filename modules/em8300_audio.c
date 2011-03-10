@@ -510,67 +510,6 @@ int em8300_audio_release(struct em8300_s *em)
 static int set_audiomode(struct em8300_s *em, int mode)
 {
 	em->audio_mode = mode;
-
-	if (em->audio_driver_style != OSS)
-		return 0;
-
-	em->clockgen &= ~CLOCKGEN_OUTMASK;
-
-	if (em->audio_mode == EM8300_AUDIOMODE_ANALOG) {
-		em->clockgen |= CLOCKGEN_ANALOGOUT;
-	} else {
-		em->clockgen |= CLOCKGEN_DIGITALOUT;
-	}
-
-	em8300_clockgen_write(em, em->clockgen);
-
-	em->channel_status_pos = 0;
-	memset(em->channel_status, 0, sizeof(em->channel_status));
-
-	em->channel_status[1] = 0x98;
-
-	switch (em->audio.speed) {
-	case 32000:
-		em->channel_status[3] = 0xc0;
-		break;
-	case 44100:
-		em->channel_status[3] = 0;
-		break;
-	case 48000:
-		em->channel_status[3] = 0x40;
-		break;
-	}
-
-	switch (em->audio_mode) {
-	case EM8300_AUDIOMODE_ANALOG:
-		em->pcm_mode = EM8300_AUDIOMODE_ANALOG;
-
-		write_register(EM8300_AUDIO_RATE, 0x62);
-		em8300_setregblock(em, 2 * ucregister(Mute_Pattern), 0, 0x600);
-		printk(KERN_NOTICE "em8300-%d: Analog audio enabled\n", em->instance);
-		break;
-	case EM8300_AUDIOMODE_DIGITALPCM:
-		em->pcm_mode = EM8300_AUDIOMODE_DIGITALPCM;
-
-		write_register(EM8300_AUDIO_RATE, 0x3a0);
-
-		em->channel_status[0] = 0x0;
-		sub_prepare_SPDIF(em, (uint32_t *)em->mafifo->preprocess_buffer, NULL, 192);
-
-		em8300_writeregblock(em, 2*ucregister(Mute_Pattern), (unsigned *)em->mafifo->preprocess_buffer, em->mafifo->slotsize);
-
-		printk(KERN_NOTICE "em8300-%d: Digital PCM audio enabled\n", em->instance);
-		break;
-	case EM8300_AUDIOMODE_DIGITALAC3:
-		write_register(EM8300_AUDIO_RATE, 0x3a0);
-
-		em->channel_status[0] = 0x40;
-		sub_prepare_SPDIF(em, (uint32_t *)em->mafifo->preprocess_buffer, NULL, 192);
-
-		em8300_writeregblock(em, 2*ucregister(Mute_Pattern), (unsigned *)em->mafifo->preprocess_buffer, em->mafifo->slotsize);
-		printk(KERN_NOTICE "em8300-%d: Digital AC3 audio enabled\n", em->instance);
-		break;
-	}
 	return 0;
 }
 
@@ -632,12 +571,8 @@ ssize_t em8300_audio_write(struct em8300_s *em, const char *buf, size_t count, l
 
 int em8300_ioctl_setaudiomode(struct em8300_s *em, int mode)
 {
-	if (em->audio_driver_style == OSS)
-		em8300_audio_flush(em);
 	set_audiomode(em, mode);
 	setup_mafifo(em);
-	if (em->audio_driver_style == OSS)
-		mpegaudio_command(em, MACOMMAND_PLAY);
 	em->audio.enable_bits = PCM_ENABLE_OUTPUT;
 	return 0;
 }
