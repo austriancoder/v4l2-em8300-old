@@ -68,11 +68,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 
 	switch (_IOC_NR(cmd)) {
 	case _IOC_NR(EM8300_IOCTL_WRITEREG):
-		em8300_require_ucode(em);
-
-		if (!em->ucodeloaded) {
-			return -ENOTTY;
-		}
 
 		if (copy_from_user(&reg, (void *) arg, sizeof(em8300_register_t)))
 			return -EFAULT;
@@ -85,11 +80,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 		break;
 
 	case _IOC_NR(EM8300_IOCTL_READREG):
-		em8300_require_ucode(em);
-
-		if (!em->ucodeloaded) {
-			return -ENOTTY;
-		}
 
 		if (copy_from_user(&reg, (void *) arg, sizeof(em8300_register_t)))
 			return -EFAULT;
@@ -105,11 +95,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 		break;
 
 	case _IOC_NR(EM8300_IOCTL_VBI):
-		em8300_require_ucode(em);
-
-		if (!em->ucodeloaded) {
-			return -ENOTTY;
-		}
 
 		old_count = em->irqcount;
 		em->irqmask |= IRQSTATUS_VIDEO_VBL;
@@ -127,11 +112,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 		return 0;
 
 	case _IOC_NR(EM8300_IOCTL_SET_VIDEOMODE):
-		em8300_require_ucode(em);
-
-		if (!em->ucodeloaded) {
-			return -ENOTTY;
-		}
 
 		if (_IOC_DIR(cmd) & _IOC_WRITE) {
 			get_user(val, (int *) arg);
@@ -145,11 +125,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 		break;
 
 	case _IOC_NR(EM8300_IOCTL_SET_PLAYMODE):
-		em8300_require_ucode(em);
-
-		if (!em->ucodeloaded) {
-			return -ENOTTY;
-		}
 
 		if (_IOC_DIR(cmd) & _IOC_WRITE) {
 			get_user(val, (int *) arg);
@@ -158,11 +133,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 		break;
 
 	case _IOC_NR(EM8300_IOCTL_SET_ASPECTRATIO):
-		em8300_require_ucode(em);
-
-		if (!em->ucodeloaded) {
-			return -ENOTTY;
-		}
 
 		if (_IOC_DIR(cmd) & _IOC_WRITE) {
 			get_user(val, (int *) arg);
@@ -175,11 +145,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 		}
 		break;
 	case _IOC_NR(EM8300_IOCTL_SET_SPUMODE):
-		em8300_require_ucode(em);
-
-		if (!em->ucodeloaded) {
-			return -ENOTTY;
-		}
 
 		if (_IOC_DIR(cmd) & _IOC_WRITE) {
 			get_user(val, (int *) arg);
@@ -193,11 +158,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 		break;
 
 	case _IOC_NR(EM8300_IOCTL_OVERLAY_SETMODE):
-		em8300_require_ucode(em);
-
-		if (!em->ucodeloaded) {
-			return -ENOTTY;
-		}
 
 		if (_IOC_DIR(cmd) & _IOC_WRITE) {
 			get_user(val, (int *) arg);
@@ -208,11 +168,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 		break;
 
 	case _IOC_NR(EM8300_IOCTL_OVERLAY_SIGNALMODE):
-		em8300_require_ucode(em);
-
-		if (!em->ucodeloaded) {
-			return -ENOTTY;
-		}
 
 		if (_IOC_DIR(cmd) & _IOC_WRITE) {
 			get_user(val, (int *) arg);
@@ -223,11 +178,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 		break;
 
 	case _IOC_NR(EM8300_IOCTL_OVERLAY_SETWINDOW):
-		em8300_require_ucode(em);
-
-		if (!em->ucodeloaded) {
-			return -ENOTTY;
-		}
 
 		if (_IOC_DIR(cmd) & _IOC_WRITE) {
 			if (copy_from_user(&ov_win, (void *) arg, sizeof(em8300_overlay_window_t)))
@@ -243,11 +193,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 		break;
 
 	case _IOC_NR(EM8300_IOCTL_OVERLAY_SETSCREEN):
-		em8300_require_ucode(em);
-
-		if (!em->ucodeloaded) {
-			return -ENOTTY;
-		}
 
 		if (_IOC_DIR(cmd) & _IOC_WRITE) {
 			if (copy_from_user(&ov_scr, (void *) arg, sizeof(em8300_overlay_screen_t)))
@@ -263,11 +208,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 	break;
 
 	case _IOC_NR(EM8300_IOCTL_OVERLAY_CALIBRATE):
-		em8300_require_ucode(em);
-
-		if (!em->ucodeloaded) {
-			return -ENOTTY;
-		}
 
 		if (_IOC_DIR(cmd) & _IOC_WRITE) {
 			if (copy_from_user(&ov_cal, (void *) arg, sizeof(em8300_overlay_calibrate_t)))
@@ -284,11 +224,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 	break;
 
 	case _IOC_NR(EM8300_IOCTL_OVERLAY_GET_ATTRIBUTE):
-		em8300_require_ucode(em);
-
-		if (!em->ucodeloaded) {
-			return -ENOTTY;
-		}
 
 		if (copy_from_user(&attr, (void *) arg, sizeof(em8300_attribute_t)))
 			return -EFAULT;
@@ -303,11 +238,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 		break;
 
 	case _IOC_NR(EM8300_IOCTL_SCR_GET):
-		em8300_require_ucode(em);
-
-		if (!em->ucodeloaded) {
-			return -ENOTTY;
-		}
 
 		if (_IOC_DIR(cmd) & _IOC_WRITE) {
 			unsigned scr;
@@ -334,11 +264,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 	break;
 
 	case _IOC_NR(EM8300_IOCTL_SCR_GETSPEED):
-		em8300_require_ucode(em);
-
-		if (!em->ucodeloaded) {
-			return -ENOTTY;
-		}
 
 		if (_IOC_DIR(cmd) & _IOC_WRITE) {
 			get_user(val, (int *) arg);
@@ -358,11 +283,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 	break;
 
 	case _IOC_NR(EM8300_IOCTL_FLUSH):
-		em8300_require_ucode(em);
-
-		if (!em->ucodeloaded) {
-			return -ENOTTY;
-		}
 
 		if (_IOC_DIR(cmd) & _IOC_WRITE) {
 			if (get_user(val, (unsigned *) arg))

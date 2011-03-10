@@ -113,7 +113,6 @@ struct em8300_s
 	
 	int inuse[4];
 	int nonblock[4];
-	int ucodeloaded;
 	
 	struct pci_dev *pci_dev;
 	struct v4l2_device v4l2_dev;
@@ -272,7 +271,7 @@ int mpegaudio_command(struct em8300_s *em, int cmd);
 
 /* em8300_ucode.c */
 void em8300_ucode_upload(struct em8300_s *em, void *ucode, int ucode_size);
-void em8300_require_ucode(struct em8300_s *em);
+int em8300_require_ucode(struct em8300_s *em);
 
 /* em8300_misc.c */
 int em8300_setregblock(struct em8300_s *em, int offset, int val, int len);

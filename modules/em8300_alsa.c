@@ -104,10 +104,6 @@ static int snd_em8300_playback_open(snd_pcm_substream_t *substream)
 	struct em8300_s *em = em8300_alsa->em;
 	snd_pcm_runtime_t *runtime = substream->runtime;
 
-	em8300_require_ucode(em);
-	if (!em->ucodeloaded)
-		return -ENODEV;
-
 	down(&em->audio_driver_style_lock);
 	if (em->audio_driver_style != NONE) {
 		up(&em->audio_driver_style_lock);
