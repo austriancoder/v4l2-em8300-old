@@ -174,21 +174,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 				return -EFAULT;
 		}
 		break;
-	case _IOC_NR(EM8300_IOCTL_GET_AUDIOMODE):
-		em8300_require_ucode(em);
-
-		if (!em->ucodeloaded) {
-			return -ENOTTY;
-		}
-
-		if (_IOC_DIR(cmd) & _IOC_WRITE) {
-			get_user(val, (int *) arg);
-			em8300_ioctl_setaudiomode(em, val);
-		}
-		if (_IOC_DIR(cmd) & _IOC_READ) {
-			em8300_ioctl_getaudiomode(em, arg);
-		}
-		break;
 	case _IOC_NR(EM8300_IOCTL_SET_SPUMODE):
 		em8300_require_ucode(em);
 

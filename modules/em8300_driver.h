@@ -184,7 +184,6 @@ struct em8300_s
 	/* Audio */
 	struct em8300_audio_s audio;
 	int audio_mode;
-    int pcm_mode;
 	/* Channel status for S/PDIF */
 	unsigned int channel_status_pos;
 	unsigned char channel_status[24];
@@ -267,13 +266,8 @@ int em9010_read16(struct em8300_s *em, int reg);
 void em9010_write16(struct em8300_s *em, int reg, int value);
 
 /* em8300_audio.c */
-int em8300_audio_ioctl(struct em8300_s *em,unsigned int cmd, unsigned long arg);
 int em8300_audio_flush(struct em8300_s *em);
-int em8300_audio_open(struct em8300_s *em);
-int em8300_audio_release(struct em8300_s *em);
 int em8300_audio_setup(struct em8300_s *em);
-ssize_t em8300_audio_write(struct em8300_s *em, const char * buf,
-		       size_t count, loff_t *ppos);
 int mpegaudio_command(struct em8300_s *em, int cmd);
 
 /* em8300_ucode.c */
@@ -328,8 +322,6 @@ int em8300_ioctl_setaspectratio(struct em8300_s *em, int ratio);
 int em8300_ioctl_getstatus(struct em8300_s *em, char *usermsg);
 void em8300_ioctl_enable_videoout(struct em8300_s *em, int mode);
 int em8300_ioctl_setplaymode(struct em8300_s *em, int mode);
-int em8300_ioctl_setaudiomode(struct em8300_s *em, int mode);
-int em8300_ioctl_getaudiomode(struct em8300_s *em, long int mode);
 int em8300_ioctl_overlay_calibrate(struct em8300_s *em, em8300_overlay_calibrate_t *c);
 int em8300_ioctl_overlay_setwindow(struct em8300_s *em,em8300_overlay_window_t *w);
 int em8300_ioctl_overlay_setscreen(struct em8300_s *em,em8300_overlay_screen_t *s);
