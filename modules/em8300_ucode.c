@@ -40,12 +40,12 @@ static int upload_block(struct em8300_s *em, int blocktype, int offset, int len,
 	switch (blocktype) {
 	case 4:
 		offset *= 2;
-		write_register(0x1c11, offset & 0xffff);
-		write_register(0x1c12, (offset >> 16) & 0xffff);
-		write_register(0x1c13, len);
+		write_register(DRAM_C0_ADD_LO, offset & 0xffff);
+		write_register(DRAM_C0_ADD_HI, (offset >> 16) & 0xffff);
+		write_register(DRAM_C0_XSIZE, len);
 		write_register(0x1c14, len);
 		write_register(0x1c15, 0);
-		write_register(0x1c16, 1);
+		write_register(DRAM_C0_YSIZE, 1);
 		write_register(0x1c17, 1);
 		write_register(0x1c18, offset & 0xffff);
 		write_register(0x1c19, (offset >> 16) & 0xffff);
@@ -101,6 +101,7 @@ int upload_prepare(struct em8300_s *em)
 	write_register(0x1c00, em->var_ucode_reg1);
 	write_register(0x1c04, em->var_ucode_reg2);
 
+	/* this could be some kind of dram channel init */
 	/* em->mem[0x1c08]; */
 	write_register(0x1c10, 0x8);
 	write_register(0x1c20, 0x8);

@@ -35,6 +35,16 @@
   EM8300 fixed registers
 */
 
+#define DRAM_C0_ADD_LO                        0x1c11
+#define DRAM_C0_ADD_HI                        0x1c12
+#define DRAM_C0_XSIZE                         0x1c13
+#define DRAM_C0_YSIZE                         0x1c16
+
+#define DRAM_C3_ADD_LO                        0x1c41
+#define DRAM_C3_ADD_HI                        0x1c42
+#define DRAM_C3_XSIZE                         0x1c43
+#define DRAM_C3_YSIZE                         0x1c46
+
 #define I2C_OE                                0x1f4e
 #define I2C_PIN                               0x1f4d
 #define AUDIO_RATE                            0x1fb0
