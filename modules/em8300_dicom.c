@@ -152,17 +152,17 @@ int em8300_dicom_update(struct em8300_s *em)
 		if (em->encoder_type == ENCODER_BT865) {
 			write_register(0x1f47, 0x0);
 			if (em->video_mode == V4L2_STD_NTSC) {
-				write_register(EM8300_HSYNC_LO, 134);
-				write_register(EM8300_HSYNC_HI, 720);
+				write_register(VIDEO_HSYNC_LO, 134);
+				write_register(VIDEO_HSYNC_HI, 720);
 			} else {
-				write_register(EM8300_HSYNC_LO, 140);
-				write_register(EM8300_HSYNC_HI, 720);
+				write_register(VIDEO_HSYNC_LO, 140);
+				write_register(VIDEO_HSYNC_HI, 720);
 			}
 			if (vmode_ntsc) {
-				write_register(EM8300_VSYNC_HI, 260);
+				write_register(VIDEO_VSYNC_HI, 260);
 				write_register(0x1f5e, 0xfefe);
 			} else {
-				write_register(EM8300_VSYNC_HI, 310);
+				write_register(VIDEO_VSYNC_HI, 310);
 				write_register(0x1f5e, 0x9cfe);
 			}
 

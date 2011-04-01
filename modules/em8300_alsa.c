@@ -138,10 +138,10 @@ static int snd_em8300_playback_open(snd_pcm_substream_t *substream)
 	em8300_clockgen_write(em, em->clockgen);
 
 	if (substream->pcm->device == EM8300_ALSA_ANALOG_DEVICENUM) {
-		write_register(EM8300_AUDIO_RATE, 0x62);
+		write_register(AUDIO_RATE, 0x62);
 		em8300_setregblock(em, 2 * ucregister(Mute_Pattern), 0, 0x600);
 	} else {
-		write_register(EM8300_AUDIO_RATE, 0x3a0);
+		write_register(AUDIO_RATE, 0x3a0);
 	}
 	write_ucregister(MA_Threshold, 6);
 

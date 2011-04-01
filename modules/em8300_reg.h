@@ -35,13 +35,14 @@
   EM8300 fixed registers
 */
 
-#define EM8300_I2C_OE 0x1f4e
-#define EM8300_I2C_PIN 0x1f4d
-#define EM8300_AUDIO_RATE 0x1fb0
-#define EM8300_INTERRUPT_ACK 0x1ffa
-#define EM8300_HSYNC_HI 0x1f43
-#define EM8300_HSYNC_LO 0x1f42
-#define EM8300_VSYNC_HI 0x1f45
+#define I2C_OE                                0x1f4e
+#define I2C_PIN                               0x1f4d
+#define AUDIO_RATE                            0x1fb0
+#define INTERRUPT_ACK                         0x1ffa
+#define VIDEO_HSYNC_LO                        0x1f42
+#define VIDEO_HSYNC_HI                        0x1f43
+#define VIDEO_VSYNC_LO                        0x1f44
+#define VIDEO_VSYNC_HI                        0x1f45
 
 /*
   EM8300 microcode dependent registers

@@ -195,12 +195,12 @@ int em8300_i2c_init1(struct em8300_s *em)
 
 	switch (em->chip_revision) {
 	case 2:
-		em->i2c_oe_reg = EM8300_I2C_OE;
-		em->i2c_pin_reg = EM8300_I2C_PIN;
+		em->i2c_oe_reg = I2C_OE;
+		em->i2c_pin_reg = I2C_PIN;
 		break;
 	case 1:
 		em->i2c_oe_reg = 0x1f4f;
-		em->i2c_pin_reg = EM8300_I2C_OE;
+		em->i2c_pin_reg = I2C_OE;
 		break;
 	}
 

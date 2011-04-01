@@ -72,7 +72,7 @@ static irqreturn_t em8300_irq(int irq, void *dev_id)
 
 	if (irqstatus & 0x8000) {
 		write_ucregister(Q_IrqMask, 0x0);
-		write_register(EM8300_INTERRUPT_ACK, 2);
+		write_register(INTERRUPT_ACK, 2);
 
 		write_ucregister(Q_IrqStatus, 0x8000);
 
