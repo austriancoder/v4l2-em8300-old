@@ -85,8 +85,8 @@ int upload_prepare(struct em8300_s *em)
 	write_register(0x1f50, 0x123);
 
 	write_register(0x20001, 0x0);
-	write_register(0x2000, 0x2);
-	write_register(0x2000, 0x0);
+	write_register(RESET, 0x2);
+	write_register(RESET, 0x0);
 	write_register(0x1ff8, 0xffff);
 	write_register(0x1ff9, 0xffff);
 	write_register(0x1ff8, 0xff00);

@@ -35,6 +35,8 @@
   EM8300 fixed registers
 */
 
+#define RESET                                 0x2000
+
 #define DRAM_C0_CONTROL                       0x1c10
 #define DRAM_C0_ADD_LO                        0x1c11
 #define DRAM_C0_ADD_HI                        0x1c12

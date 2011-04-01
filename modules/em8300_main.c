@@ -112,7 +112,7 @@ static void release_em8300(struct em8300_s *em)
 
 	write_ucregister(Q_IrqMask, 0);
 	write_ucregister(Q_IrqStatus, 0);
-	write_register(0x2000, 0);
+	write_register(RESET, 0);
 
 	em8300_fifo_free(em->mvfifo);
 	em8300_fifo_free(em->mafifo);

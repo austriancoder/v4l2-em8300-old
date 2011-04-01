@@ -469,7 +469,7 @@ int em8300_video_setup(struct em8300_s *em)
 	write_ucregister(MA_Threshold, 0x8);
 
 	/* Release reset */
-	write_register(0x2000, 0x1);
+	write_register(RESET, 0x1);
 
 	if (mpegvideo_command(em, MVCOMMAND_DISPLAYBUFINFO)) {
 		printk(KERN_ERR "em8300-%d: mpegvideo_command(0x11) failed\n", em->instance);
