@@ -103,10 +103,10 @@ int upload_prepare(struct em8300_s *em)
 
 	/* this could be some kind of dram channel init */
 	/* em->mem[0x1c08]; */
-	write_register(0x1c10, 0x8);
+	write_register(DRAM_C0_CONTROL, 0x8);
 	write_register(0x1c20, 0x8);
 	write_register(0x1c30, 0x8);
-	write_register(0x1c40, 0x8);
+	write_register(DRAM_C3_CONTROL, 0x8);
 	write_register(0x1c50, 0x8);
 	write_register(0x1c60, 0x8);
 	write_register(0x1c70, 0x8);
