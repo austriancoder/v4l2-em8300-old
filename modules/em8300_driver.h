@@ -209,22 +209,6 @@ struct em8300_s
 	wait_queue_head_t sp_ptsfifo_wait;
 	int sp_ptsfifo_waiting;
 	int sp_mode;
-	
-	/* EM9010 overlay processor */
-	int overlay_enabled;
-	int overlay_mode;
-	int overlay_gamma_enable;
-	int overlay_xres;
-	int overlay_yres;
-	int overlay_frame_xpos;
-	int overlay_frame_ypos;
-	int overlay_frame_width;
-	int overlay_frame_height;
-	int overlay_a[EM9010_ATTRIBUTE_MAX+1];
-	int overlay_double_y;
-	int overlay_xcorr_default;
-	int overlay_70;
-	int overlay_dword_24bb8;
 
 	/* Memory exported via mmap() */
 	struct list_head  memory;
@@ -257,11 +241,6 @@ int em8300_i2c_init1(struct em8300_s *em);
 int em8300_i2c_init2(struct em8300_s *em);
 void em8300_i2c_exit(struct em8300_s *em);
 void em8300_clockgen_write(struct em8300_s *em, int abyte);
-
-void em9010_write(struct em8300_s *em, int reg, int data);
-int em9010_read(struct em8300_s *em, int reg);
-int em9010_read16(struct em8300_s *em, int reg);
-void em9010_write16(struct em8300_s *em, int reg, int value);
 
 /* em8300_audio.c */
 int em8300_audio_flush(struct em8300_s *em);
@@ -320,9 +299,6 @@ int em8300_ioctl_setaspectratio(struct em8300_s *em, int ratio);
 int em8300_ioctl_getstatus(struct em8300_s *em, char *usermsg);
 void em8300_ioctl_enable_videoout(struct em8300_s *em, int mode);
 int em8300_ioctl_setplaymode(struct em8300_s *em, int mode);
-int em8300_ioctl_overlay_calibrate(struct em8300_s *em, em8300_overlay_calibrate_t *c);
-int em8300_ioctl_overlay_setwindow(struct em8300_s *em,em8300_overlay_window_t *w);
-int em8300_ioctl_overlay_setscreen(struct em8300_s *em,em8300_overlay_screen_t *s);
 int em8300_ioctl_overlay_setmode(struct em8300_s *em,int val);
 
 /* em9010.c */

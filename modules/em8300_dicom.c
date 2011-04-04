@@ -79,6 +79,8 @@ int em8300_dicom_update(struct em8300_s *em)
 {
 	int ret;
 	int vmode_ntsc = 1;
+	int f_vs, f_hs, f_vo, f_ho;
+	int v_vs, v_hs, v_vo, v_ho;
 
 	if (em->config.model.dicom_other_pal) {
 		vmode_ntsc = (em->video_mode == V4L2_STD_NTSC);
@@ -88,37 +90,28 @@ int em8300_dicom_update(struct em8300_s *em)
 		return ret;
 	}
 
-	if (em->overlay_enabled) {
-		sub_4288c(em, em->overlay_frame_xpos, em->overlay_frame_ypos, em->overlay_frame_width,
-				em->overlay_frame_height, em->overlay_a[EM9010_ATTRIBUTE_XOFFSET],
-				em->overlay_a[EM9010_ATTRIBUTE_YOFFSET], em->overlay_a[EM9010_ATTRIBUTE_XCORR], em->overlay_double_y);
-	} else {
-		int f_vs, f_hs, f_vo, f_ho;
-		int v_vs, v_hs, v_vo, v_ho;
+	v_vs = f_vs = tvmodematrix[em->video_mode].vertsize;
+	v_hs = f_hs = tvmodematrix[em->video_mode].horizsize;
+	v_vo = f_vo = tvmodematrix[em->video_mode].vertoffset;
+	v_ho = f_ho = tvmodematrix[em->video_mode].horizoffset;
 
-		v_vs = f_vs = tvmodematrix[em->video_mode].vertsize;
-		v_hs = f_hs = tvmodematrix[em->video_mode].horizsize;
-		v_vo = f_vo = tvmodematrix[em->video_mode].vertoffset;
-		v_ho = f_ho = tvmodematrix[em->video_mode].horizoffset;
+	f_vo += ((100 - em->zoom) * f_vs + 100) / 200;
+	f_ho += 2 * (((100 - em->zoom) * f_hs + 200) / 400);
+	v_vo += ((100 - em->zoom) * v_vs + 100) / 200;
+	v_ho += 2 * (((100 - em->zoom) * v_hs + 200) / 400);
+	f_vs = (em->zoom * f_vs + 50) / 100;
+	f_hs = (em->zoom * f_hs + 50) / 100;
+	v_vs = (em->zoom * v_vs + 50) / 100;
+	v_hs = (em->zoom * v_hs + 50) / 100;
 
-		f_vo += ((100 - em->zoom) * f_vs + 100) / 200;
-		f_ho += 2 * (((100 - em->zoom) * f_hs + 200) / 400);
-		v_vo += ((100 - em->zoom) * v_vs + 100) / 200;
-		v_ho += 2 * (((100 - em->zoom) * v_hs + 200) / 400);
-		f_vs = (em->zoom * f_vs + 50) / 100;
-		f_hs = (em->zoom * f_hs + 50) / 100;
-		v_vs = (em->zoom * v_vs + 50) / 100;
-		v_hs = (em->zoom * v_hs + 50) / 100;
-
-		write_ucregister(DICOM_FrameTop, f_vo);
-		write_ucregister(DICOM_FrameBottom, f_vo + f_vs - 1);
-		write_ucregister(DICOM_FrameLeft, f_ho);
-		write_ucregister(DICOM_FrameRight, f_ho + f_hs - 1);
-		write_ucregister(DICOM_VisibleTop, v_vo);
-		write_ucregister(DICOM_VisibleBottom, v_vo + v_vs - 1);
-		write_ucregister(DICOM_VisibleLeft, v_ho);
-		write_ucregister(DICOM_VisibleRight,v_ho + v_hs - 1);
-	}
+	write_ucregister(DICOM_FrameTop, f_vo);
+	write_ucregister(DICOM_FrameBottom, f_vo + f_vs - 1);
+	write_ucregister(DICOM_FrameLeft, f_ho);
+	write_ucregister(DICOM_FrameRight, f_ho + f_hs - 1);
+	write_ucregister(DICOM_VisibleTop, v_vo);
+	write_ucregister(DICOM_VisibleBottom, v_vo + v_vs - 1);
+	write_ucregister(DICOM_VisibleLeft, v_ho);
+	write_ucregister(DICOM_VisibleRight,v_ho + v_hs - 1);
 
 	if (em->aspect_ratio == EM8300_ASPECTRATIO_16_9) {
 		em->dicom_tvout |= 0x10;
@@ -128,78 +121,58 @@ int em8300_dicom_update(struct em8300_s *em)
 
 	write_ucregister(DICOM_TvOut, em->dicom_tvout);
 
-	if (em->overlay_enabled) {
+	if (em->encoder_type == ENCODER_BT865) {
 		write_register(0x1f47, 0x0);
-		write_register(0x1f5e, 0x1afe);
-		write_ucregister(DICOM_Control, 0x9afe);
+		if (em->video_mode == V4L2_STD_NTSC) {
+			write_register(VIDEO_HSYNC_LO, 134);
+			write_register(VIDEO_HSYNC_HI, 720);
+		} else {
+			write_register(VIDEO_HSYNC_LO, 140);
+			write_register(VIDEO_HSYNC_HI, 720);
+		}
+		if (vmode_ntsc) {
+			write_register(VIDEO_VSYNC_HI, 260);
+			write_register(0x1f5e, 0xfefe);
+		} else {
+			write_register(VIDEO_VSYNC_HI, 310);
+			write_register(0x1f5e, 0x9cfe);
+		}
 
-#if 0 /* don't know if this is necessary yet */
-#ifdef EM8300_DICOM_0x1f5e_0x1efe
-		write_register(0x1f5e, 0x1efe);
-#else
-		write_register(0x1f5e, 0x1afe);
-#endif
-#ifdef EM8300_DICOM_CONTROL_0x9efe
+		write_ucregister(DICOM_VSyncLo1, 0x1);
+		write_ucregister(DICOM_VSyncLo2, 0x0);
+		write_ucregister(DICOM_VSyncDelay1, 0xd2);
+		write_ucregister(DICOM_VSyncDelay2, 0x00);
+
+		write_register(0x1f46, 0x00);
+		write_register(0x1f47, 0x1f);
+
 		write_ucregister(DICOM_Control, 0x9efe);
-#else
-		write_ucregister(DICOM_Control, 0x9afe);
-#endif
-#endif
-	} else {
+	} else { /* ADV7170 or ADV7175A */
+		write_register(0x1f47, 0x18);
 
-		if (em->encoder_type == ENCODER_BT865) {
-			write_register(0x1f47, 0x0);
-			if (em->video_mode == V4L2_STD_NTSC) {
-				write_register(VIDEO_HSYNC_LO, 134);
-				write_register(VIDEO_HSYNC_HI, 720);
+		if (vmode_ntsc) {
+			if (em->config.model.dicom_fix) {
+				write_register(0x1f5e, 0x1efe);
 			} else {
-				write_register(VIDEO_HSYNC_LO, 140);
-				write_register(VIDEO_HSYNC_HI, 720);
-			}
-			if (vmode_ntsc) {
-				write_register(VIDEO_VSYNC_HI, 260);
-				write_register(0x1f5e, 0xfefe);
-			} else {
-				write_register(VIDEO_VSYNC_HI, 310);
-				write_register(0x1f5e, 0x9cfe);
+				write_register(0x1f5e, 0x1afe);
 			}
 
-			write_ucregister(DICOM_VSyncLo1, 0x1);
-			write_ucregister(DICOM_VSyncLo2, 0x0);
-			write_ucregister(DICOM_VSyncDelay1, 0xd2);
-			write_ucregister(DICOM_VSyncDelay2, 0x00);
-
-			write_register(0x1f46, 0x00);
-			write_register(0x1f47, 0x1f);
-
-			write_ucregister(DICOM_Control, 0x9efe);
-		} else { /* ADV7170 or ADV7175A */
-			write_register(0x1f47, 0x18);
-
-			if (vmode_ntsc) {
-				if (em->config.model.dicom_fix) {
-					write_register(0x1f5e, 0x1efe);
-				} else {
-					write_register(0x1f5e, 0x1afe);
-				}
-
-				if (em->config.model.dicom_control) {
-					write_ucregister(DICOM_Control, 0x9efe);
-				} else {
-					write_ucregister(DICOM_Control, 0x9afe);
-				}
+			if (em->config.model.dicom_control) {
+				write_ucregister(DICOM_Control, 0x9efe);
 			} else {
-				if (em->config.model.dicom_fix) {
-					write_register(0x1f5e, 0x1afe);
-				} else {
-					write_register(0x1f5e, 0x1efe);
-				}
+				write_ucregister(DICOM_Control, 0x9afe);
+			}
+		} else {
+			if (em->config.model.dicom_fix) {
+				write_register(0x1f5e, 0x1afe);
+			} else {
+				write_register(0x1f5e, 0x1efe);
+			}
 
-				if (em->config.model.dicom_control) {
-					write_ucregister(DICOM_Control, 0x9afe);
-				} else {
-					write_ucregister(DICOM_Control, 0x9efe);
-				}
+			if (em->config.model.dicom_control) {
+				write_ucregister(DICOM_Control, 0x9afe);
+			} else {
+				write_ucregister(DICOM_Control, 0x9efe);
 			}
 		}
 	}
@@ -232,11 +205,7 @@ void em8300_dicom_disable(struct em8300_s *em)
 
 void em8300_dicom_enable(struct em8300_s *em)
 {
-	if (em->overlay_enabled) {
-		em->dicom_tvout = 0x4000;
-	} else {
-		em->dicom_tvout = 0x4001;
-	}
+	em->dicom_tvout = 0x4001;
 
 	if (em->aspect_ratio == EM8300_ASPECTRATIO_16_9) {
 		em->dicom_tvout |= 0x10;

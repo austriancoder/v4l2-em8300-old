@@ -39,10 +39,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 {
 	em8300_register_t reg;
 	int val, len;
-	em8300_overlay_window_t ov_win;
-	em8300_overlay_screen_t ov_scr;
-	em8300_overlay_calibrate_t ov_cal;
-	em8300_attribute_t attr;
 	int old_count;
 	long ret;
 
@@ -151,86 +147,6 @@ int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 
 		if (_IOC_DIR(cmd) & _IOC_READ) {
 			if (copy_to_user((void *) arg, &em->sp_mode, sizeof(em->sp_mode)))
-				return -EFAULT;
-		}
-		break;
-
-	case _IOC_NR(EM8300_IOCTL_OVERLAY_SETMODE):
-
-		if (_IOC_DIR(cmd) & _IOC_WRITE) {
-			get_user(val, (int *) arg);
-			if (!em8300_ioctl_overlay_setmode(em, val)) {
-				return -EINVAL;
-			}
-		}
-		break;
-
-	case _IOC_NR(EM8300_IOCTL_OVERLAY_SIGNALMODE):
-
-		if (_IOC_DIR(cmd) & _IOC_WRITE) {
-			get_user(val, (int *) arg);
-			if (!em9010_overlay_set_signalmode(em, val)) {
-				return -EINVAL;
-			}
-		}
-		break;
-
-	case _IOC_NR(EM8300_IOCTL_OVERLAY_SETWINDOW):
-
-		if (_IOC_DIR(cmd) & _IOC_WRITE) {
-			if (copy_from_user(&ov_win, (void *) arg, sizeof(em8300_overlay_window_t)))
-				return -EFAULT;
-			if (!em8300_ioctl_overlay_setwindow(em, &ov_win)) {
-				return -EINVAL;
-			}
-		}
-		if (_IOC_DIR(cmd) & _IOC_READ) {
-			if (copy_to_user((void *) arg, &ov_win, sizeof(em8300_overlay_window_t)))
-				return -EFAULT;
-		}
-		break;
-
-	case _IOC_NR(EM8300_IOCTL_OVERLAY_SETSCREEN):
-
-		if (_IOC_DIR(cmd) & _IOC_WRITE) {
-			if (copy_from_user(&ov_scr, (void *) arg, sizeof(em8300_overlay_screen_t)))
-				return -EFAULT;
-			if (!em8300_ioctl_overlay_setscreen(em, &ov_scr)) {
-				return -EINVAL;
-			}
-		}
-		if (_IOC_DIR(cmd) & _IOC_READ) {
-			if (copy_to_user((void *) arg, &ov_scr, sizeof(em8300_overlay_screen_t)))
-				return -EFAULT;
-		}
-	break;
-
-	case _IOC_NR(EM8300_IOCTL_OVERLAY_CALIBRATE):
-
-		if (_IOC_DIR(cmd) & _IOC_WRITE) {
-			if (copy_from_user(&ov_cal, (void *) arg, sizeof(em8300_overlay_calibrate_t)))
-				return -EFAULT;
-			if(!em8300_ioctl_overlay_calibrate(em, &ov_cal)) {
-				return -EIO;
-			}
-		}
-
-		if (_IOC_DIR(cmd) & _IOC_READ) {
-			if (copy_to_user((void *) arg, &ov_cal, sizeof(em8300_overlay_calibrate_t)))
-				return -EFAULT;
-		}
-	break;
-
-	case _IOC_NR(EM8300_IOCTL_OVERLAY_GET_ATTRIBUTE):
-
-		if (copy_from_user(&attr, (void *) arg, sizeof(em8300_attribute_t)))
-			return -EFAULT;
-		if (_IOC_DIR(cmd) & _IOC_WRITE) {
-			em9010_set_attribute(em, attr.attribute, attr.value);
-		}
-		if (_IOC_DIR(cmd) & _IOC_READ) {
-			attr.value = em9010_get_attribute(em, attr.attribute);
-			if (copy_to_user((void *) arg, &attr, sizeof(em8300_attribute_t)))
 				return -EFAULT;
 		}
 		break;
@@ -366,86 +282,4 @@ int em8300_ioctl_setspumode(struct em8300_s *em, int mode)
 {
 	em->sp_mode = mode;
 	return 0;
-}
-
-int em8300_ioctl_overlay_setmode(struct em8300_s *em, int val)
-{
-	switch (val) {
-	case EM8300_OVERLAY_MODE_OFF:
-		if (em->overlay_enabled) {
-			em->clockgen = (em->clockgen & ~CLOCKGEN_MODEMASK) | em->clockgen_tvmode;
-			em8300_clockgen_write(em, em->clockgen);
-			em->overlay_enabled = 0;
-			em->overlay_mode = val;
-			em8300_ioctl_setvideomode(em, em->video_mode);
-			em9010_overlay_update(em);
-			em8300_ioctl_enable_videoout(em, (em->video_playmode == EM8300_PLAYMODE_STOPPED)?0:1);
-		}
-		break;
-	case EM8300_OVERLAY_MODE_RECTANGLE:
-	case EM8300_OVERLAY_MODE_OVERLAY:
-		if (!em->overlay_enabled) {
-			v4l2_subdev_call(em->encoder, core, s_power, 0);
-
-			em->clockgen = (em->clockgen & ~CLOCKGEN_MODEMASK) | em->clockgen_overlaymode;
-			em8300_clockgen_write(em, em->clockgen);
-			em->overlay_enabled = 1;
-			em->overlay_mode = val;
-			em8300_dicom_disable(em);
-			em8300_dicom_enable(em);
-			em8300_dicom_update(em);
-			em9010_overlay_update(em);
-		} else {
-			em->overlay_mode = val;
-			em9010_overlay_update(em);
-		}
-		break;
-	default:
-		return 0;
-	}
-
-	return 1;
-}
-
-int em8300_ioctl_overlay_setwindow(struct em8300_s *em, em8300_overlay_window_t *w)
-{
-	if (w->xpos < -2000 || w->xpos > 2000) {
-		return 0;
-	}
-	if (w->ypos < -2000 || w->ypos > 2000) {
-		return 0;
-	}
-	if (w->width <= 0 || w->width > 2000) {
-		return 0;
-	}
-	if (w->height <= 0 || w->height > 2000) {
-		return 0;
-	}
-	em->overlay_frame_xpos = w->xpos;
-	em->overlay_frame_ypos = w->ypos;
-	em->overlay_frame_width = w->width;
-	em->overlay_frame_height = w->height;
-
-	if (em->overlay_enabled) {
-		sub_4288c(em, em->overlay_frame_xpos, em->overlay_frame_ypos, em->overlay_frame_width,
-			em->overlay_frame_height, em->overlay_a[EM9010_ATTRIBUTE_XOFFSET],
-			em->overlay_a[EM9010_ATTRIBUTE_YOFFSET], em->overlay_a[EM9010_ATTRIBUTE_XCORR], em->overlay_double_y);
-	} else {
-		em8300_dicom_update(em);
-	}
-
-	return 1;
-}
-
-int em8300_ioctl_overlay_setscreen(struct em8300_s *em, em8300_overlay_screen_t *s)
-{
-	if (s->xsize < 0 || s->xsize > 2000) {
-		return 0;
-	}
-	if (s->ysize < 0 || s->ysize > 2000) {
-		return 0;
-	}
-
-	em9010_overlay_set_res(em, s->xsize, s->ysize);
-	return 1;
 }

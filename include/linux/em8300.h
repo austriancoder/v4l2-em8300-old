@@ -43,28 +43,6 @@ typedef struct {
 } em8300_bcs_t;
 
 typedef struct {
-	int cal_mode;
-	int arg;
-	int arg2;
-	int result;
-	int result2;
-} em8300_overlay_calibrate_t;
-
-typedef struct {
-	int xpos, ypos;
-	int width, height;
-} em8300_overlay_window_t;
-
-typedef struct {
-	int xsize, ysize;
-} em8300_overlay_screen_t;
-
-typedef struct {
-	int attribute;
-	int value;
-} em8300_attribute_t;
-
-typedef struct {
 	int color;
 	int contrast;
 	int top;
@@ -85,13 +63,6 @@ typedef struct {
 #define EM8300_IOCTL_GET_PLAYMODE _IOR('C',7,int)
 #define EM8300_IOCTL_SET_SPUMODE _IOW('C',9,int)
 #define EM8300_IOCTL_GET_SPUMODE _IOR('C',9,int)
-#define EM8300_IOCTL_OVERLAY_CALIBRATE _IOWR('C',10,em8300_overlay_calibrate_t)
-#define EM8300_IOCTL_OVERLAY_SETMODE _IOW('C',11,int)
-#define EM8300_IOCTL_OVERLAY_SETWINDOW _IOWR('C',12,em8300_overlay_window_t)
-#define EM8300_IOCTL_OVERLAY_SETSCREEN _IOWR('C',13,em8300_overlay_screen_t)
-#define EM8300_IOCTL_OVERLAY_GET_ATTRIBUTE _IOR('C',14,em8300_attribute_t)
-#define EM8300_IOCTL_OVERLAY_SET_ATTRIBUTE _IOW('C',14,em8300_attribute_t)
-#define EM8300_IOCTL_OVERLAY_SIGNALMODE _IOW('C',15,em8300_attribute_t)
 #define EM8300_IOCTL_SCR_GET _IOR('C',16,unsigned)
 #define EM8300_IOCTL_SCR_SET _IOW('C',16,unsigned)
 #define EM8300_IOCTL_SCR_GETSPEED _IOR('C',17,unsigned)
@@ -131,24 +102,6 @@ typedef struct {
 #define EM8300_PLAYMODE_REVERSEPLAY     6
 #define EM8300_PLAYMODE_SCAN            7
 #define EM8300_PLAYMODE_FRAMEBUF	8
-
-#define EM8300_OVERLAY_MODE_OFF 0
-#define EM8300_OVERLAY_MODE_RECTANGLE 1
-#define EM8300_OVERLAY_MODE_OVERLAY 2
-
-#define EM8300_OVERLAY_CALMODE_XOFFSET 1
-#define EM8300_OVERLAY_CALMODE_YOFFSET 2
-#define EM8300_OVERLAY_CALMODE_XCORRECTION 3
-#define EM8300_OVERLAY_CALMODE_COLOR 4
-
-#define EM9010_ATTRIBUTE_XCORR 1
-#define EM9010_ATTRIBUTE_XOFFSET 2
-#define EM9010_ATTRIBUTE_YOFFSET 3
-#define EM9010_ATTRIBUTE_JITTER 4
-#define EM9010_ATTRIBUTE_STABILITY 5
-#define EM9010_ATTRIBUTE_KEYCOLOR_UPPER 6
-#define EM9010_ATTRIBUTE_KEYCOLOR_LOWER 7
-#define EM9010_ATTRIBUTE_MAX 7
 
 #define EM8300_SUBDEVICE_VIDEO 1
 #define EM8300_SUBDEVICE_SUBPICTURE 3

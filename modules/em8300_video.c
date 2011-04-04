@@ -354,18 +354,6 @@ int em8300_video_flush(struct em8300_s *em)
 	return 0;
 }
 
-void set_dicom_kmin(struct em8300_s *em)
-{
-	int kmin;
-
-	kmin = (em->overlay_70 + 10) * 150645 / em->mystery_divisor;
-	if (kmin > 0x900)
-		kmin = 0x900;
-
-	write_ucregister(DICOM_Kmin, kmin);
-	pr_debug("em8300-%d: register DICOM_Kmin = 0x%x\n", em->instance, kmin);
-}
-
 int em8300_video_setup(struct em8300_s *em)
 {
 	write_register(0x1f47, 0x0);
@@ -385,13 +373,6 @@ int em8300_video_setup(struct em8300_s *em)
 	write_register(I2C_PIN, 0x808);
 	write_register(I2C_PIN, 0x1010);
 
-	em9010_init(em);
-
-	em9010_write(em, 7, 0x40);
-	em9010_write(em, 9, 0x4);
-
-	em9010_read(em, 0);
-
 	udelay(100);
 
 	write_ucregister(DICOM_UpdateFlag, 0x0);
@@ -405,35 +386,6 @@ int em8300_video_setup(struct em8300_s *em)
 	write_ucregister(DICOM_FrameRight, 0x36b);
 	write_ucregister(DICOM_FrameBottom, 0x11e);
 	em8300_dicom_enable(em);
-
-	em9010_write16(em, 0x8, 0xff);
-	em9010_write16(em, 0x10, 0xff);
-	em9010_write16(em, 0x20, 0xff);
-
-	em9010_write(em, 0xa, 0x0);
-
-	if (em9010_cabledetect(em))
-		pr_debug("em8300-%d: overlay loop-back cable detected\n", em->instance);
-
-	pr_debug("em8300-%d: overlay reg 0x80 = %x \n", em->instance, em9010_read16(em, 0x80));
-
-	em9010_write(em, 0xb, 0xc8);
-
-	pr_debug("em8300-%d: register 0x1f4b = %x (0x138)\n", em->instance, read_register(0x1f4b));
-
-	em9010_write16(em, 1, 0x4fe);
-	em9010_write(em, 1, 4);
-	em9010_write(em, 5, 0);
-	em9010_write(em, 6, 0);
-	em9010_write(em, 7, 0x40);
-	em9010_write(em, 8, 0x80);
-	em9010_write(em, 0xc, 0x8c);
-	em9010_write(em, 9, 0);
-
-	set_dicom_kmin(em);
-
-	em9010_write(em, 7, 0x80);
-	em9010_write(em, 9, 0);
 
 	if (em->config.model.bt865_ucode_timeout) {
 		write_register(0x1f47, 0x18);
