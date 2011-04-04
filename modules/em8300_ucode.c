@@ -20,18 +20,14 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#define __NO_VERSION__
-
 #include <linux/pci.h>
 #include <linux/firmware.h>
 #include <linux/em8300.h>
-#include <linux/soundcard.h>
 
 #include "em8300_reg.h"
 #include "em8300_driver.h"
 #include "em8300_reg.c"
 #include "em8300_fifo.h"
-#include "em8300_params.h"
 
 static int upload_block(struct em8300_s *em, int blocktype, int offset, int len, unsigned char *buf)
 {

@@ -26,8 +26,6 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#define __NO_VERSION__
-
 #include <linux/pci.h>
 #include <linux/delay.h>
 

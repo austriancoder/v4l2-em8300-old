@@ -1,6 +1,5 @@
 Git repo to clean up em8300 driver.
 
-- remove 2.4 kernel stuff
 - remove old 2.6 kernel stuff
 --> will only compile with recent 2.6 kernel
 
