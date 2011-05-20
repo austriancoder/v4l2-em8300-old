@@ -33,7 +33,6 @@
 
 struct i2c_bus_s {
 	int clock_pio;
-	int data_pio;
 	struct em8300_s *em;
 };
 
@@ -57,10 +56,9 @@ static void em8300_setsda(void *data, int state)
 {
 	struct i2c_bus_s *bus = (struct i2c_bus_s *) data;
 	struct em8300_s *em = bus->em;
-	int sel = bus->data_pio << 8;
 
-	write_register(em->i2c_oe_reg, (sel | bus->data_pio));
-	write_register(em->i2c_pin_reg, sel | (state ? bus->data_pio : 0));
+	write_register(em->i2c_oe_reg, 0x808);
+	write_register(em->i2c_pin_reg, 0x800 | (state ? 0x8 : 0));
 }
 
 static int em8300_getscl(void *data)
@@ -76,7 +74,7 @@ static int em8300_getsda(void *data)
 	struct i2c_bus_s *bus = (struct i2c_bus_s *)data;
 	struct em8300_s *em = bus->em;
 
-	return read_register(em->i2c_pin_reg) & (bus->data_pio << 8);
+	return read_register(em->i2c_pin_reg) & 0x800;
 }
 
 /* template for i2c_algo_bit */
@@ -220,14 +218,12 @@ int em8300_i2c_init1(struct em8300_s *em)
 
 	pdata = kmalloc(sizeof(struct i2c_bus_s), GFP_KERNEL);
 	pdata->clock_pio = 0x10;
-	pdata->data_pio = 0x8;
 	pdata->em = em;
 
 	em->i2c_algo[0].data = pdata;
 
 	pdata = kmalloc(sizeof(struct i2c_bus_s), GFP_KERNEL);
 	pdata->clock_pio = 0x4;
-	pdata->data_pio = 0x8;
 	pdata->em = em;
 
 	em->i2c_algo[1].data = pdata;
