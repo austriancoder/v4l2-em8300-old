@@ -403,7 +403,7 @@ static int snd_em8300_pcm_digital(em8300_alsa_t *em8300_alsa)
 			&pcm);
 
 	if (ret) {
-		printk(KERN_ERR "em8300-alsa: snd_em8300_pcm_analog failed with err %d\n", ret);
+		printk(KERN_ERR "em8300-alsa: snd_em8300_pcm_digital failed with err %d\n", ret);
 		return ret;
 	}
 
