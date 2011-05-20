@@ -46,10 +46,6 @@
 #include <media/v4l2-ioctl.h>
 #include <media/v4l2-chip-ident.h>
 
-#if defined(CONFIG_SND) || defined(CONFIG_SND_MODULE)
-#define snd_card_t struct snd_card
-#endif
-
 struct dicom_s {
 	int luma;
 	int chroma;
@@ -125,9 +121,7 @@ struct em8300_s
 	struct mutex ioctl_mutex;
 	int playmode;
 
-#if defined(CONFIG_SND) || defined(CONFIG_SND_MODULE)
-	snd_card_t *alsa_card;
-#endif
+	struct snd_card *alsa_card;
 
 	/* Fifos */
 	struct fifo_s *mvfifo;
@@ -221,10 +215,6 @@ struct em8300_s
 	/* To support different options for different cards */
 	unsigned int instance;
 };
-
-#if defined(CONFIG_SND) || defined(CONFIG_SND_MODULE)
-#undef snd_card_t
-#endif
 
 #define TIMEDIFF(a,b) a.tv_usec - b.tv_usec + \
 	    1000000 * (a.tv_sec - b.tv_sec)

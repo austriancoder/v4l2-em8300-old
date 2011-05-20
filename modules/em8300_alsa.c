@@ -18,31 +18,15 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#if defined(CONFIG_SND) || defined(CONFIG_SND_MODULE) || 1
-
 #include <sound/core.h>
 #include <sound/pcm.h>
 #include <sound/control.h>
+#include <sound/initval.h>
 #include <linux/em8300.h>
 #include <linux/pci.h>
-#include <linux/stringify.h>
-#include <linux/version.h>
-#include <linux/semaphore.h>
 
 #include "em8300_reg.h"
 #include "em8300_driver.h"
-
-#include "em8300_params.h"
-
-#define snd_card_t struct snd_card
-#define snd_pcm_t struct snd_pcm
-#define snd_pcm_substream_t struct snd_pcm_substream
-#define snd_pcm_hardware_t struct snd_pcm_hardware
-#define snd_pcm_runtime_t struct snd_pcm_runtime
-#define snd_pcm_hw_params_t struct snd_pcm_hw_params
-#define snd_pcm_ops_t struct snd_pcm_ops
-#define snd_device_t struct snd_device
-#define snd_device_ops_t struct snd_device_ops
 
 typedef struct snd_em8300_pcm_indirect {
 	unsigned int hw_buffer_size;    /* Byte size of hardware buffer */
@@ -57,15 +41,15 @@ typedef struct snd_em8300_pcm_indirect {
 	snd_pcm_uframes_t appl_ptr;     /* Last seen appl_ptr */
 } snd_em8300_pcm_indirect_t;
 
-typedef void (*snd_em8300_pcm_indirect_copy_t)(snd_pcm_substream_t *substream,
+typedef void (*snd_em8300_pcm_indirect_copy_t)(struct snd_pcm_substream *substream,
 					       snd_em8300_pcm_indirect_t *rec, size_t bytes);
 
 typedef struct {
 	struct em8300_s *em;
-	snd_card_t *card;
-	snd_pcm_t *pcm_analog;
-	snd_pcm_t *pcm_digital;
-	snd_pcm_substream_t *substream;
+	struct snd_card *card;
+	struct snd_pcm *pcm_analog;
+	struct snd_pcm *pcm_digital;
+	struct snd_pcm_substream *substream;
 	struct semaphore lock;
 	snd_em8300_pcm_indirect_t indirect;
 } em8300_alsa_t;
@@ -78,7 +62,7 @@ typedef struct {
 #define EM8300_BLOCK_SIZE 4096
 #define EM8300_MID_BUFFER_SIZE (1024*1024)
 
-static snd_pcm_hardware_t snd_em8300_playback_hw = {
+static struct snd_pcm_hardware snd_em8300_playback_hw = {
 	.info = (
 		 SNDRV_PCM_INFO_MMAP |
 		 SNDRV_PCM_INFO_INTERLEAVED |
@@ -98,11 +82,11 @@ static snd_pcm_hardware_t snd_em8300_playback_hw = {
 	.periods_max = EM8300_MID_BUFFER_SIZE / EM8300_BLOCK_SIZE,
 };
 
-static int snd_em8300_playback_open(snd_pcm_substream_t *substream)
+static int snd_em8300_playback_open(struct snd_pcm_substream *substream)
 {
 	em8300_alsa_t *em8300_alsa = snd_pcm_substream_chip(substream);
 	struct em8300_s *em = em8300_alsa->em;
-	snd_pcm_runtime_t *runtime = substream->runtime;
+	struct snd_pcm_runtime *runtime = substream->runtime;
 
 	down(&em8300_alsa->lock);
 	if (em8300_alsa->substream) {
@@ -139,7 +123,7 @@ static int snd_em8300_playback_open(snd_pcm_substream_t *substream)
 	return 0;
 }
 
-static int snd_em8300_playback_close(snd_pcm_substream_t *substream)
+static int snd_em8300_playback_close(struct snd_pcm_substream *substream)
 {
 	em8300_alsa_t *em8300_alsa = snd_pcm_substream_chip(substream);
 
@@ -148,23 +132,23 @@ static int snd_em8300_playback_close(snd_pcm_substream_t *substream)
 	return 0;
 }
 
-static int snd_em8300_pcm_hw_params(snd_pcm_substream_t *substream, snd_pcm_hw_params_t *hw_params)
+static int snd_em8300_pcm_hw_params(struct snd_pcm_substream *substream, struct snd_pcm_hw_params *hw_params)
 {
 //	printk("em8300-%d: snd_em8300_pcm_hw_params called.\n", em->instance);
 	return snd_pcm_lib_malloc_pages(substream, params_buffer_bytes(hw_params));
 }
 
-static int snd_em8300_pcm_hw_free(snd_pcm_substream_t *substream)
+static int snd_em8300_pcm_hw_free(struct snd_pcm_substream *substream)
 {
 //	printk("em8300-%d: snd_em8300_pcm_hw_free called.\n", em->instance);
 	return snd_pcm_lib_free_pages(substream);
 }
 
-static int snd_em8300_pcm_prepare(snd_pcm_substream_t *substream)
+static int snd_em8300_pcm_prepare(struct snd_pcm_substream *substream)
 {
 	em8300_alsa_t *em8300_alsa = snd_pcm_substream_chip(substream);
 	struct em8300_s *em = em8300_alsa->em;
-	snd_pcm_runtime_t *runtime = substream->runtime;
+	struct snd_pcm_runtime *runtime = substream->runtime;
 //	printk("em8300-%d: snd_em8300_pcm_prepare called.\n", em->instance);
 
 	em->clockgen &= ~CLOCKGEN_SAMPFREQ_MASK;
@@ -200,9 +184,9 @@ static int snd_em8300_pcm_prepare(snd_pcm_substream_t *substream)
 	return 0;
 }
 
-static int snd_em8300_pcm_ack(snd_pcm_substream_t *substream);
+static int snd_em8300_pcm_ack(struct snd_pcm_substream *substream);
 
-static int snd_em8300_pcm_trigger(snd_pcm_substream_t *substream, int cmd)
+static int snd_em8300_pcm_trigger(struct snd_pcm_substream *substream, int cmd)
 {
 	em8300_alsa_t *em8300_alsa = snd_pcm_substream_chip(substream);
 	struct em8300_s *em = em8300_alsa->em;
@@ -238,7 +222,7 @@ static int snd_em8300_pcm_trigger(snd_pcm_substream_t *substream, int cmd)
 
 
 static inline snd_pcm_uframes_t
-snd_em8300_pcm_indirect_playback_pointer(snd_pcm_substream_t *substream,
+snd_em8300_pcm_indirect_playback_pointer(struct snd_pcm_substream *substream,
 					 snd_em8300_pcm_indirect_t *rec, unsigned int ptr)
 {
 	int bytes = ptr - rec->hw_io;
@@ -254,7 +238,7 @@ snd_em8300_pcm_indirect_playback_pointer(snd_pcm_substream_t *substream,
 	return bytes_to_frames(substream->runtime, rec->sw_io);
 }
 
-static snd_pcm_uframes_t snd_em8300_pcm_pointer(snd_pcm_substream_t *substream)
+static snd_pcm_uframes_t snd_em8300_pcm_pointer(struct snd_pcm_substream *substream)
 {
 //	snd_pcm_runtime_t *runtime = substream->runtime;
 	em8300_alsa_t *em8300_alsa = snd_pcm_substream_chip(substream);
@@ -272,7 +256,7 @@ static snd_pcm_uframes_t snd_em8300_pcm_pointer(snd_pcm_substream_t *substream)
 							hw_ptr);
 }
 
-static void snd_em8300_pcm_trans_dma(snd_pcm_substream_t *substream,
+static void snd_em8300_pcm_trans_dma(struct snd_pcm_substream *substream,
 				     snd_em8300_pcm_indirect_t *rec,
 				     size_t bytes)
 {
@@ -297,11 +281,11 @@ static void snd_em8300_pcm_trans_dma(snd_pcm_substream_t *substream,
 }
 
 static inline void
-snd_em8300_pcm_indirect_playback_transfer(snd_pcm_substream_t *substream,
+snd_em8300_pcm_indirect_playback_transfer(struct snd_pcm_substream *substream,
 					  snd_em8300_pcm_indirect_t *rec,
 					  snd_em8300_pcm_indirect_copy_t copy)
 {
-	snd_pcm_runtime_t *runtime = substream->runtime;
+	struct snd_pcm_runtime *runtime = substream->runtime;
 	snd_pcm_uframes_t appl_ptr = runtime->control->appl_ptr;
 	snd_pcm_sframes_t diff = appl_ptr - rec->appl_ptr;
 	int qsize;
@@ -336,7 +320,7 @@ snd_em8300_pcm_indirect_playback_transfer(snd_pcm_substream_t *substream,
 	}
 }
 
-static int snd_em8300_pcm_ack(snd_pcm_substream_t *substream)
+static int snd_em8300_pcm_ack(struct snd_pcm_substream *substream)
 {
 	em8300_alsa_t *em8300_alsa = snd_pcm_substream_chip(substream);
 //	printk("em8300-%d: snd_em8300_pcm_ack called.\n", em->instance);
@@ -345,7 +329,7 @@ static int snd_em8300_pcm_ack(snd_pcm_substream_t *substream)
 	return 0;
 }
 
-static snd_pcm_ops_t snd_em8300_playback_ops = {
+static struct snd_pcm_ops snd_em8300_playback_ops = {
 	.open =		snd_em8300_playback_open,
 	.close =	snd_em8300_playback_close,
 	.ioctl =	snd_pcm_lib_ioctl,
@@ -357,7 +341,7 @@ static snd_pcm_ops_t snd_em8300_playback_ops = {
 	.ack =		snd_em8300_pcm_ack,
 };
 
-static void snd_em8300_pcm_analog_free(snd_pcm_t *pcm)
+static void snd_em8300_pcm_analog_free(struct snd_pcm *pcm)
 {
 	em8300_alsa_t *em8300_alsa = (em8300_alsa_t *)(pcm->private_data);
 	em8300_alsa->pcm_analog = NULL;
@@ -367,7 +351,7 @@ static void snd_em8300_pcm_analog_free(snd_pcm_t *pcm)
 static int snd_em8300_pcm_analog(em8300_alsa_t *em8300_alsa)
 {
 	struct em8300_s *em = em8300_alsa->em;
-	snd_pcm_t *pcm;
+	struct snd_pcm *pcm;
 	int err;
 
 	if ((err = snd_pcm_new(em8300_alsa->card, "EM8300/" __stringify(EM8300_ALSA_ANALOG_DEVICENUM), EM8300_ALSA_ANALOG_DEVICENUM, 1, 0, &pcm)) < 0)
@@ -391,7 +375,7 @@ static int snd_em8300_pcm_analog(em8300_alsa_t *em8300_alsa)
 	return 0;
 }
 
-static void snd_em8300_pcm_digital_free(snd_pcm_t *pcm)
+static void snd_em8300_pcm_digital_free(struct snd_pcm *pcm)
 {
 	em8300_alsa_t *em8300_alsa = (em8300_alsa_t *)(pcm->private_data);
 	em8300_alsa->pcm_digital = NULL;
@@ -401,7 +385,7 @@ static void snd_em8300_pcm_digital_free(snd_pcm_t *pcm)
 static int snd_em8300_pcm_digital(em8300_alsa_t *em8300_alsa)
 {
 	struct em8300_s *em = em8300_alsa->em;
-	snd_pcm_t *pcm;
+	struct snd_pcm *pcm;
 	int err;
 
 	if ((err = snd_pcm_new(em8300_alsa->card, "EM8300/" __stringify(EM8300_ALSA_DIGITAL_DEVICENUM), EM8300_ALSA_DIGITAL_DEVICENUM, 1, 0, &pcm)) < 0)
@@ -431,17 +415,17 @@ static int snd_em8300_free(em8300_alsa_t *em8300_alsa)
 	return 0;
 }
 
-static int snd_em8300_dev_free(snd_device_t *device)
+static int snd_em8300_dev_free(struct snd_device *device)
 {
 	em8300_alsa_t *em8300_alsa = (em8300_alsa_t *)(device->device_data);
 	return snd_em8300_free(em8300_alsa);
 }
 
-static int snd_em8300_create(snd_card_t *card, struct em8300_s *em, em8300_alsa_t **rem8300_alsa)
+static int snd_em8300_create(struct snd_card *card, struct em8300_s *em, em8300_alsa_t **rem8300_alsa)
 {
 	em8300_alsa_t *em8300_alsa;
 	int err;
-	static snd_device_ops_t ops = {
+	static struct snd_device_ops ops = {
 		.dev_free = snd_em8300_dev_free,
 	};
 
@@ -472,13 +456,13 @@ static int snd_em8300_create(snd_card_t *card, struct em8300_s *em, em8300_alsa_
 
 void em8300_alsa_enable_card(struct em8300_s *em)
 {
-	snd_card_t *card;
+	struct snd_card *card;
 	em8300_alsa_t *em8300_alsa;
 	int err;
 
 	em->alsa_card = NULL;
 
-	if ((err = snd_card_create(alsa_index[em->instance], alsa_id[em->instance], THIS_MODULE, 0, &card)) < 0)
+	if ((err = snd_card_create(SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1, THIS_MODULE, 0, &card)) < 0)
 		return;
 
 	if ((err = snd_em8300_create(card, em, &em8300_alsa)) < 0) {
@@ -527,5 +511,3 @@ void em8300_alsa_audio_interrupt(struct em8300_s *em)
 		}
 	}
 }
-
-#endif
