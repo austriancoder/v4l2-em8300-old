@@ -32,18 +32,6 @@ extern int activate_loopback[];
 
 extern int card_model[];
 
-/* Audio driver used by the driver:
-   - ALSA    means ALSA /dev/snd
-   - NONE    means no sound
-*/
-typedef enum {
-	AUDIO_DRIVER_NONE,
-	AUDIO_DRIVER_ALSA,
-	AUDIO_DRIVER_MAX
-} audio_driver_t;
-
-extern audio_driver_t audio_driver_nr[];
-
 /* Number and name of the ALSA card to allocate (only used with the ALSA audio
    driver.
 */

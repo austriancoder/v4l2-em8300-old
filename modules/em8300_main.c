@@ -380,9 +380,6 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 	init_waitqueue_head(&em->vbi_wait);
 	init_waitqueue_head(&em->sp_ptsfifo_wait);
 
-	em->audio_driver_style = NONE;
-	sema_init(&em->audio_driver_style_lock, 1);
-
 	result = request_irq(pci_dev->irq, em8300_irq,
 						IRQF_SHARED | IRQF_DISABLED,
 						em->v4l2_dev.name, (void *)em);

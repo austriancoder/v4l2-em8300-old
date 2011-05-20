@@ -23,7 +23,7 @@
 #include "em8300_driver.h"
 
 /*
- * Module params by Jonas Birmé (birme@jpl.nu)
+ * Module params by Jonas Birm�� (birme@jpl.nu)
  */
 int dicom_other_pal[EM8300_MAX] = { [0 ... EM8300_MAX-1] = -1 };
 module_param_array(dicom_other_pal, bool, NULL, 0444);
@@ -48,46 +48,6 @@ MODULE_PARM_DESC(activate_loopback, "If you lose video after loading the modules
 int card_model[EM8300_MAX] = { [0 ... EM8300_MAX-1] = -1 };
 module_param_array(card_model, int, NULL, 0444);
 MODULE_PARM_DESC(card_model, "Model number for the em8300-based card. -1 (default) means automatic detection; 0 means unknown model with manual setup.");
-
-static const char * const audio_driver_name[] = {
-	[AUDIO_DRIVER_NONE] = "none",
-	[AUDIO_DRIVER_ALSA] = "alsa",
-};
-
-#if defined(CONFIG_SND) || defined(CONFIG_SND_MODULE)
-audio_driver_t audio_driver_nr[EM8300_MAX] = { [0 ... EM8300_MAX-1] = AUDIO_DRIVER_ALSA };
-#endif
-
-static int param_set_audio_driver_t(const char *val, const struct kernel_param *kp)
-{
-	pr_warning("em8300: %s: deprecated module parameter: all audio interfaces are now enabled\n", kp->name);
-	if (val) {
-		int i;
-		for (i = 0; i < AUDIO_DRIVER_MAX; i++)
-			if (strcmp(val, audio_driver_name[i]) == 0) {
-				*(audio_driver_t *)kp->arg = i;
-				return 0;
-			}
-	}
-	printk(KERN_ERR "%s: audio_driver parameter expected\n",
-	       kp->name);
-	return -EINVAL;
-}
-
-static int param_get_audio_driver_t(char *buffer, const struct kernel_param *kp)
-{
-	return sprintf(buffer, "%s", audio_driver_name[*(audio_driver_t *)kp->arg]);
-}
-
-struct kernel_param_ops param_ops_audio_driver_t = {
-	.set = param_set_audio_driver_t,
-	.get = param_get_audio_driver_t,
-};
-
-
-module_param_array_named(audio_driver, audio_driver_nr, audio_driver_t, NULL, 0444);
-MODULE_PARM_DESC(audio_driver, "[DEPRECATED] The audio driver to use (none or alsa).");
-
 
 #if defined(CONFIG_SND) || defined(CONFIG_SND_MODULE)
 char *alsa_id[EM8300_MAX] = { [0 ... EM8300_MAX-1] = NULL };

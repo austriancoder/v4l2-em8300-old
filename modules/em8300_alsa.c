@@ -18,7 +18,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#if defined(CONFIG_SND) || defined(CONFIG_SND_MODULE)
+#if defined(CONFIG_SND) || defined(CONFIG_SND_MODULE) || 1
 
 #include <sound/core.h>
 #include <sound/pcm.h>
@@ -104,19 +104,10 @@ static int snd_em8300_playback_open(snd_pcm_substream_t *substream)
 	struct em8300_s *em = em8300_alsa->em;
 	snd_pcm_runtime_t *runtime = substream->runtime;
 
-	down(&em->audio_driver_style_lock);
-	if (em->audio_driver_style != NONE) {
-		up(&em->audio_driver_style_lock);
-		return -EBUSY;
-	}
-	em->audio_driver_style = ALSA;
-	up(&em->audio_driver_style_lock);
-
 	down(&em8300_alsa->lock);
 	if (em8300_alsa->substream) {
 		up(&em8300_alsa->lock);
 		printk("em8300-%d: snd_em8300_playback_open: em->audio_driver_style == NONE but em8300_alsa->substream is not NULL !?\n", em->instance);
-		em->audio_driver_style = NONE;
 		return -EBUSY;
 	}
 	em8300_alsa->substream = substream;
@@ -151,10 +142,8 @@ static int snd_em8300_playback_open(snd_pcm_substream_t *substream)
 static int snd_em8300_playback_close(snd_pcm_substream_t *substream)
 {
 	em8300_alsa_t *em8300_alsa = snd_pcm_substream_chip(substream);
-	struct em8300_s *em = em8300_alsa->em;
 
 	em8300_alsa->substream = NULL;
-	em->audio_driver_style = NONE;
 //	printk("em8300-%d: snd_em8300_playback_close called.\n", em->instance);
 	return 0;
 }
@@ -530,9 +519,6 @@ void em8300_alsa_disable_card(struct em8300_s *em)
 
 void em8300_alsa_audio_interrupt(struct em8300_s *em)
 {
-	if (em->audio_driver_style != ALSA)
-		return;
-
 	if (em->alsa_card) {
 		em8300_alsa_t *em8300_alsa = (em8300_alsa_t *)(em->alsa_card->private_data);
 		if (em8300_alsa->substream) {
