@@ -352,10 +352,18 @@ static int snd_em8300_pcm_analog(em8300_alsa_t *em8300_alsa)
 {
 	struct em8300_s *em = em8300_alsa->em;
 	struct snd_pcm *pcm;
-	int err;
+	int ret;
 
-	if ((err = snd_pcm_new(em8300_alsa->card, "EM8300/" __stringify(EM8300_ALSA_ANALOG_DEVICENUM), EM8300_ALSA_ANALOG_DEVICENUM, 1, 0, &pcm)) < 0)
-		return err;
+	ret = snd_pcm_new(em8300_alsa->card, "EM8300 PCM Analog",
+			EM8300_ALSA_ANALOG_DEVICENUM,
+			1, /* 1 playback substream */
+			0, /* 0 capture substream */
+			&pcm);
+
+	if (ret) {
+		printk(KERN_ERR "em8300-alsa: snd_em8300_pcm_analog failed with err %d\n", ret);
+		return ret;
+	}
 
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &snd_em8300_playback_ops);
 
@@ -386,10 +394,18 @@ static int snd_em8300_pcm_digital(em8300_alsa_t *em8300_alsa)
 {
 	struct em8300_s *em = em8300_alsa->em;
 	struct snd_pcm *pcm;
-	int err;
+	int ret;
 
-	if ((err = snd_pcm_new(em8300_alsa->card, "EM8300/" __stringify(EM8300_ALSA_DIGITAL_DEVICENUM), EM8300_ALSA_DIGITAL_DEVICENUM, 1, 0, &pcm)) < 0)
-		return err;
+	ret = snd_pcm_new(em8300_alsa->card, "EM8300 PCM Digital",
+			EM8300_ALSA_DIGITAL_DEVICENUM,
+			1, /* 1 playback substream */
+			0, /* 0 capture substream */
+			&pcm);
+
+	if (ret) {
+		printk(KERN_ERR "em8300-alsa: snd_em8300_pcm_analog failed with err %d\n", ret);
+		return ret;
+	}
 
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &snd_em8300_playback_ops);
 
