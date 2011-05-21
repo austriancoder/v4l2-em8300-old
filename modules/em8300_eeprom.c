@@ -53,5 +53,5 @@ int em8300_eeprom_read(struct em8300_s *em, u8 *data)
 			}
 	 }
 
-	return -1;
+	return 0;
 }
