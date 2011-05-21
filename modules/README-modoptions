@@ -5,13 +5,6 @@ General fixes:
                           when uploading the microcode
    bt865_ucode_timeout -- set to 1 if you have a bt865 and get timeouts
                           when uploading the microcode.
-   alsa_id             -- set the ID string for ALSA audio.
-   alsa_index          -- set the index value for ALSA audio.
-   dsp_num             -- set the /dev/dsp number to assign to the card for OSS
-                          audio. -1 for automatic (this is the default). If
-                          em8300 is being loaded before your sound card module
-                          you can use this to force em8300 to use a more
-                          sensible dsp number.
    stop_video          -- set to 1 if you want to stop video output instead of
                           outputting black when there's nothing to display
 
