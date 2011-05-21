@@ -327,7 +327,6 @@ static struct snd_pcm_ops snd_em8300_playback_ops = {
 
 static void snd_em8300_pcm_analog_free(struct snd_pcm *pcm)
 {
-	em8300_alsa_t *em8300_alsa = (em8300_alsa_t *)(pcm->private_data);
 	snd_pcm_lib_preallocate_free_for_all(pcm);
 }
 
@@ -352,7 +351,7 @@ static int snd_em8300_pcm_analog(em8300_alsa_t *em8300_alsa)
 
 	pcm->private_data = em8300_alsa;
 	pcm->private_free = snd_em8300_pcm_analog_free;
-	//	pcm->info_flags = 0;
+	pcm->info_flags = 0;
 
 	strcpy(pcm->name, "EM8300 DAC");
 
@@ -366,7 +365,6 @@ static int snd_em8300_pcm_analog(em8300_alsa_t *em8300_alsa)
 
 static void snd_em8300_pcm_digital_free(struct snd_pcm *pcm)
 {
-	em8300_alsa_t *em8300_alsa = (em8300_alsa_t *)(pcm->private_data);
 	snd_pcm_lib_preallocate_free_for_all(pcm);
 }
 
@@ -391,7 +389,7 @@ static int snd_em8300_pcm_digital(em8300_alsa_t *em8300_alsa)
 
 	pcm->private_data = em8300_alsa;
 	pcm->private_free = snd_em8300_pcm_digital_free;
-	//	pcm->info_flags = 0;
+	pcm->info_flags = SNDRV_PCM_INFO_HALF_DUPLEX;
 
 	strcpy(pcm->name, "EM8300 IEC958");
 
