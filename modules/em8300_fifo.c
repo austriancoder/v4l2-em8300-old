@@ -23,36 +23,26 @@
 #include "em8300_driver.h"
 #include "em8300_fifo.h"
 
-int em8300_fifo_init(struct em8300_s *em, struct fifo_s *f, int start, int wrptr, int rdptr, int pcisize, int slotsize, int fifotype)
+/*
+ * Keep in mind that this FIFOs are only for video and spu, which are the same
+ * in respect of used routines.
+ */
+
+int em8300_fifo_init(struct em8300_s *em, struct fifo_s *f, int start, int wrptr, int rdptr, int pcisize, int slotsize)
 {
 	int i;
 	dma_addr_t phys;
 
 	f->em = em;
 	f->preprocess_ratio = 1;
-	f->preprocess_cb = NULL;
 	f->preprocess_buffer = NULL;
-
-	f->type = fifotype;
 
 	f->writeptr = (unsigned *volatile) ucregister_ptr(wrptr);
 	f->readptr = (unsigned *volatile) ucregister_ptr(rdptr);
 
-	switch (f->type) {
-	case FIFOTYPE_AUDIO:
-		f->slotptrsize = 3;
-		f->slots.a = (struct audio_fifoslot_s *) ucregister_ptr(start);
-		f->nslots = read_ucregister(pcisize) / 3;
-		f->preprocess_buffer=kmalloc(slotsize, GFP_KERNEL);
-		if (!f->preprocess_buffer)
-			return -ENOMEM;
-		break;
-	case FIFOTYPE_VIDEO:
-		f->slotptrsize = 4;
-		f->slots.v = (struct video_fifoslot_s *) ucregister_ptr(start);
-		f->nslots = read_ucregister(pcisize) / 4;
-		break;
-	}
+	f->slotptrsize = 4;
+	f->slots.v = (struct video_fifoslot_s *) ucregister_ptr(start);
+	f->nslots = read_ucregister(pcisize) / 4;
 
 	f->slotsize = slotsize;
 	f->start = ucregister(start) - 0x1000;
@@ -73,18 +63,10 @@ int em8300_fifo_init(struct em8300_s *em, struct fifo_s *f, int start, int wrptr
 
 	for (i = 0; i < f->nslots; i++) {
 		phys = f->phys_base + i * f->slotsize;
-		switch (f->type) {
-		case FIFOTYPE_AUDIO:
-			writel(phys >> 16, &f->slots.a[i].physaddress_hi);
-			writel(phys & 0xffff, &f->slots.a[i].physaddress_lo);
-			writel(f->slotsize, &f->slots.a[i].slotsize);
-			break;
-		case FIFOTYPE_VIDEO:
-			writel(0, &f->slots.v[i].flags);
-			writel(phys >> 16, &f->slots.v[i].physaddress_hi);
-			writel(phys & 0xffff, &f->slots.v[i].physaddress_lo);
-			writel(f->slotsize, &f->slots.v[i].slotsize);
-		}
+		writel(0, &f->slots.v[i].flags);
+		writel(phys >> 16, &f->slots.v[i].physaddress_hi);
+		writel(phys & 0xffff, &f->slots.v[i].physaddress_lo);
+		writel(f->slotsize, &f->slots.v[i].slotsize);
 	}
 
 	sema_init(&f->lock, 1);
@@ -158,24 +140,15 @@ int em8300_fifo_write_nolock(struct fifo_s *fifo, int n, const char *userbuffer,
 	for (i = 0; i < freeslots && n; i++) {
 		copysize = n < fifo->slotsize / fifo->preprocess_ratio ? n : fifo->slotsize / fifo->preprocess_ratio;
 
-		switch (fifo->type) {
-		case FIFOTYPE_AUDIO:
-			writel(copysize * fifo->preprocess_ratio, &fifo->slots.a[writeindex].slotsize);
-			break;
-		case FIFOTYPE_VIDEO:
-			writel(flags, &fifo->slots.v[writeindex].flags);
-			writel(copysize * fifo->preprocess_ratio, &fifo->slots.v[writeindex].slotsize);
-			break;
-		}
+		writel(flags, &fifo->slots.v[writeindex].flags);
+		writel(copysize * fifo->preprocess_ratio, &fifo->slots.v[writeindex].slotsize);
+		break;
+
 
 		if (!access_ok(VERIFY_READ, userbuffer, copysize))
 			return -EFAULT;
 
-		if (fifo->preprocess_cb) {
-			fifo->preprocess_cb(fifo->em, fifo->fifobuffer + writeindex * fifo->slotsize, userbuffer, copysize);
-		} else {
-			(void)copy_from_user(fifo->fifobuffer + writeindex * fifo->slotsize, userbuffer, copysize);
-		}
+		(void)copy_from_user(fifo->fifobuffer + writeindex * fifo->slotsize, userbuffer, copysize);
 
 		writeindex++;
 		writeindex %= fifo->nslots;
@@ -292,14 +265,7 @@ int em8300_fifo_calcbuffered(struct fifo_s *fifo)
 	n = 0;
 	i = readindex;
 	while (i != writeindex) {
-		switch (fifo->type) {
-		case FIFOTYPE_AUDIO:
-			n += readl(&fifo->slots.a[i].slotsize);
-			break;
-		case FIFOTYPE_VIDEO:
-			n += readl(&fifo->slots.v[i].slotsize);
-			break;
-		}
+		n += readl(&fifo->slots.v[i].slotsize);
 		i++;
 		i &= fifo->nslots-1;
 	}

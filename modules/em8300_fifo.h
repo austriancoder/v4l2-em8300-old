@@ -25,17 +25,8 @@
 
 #include <linux/semaphore.h>
 
-#define FIFOTYPE_AUDIO 1
-#define FIFOTYPE_VIDEO 2
-
 struct video_fifoslot_s {
 	uint32_t flags;
-	uint32_t physaddress_hi;
-	uint32_t physaddress_lo;
-	uint32_t slotsize;
-};
-
-struct audio_fifoslot_s {
 	uint32_t physaddress_hi;
 	uint32_t physaddress_lo;
 	uint32_t slotsize;
@@ -49,18 +40,15 @@ struct pts_fifoslot_s {
 };
 
 struct em8300_s;
-typedef void (*preprocess_cb_t) (struct em8300_s *, unsigned char *, const unsigned char *, int);
 
 struct fifo_s {
 	struct em8300_s *em;
 
 	int valid;
 
-	int type;
 	int nslots;
 	union {
 		struct video_fifoslot_s *v;
-		struct audio_fifoslot_s *a;
 		struct pts_fifoslot_s *pts;
 	} slots;
 	int slotptrsize;
@@ -76,7 +64,6 @@ struct fifo_s {
 
 	char *fifobuffer;
 
-	preprocess_cb_t preprocess_cb;
 	int preprocess_ratio;
 	char *preprocess_buffer;
 
@@ -94,7 +81,7 @@ struct em8300_s;
 */
 int em8300_fifo_init(struct em8300_s *em, struct fifo_s *f,
 		     int start, int wrptr, int rdptr,
-		     int pcisize, int slotsize, int fifotype);
+		     int pcisize, int slotsize);
 
 struct fifo_s * em8300_fifo_alloc(void);
 void em8300_fifo_free(struct fifo_s *f);
