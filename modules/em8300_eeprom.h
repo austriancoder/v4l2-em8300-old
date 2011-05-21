@@ -27,8 +27,4 @@ struct em8300_s;
 
 extern int em8300_eeprom_read(struct em8300_s *em, u8 *data);
 
-extern int em8300_eeprom_checksum_init(struct em8300_s *em);
-
-extern void em8300_eeprom_checksum_deinit(struct em8300_s *em);
-
 #endif /* _EM8300_EEPROM_H */

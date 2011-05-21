@@ -31,6 +31,7 @@
 #define EM8300_DRIVER_H
 
 #define EM8300_MAX 4
+#define MAX_UCODE_REGISTER 110
 
 #include <linux/version.h>
 #include <linux/types.h> /* ulong, uint32_t */
@@ -189,9 +190,6 @@ struct em8300_s
 
 	/* Memory exported via mmap() */
 	struct list_head  memory;
-
-	/* Checksum for the on-board eeprom */
-	u8 *eeprom_checksum;
 
 	int model;
 

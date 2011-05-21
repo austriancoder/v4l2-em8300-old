@@ -110,7 +110,6 @@ static void release_em8300(struct em8300_s *em)
 		mtrr_del(em->mtrr_reg, em->adr, em->memsize);
 #endif
 
-	em8300_eeprom_checksum_deinit(em);
 	em8300_i2c_exit(em);
 
 	write_ucregister(Q_IrqMask, 0);
@@ -148,7 +147,6 @@ static int init_em8300(struct em8300_s *em)
 		em->chip_revision = 1;
 
 	em8300_i2c_init1(em);
-	em8300_eeprom_checksum_init(em);
 
 	identified_model = identify_model(em);
 
