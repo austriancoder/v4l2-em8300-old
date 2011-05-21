@@ -17,7 +17,6 @@
  */
 
 #include "em8300_models.h"
-#include "em8300_eeprom.h"
 #include "em8300_reg.h"
 #include <linux/em8300.h>
 #include <linux/pci.h>

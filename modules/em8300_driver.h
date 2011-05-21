@@ -218,6 +218,9 @@ int em8300_i2c_register_encoder(struct em8300_s *em);
 void em8300_i2c_exit(struct em8300_s *em);
 void em8300_clockgen_write(struct em8300_s *em, int abyte);
 
+/* em8300_eeprom.c */
+int em8300_eeprom_read(struct em8300_s *em, u8 *data);
+
 /* em8300_ucode.c */
 void em8300_ucode_upload(struct em8300_s *em, void *ucode, int ucode_size);
 int em8300_require_ucode(struct em8300_s *em);

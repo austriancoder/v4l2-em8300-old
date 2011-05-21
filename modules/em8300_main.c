@@ -35,7 +35,6 @@
 #include "em8300_driver.h"
 #include "em8300_fifo.h"
 #include "em8300_params.h"
-#include "em8300_eeprom.h"
 #include "em8300_models.h"
 #include "em8300_version.h"
 
