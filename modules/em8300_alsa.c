@@ -49,7 +49,6 @@ typedef struct {
 	struct snd_card *card;
 	struct snd_pcm *pcm_analog;
 	struct snd_pcm *pcm_digital;
-	struct snd_pcm_substream *substream;
 	struct semaphore lock;
 	snd_em8300_pcm_indirect_t indirect;
 } em8300_alsa_t;
@@ -88,10 +87,6 @@ static int snd_em8300_playback_open(struct snd_pcm_substream *substream)
 	struct em8300_s *em = em8300_alsa->em;
 	struct snd_pcm_runtime *runtime = substream->runtime;
 
-	down(&em8300_alsa->lock);
-	em8300_alsa->substream = substream;
-	up(&em8300_alsa->lock);
-
 	if (substream->pcm->device == EM8300_ALSA_ANALOG_DEVICENUM)
 		snd_em8300_playback_hw.formats = SNDRV_PCM_FMTBIT_S16_BE;
 	else
@@ -120,10 +115,7 @@ static int snd_em8300_playback_open(struct snd_pcm_substream *substream)
 
 static int snd_em8300_playback_close(struct snd_pcm_substream *substream)
 {
-	em8300_alsa_t *em8300_alsa = snd_pcm_substream_chip(substream);
-
-	em8300_alsa->substream = NULL;
-//	printk("em8300-%d: snd_em8300_playback_close called.\n", em->instance);
+	/* TODO: check if we need to free any private data */
 	return 0;
 }
 
