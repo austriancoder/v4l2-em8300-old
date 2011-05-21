@@ -256,24 +256,3 @@ void em8300_fifo_statusmsg(struct fifo_s *fifo, char *str)
 	sprintf(str, "Free slots: %d/%d", freeslots, fifo->nslots);
 }
 
-int em8300_fifo_calcbuffered(struct fifo_s *fifo)
-{
-	int readindex, writeindex, i, n;
-
-	writeindex = ((int)readl(fifo->writeptr) - fifo->start) / fifo->slotptrsize;
-	readindex = ((int)readl(fifo->readptr) - fifo->start) / fifo->slotptrsize;
-	n = 0;
-	i = readindex;
-	while (i != writeindex) {
-		n += readl(&fifo->slots.v[i].slotsize);
-		i++;
-		i &= fifo->nslots-1;
-	}
-
-	return n;
-}
-
-int em8300_fifo_isempty(struct fifo_s *fifo)
-{
-	return (readl(fifo->writeptr) == readl(fifo->readptr));
-}
