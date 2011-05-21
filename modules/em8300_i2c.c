@@ -167,7 +167,12 @@ static const struct i2c_adapter em8300_i2c_adap_template = {
 	.owner = THIS_MODULE,
 };
 
-static void do_i2c_scan(char *name, struct i2c_client *c)
+static char *i2c_devs[128] = {
+	[ 0x8a >> 1 ] = "bt865",
+	[ 0xa0 >> 1 ] = "eeprom",
+};
+
+static void do_i2c_scan(int idx, struct i2c_client *c)
 {
 	unsigned char buf;
 	int i, rc;
@@ -177,14 +182,13 @@ static void do_i2c_scan(char *name, struct i2c_client *c)
 		rc = i2c_master_recv(c, &buf, 0);
 		if (rc < 0)
 			continue;
-		printk("%s: i2c scan: found device @ 0x%x  [%s]\n",
-		       name, i << 1, "???");
+		printk("bus %d: i2c scan: found device @ 0x%x  [%s]\n",
+		       idx, i << 1, i2c_devs[i] ? i2c_devs[i] : "???");
 	}
 }
 
-int em8300_i2c_init1(struct em8300_s *em)
+static void em8300_i2c_setup_structs(struct em8300_s *em)
 {
-	int ret, i;
 	struct i2c_bus_s *pdata;
 
 	//request_module("i2c-algo-bit");
@@ -200,19 +204,7 @@ int em8300_i2c_init1(struct em8300_s *em)
 		break;
 	}
 
-	/*
-	  Reset devices on I2C bus
-	*/
-	write_register(em->i2c_pin_reg, 0x3f3f);
-	write_register(em->i2c_oe_reg, 0x3b3b);
-	write_register(em->i2c_pin_reg, 0x0100);
-	write_register(em->i2c_pin_reg, 0x0101);
-	write_register(em->i2c_pin_reg, 0x0808);
-
-
-	/*
-	  Setup algo data structs
-	*/
+	/* setup algo data structs */
 	em->i2c_algo[0] = em8300_i2c_algo_template;
 	em->i2c_algo[1] = em8300_i2c_algo_template;
 
@@ -228,11 +220,25 @@ int em8300_i2c_init1(struct em8300_s *em)
 
 	em->i2c_algo[1].data = pdata;
 
-	/*
-	  Setup i2c adapters
-	*/
+	strlcpy(em->i2c_client.name, "em8300 internal", I2C_NAME_SIZE);
+}
+
+int em8300_i2c_init1(struct em8300_s *em)
+{
+	int i;
+
+	em8300_i2c_setup_structs(em);
+
+	/* reset devices on I2C bus */
+	write_register(em->i2c_pin_reg, 0x3f3f);
+	write_register(em->i2c_oe_reg, 0x3b3b);
+	write_register(em->i2c_pin_reg, 0x0100);
+	write_register(em->i2c_pin_reg, 0x0101);
+	write_register(em->i2c_pin_reg, 0x0808);
+
+	/* setup i2c adapters */
 	for (i = 0; i < 2; i++) {
-		/* Setup adapter */
+
 		em->i2c_adap[i] = em8300_i2c_adap_template;
 		sprintf(em->i2c_adap[i].name + strlen(em->i2c_adap[i].name),
 			" #%d-%d", em->instance, i);
@@ -240,13 +246,19 @@ int em8300_i2c_init1(struct em8300_s *em)
 		em->i2c_adap[i].dev.parent = &em->pci_dev->dev;
 
 		i2c_set_adapdata(&em->i2c_adap[i], (void *)em);
+		/* TODO: check for failure */
+		i2c_bit_add_bus(&em->i2c_adap[i]);
+
+		em->i2c_client.adapter = &em->i2c_adap[i];
+		do_i2c_scan(i, &em->i2c_client);
 	}
 
+#if 0
 	/* add only bus 2 */
 	ret = i2c_bit_add_bus(&em->i2c_adap[1]);
 	if (ret)
 		return ret;
-
+#endif
 	{
 		struct i2c_board_info i2c_info;
 		const unsigned short eeprom_addr[] = { 0x50, I2C_CLIENT_END };
@@ -254,26 +266,11 @@ int em8300_i2c_init1(struct em8300_s *em)
 		em->eeprom = i2c_new_probed_device(&em->i2c_adap[1], &i2c_info, eeprom_addr, NULL);
 	}
 
-
-	em->i2c_client.adapter = &em->i2c_adap[1];
-	strlcpy(em->i2c_client.name, "em8300 internal", I2C_NAME_SIZE);
-	do_i2c_scan("i2c bus 1", &em->i2c_client);
-
 	return 0;
 }
 
 int em8300_i2c_init2(struct em8300_s *em)
 {
-	int ret;
-
-	/* add only bus 1 */
-	ret = i2c_bit_add_bus(&em->i2c_adap[0]);
-	if (ret)
-		return ret;
-
-	em->i2c_client.adapter = &em->i2c_adap[0];
-	strlcpy(em->i2c_client.name, "em8300 internal", I2C_NAME_SIZE);
-	do_i2c_scan("i2c bus 0", &em->i2c_client);
 
 	if (known_models[em->model].module.name != NULL)
 		request_module(known_models[em->model].module.name);
