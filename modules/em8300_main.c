@@ -146,7 +146,7 @@ static int init_em8300(struct em8300_s *em)
 	else
 		em->chip_revision = 1;
 
-	em8300_i2c_init1(em);
+	em8300_i2c_init(em);
 
 	identified_model = identify_model(em);
 
@@ -217,7 +217,7 @@ static int init_em8300(struct em8300_s *em)
 	pr_info("em8300-%d: Chip revision: %d\n", em->instance, em->chip_revision);
 	pr_debug("em8300-%d: use_bt865: %d\n", em->instance, em->config.model.use_bt865);
 
-	em8300_i2c_init2(em);
+	em8300_i2c_register_encoder(em);
 
 	if (em->config.model.activate_loopback == 0) {
 		em->clockgen_tvmode = CLOCKGEN_TVMODE_1;

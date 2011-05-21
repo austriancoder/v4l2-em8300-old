@@ -223,7 +223,7 @@ static void em8300_i2c_setup_structs(struct em8300_s *em)
 	strlcpy(em->i2c_client.name, "em8300 internal", I2C_NAME_SIZE);
 }
 
-int em8300_i2c_init1(struct em8300_s *em)
+int em8300_i2c_init(struct em8300_s *em)
 {
 	int i;
 
@@ -269,7 +269,7 @@ int em8300_i2c_init1(struct em8300_s *em)
 	return 0;
 }
 
-int em8300_i2c_init2(struct em8300_s *em)
+int em8300_i2c_register_encoder(struct em8300_s *em)
 {
 
 	if (known_models[em->model].module.name != NULL)
