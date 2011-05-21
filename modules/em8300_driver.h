@@ -113,8 +113,6 @@ struct em8300_s
 	struct mutex ioctl_mutex;
 	int playmode;
 
-	struct snd_card *alsa_card;
-
 	/* Fifos */
 	struct fifo_s *mvfifo;
 	struct fifo_s *spfifo;
@@ -165,10 +163,7 @@ struct em8300_s
 	int scr;
 	
 	/* Audio */
-	int audio_mode;
-	/* Channel status for S/PDIF */
-	unsigned int channel_status_pos;
-	unsigned char channel_status[24];
+	struct snd_card *alsa_card;
 
 	/* Video */
 	v4l2_std_id video_mode;
