@@ -89,11 +89,6 @@ static int snd_em8300_playback_open(struct snd_pcm_substream *substream)
 	struct snd_pcm_runtime *runtime = substream->runtime;
 
 	down(&em8300_alsa->lock);
-	if (em8300_alsa->substream) {
-		up(&em8300_alsa->lock);
-		printk("em8300-%d: snd_em8300_playback_open: em->audio_driver_style == NONE but em8300_alsa->substream is not NULL !?\n", em->instance);
-		return -EBUSY;
-	}
 	em8300_alsa->substream = substream;
 	up(&em8300_alsa->lock);
 
