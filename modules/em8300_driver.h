@@ -73,14 +73,6 @@ struct displaybuffer_info_s {
 	int unknown3;
 };
 
-struct em8300_audio_s {
-	int channels;
-	int format;
-	int speed;
-	int slotsize;
-	int enable_bits;
-};
-
 struct em8300_model_config_s {
 	int use_bt865;
 	int dicom_other_pal;
@@ -173,7 +165,6 @@ struct em8300_s
 	int scr;
 	
 	/* Audio */
-	struct em8300_audio_s audio;
 	int audio_mode;
 	/* Channel status for S/PDIF */
 	unsigned int channel_status_pos;
