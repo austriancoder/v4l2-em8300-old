@@ -33,7 +33,7 @@ endif
 
 #MOD_DESTDIR := drivers/video
 
-em8300-objs := em8300_main.o em8300_i2c.o em8300_audio.o em8300_fifo.o \
+em8300-objs := em8300_main.o em8300_i2c.o em8300_fifo.o \
 		em8300_video.o em8300_misc.o em8300_dicom.o em8300_ucode.o \
 		em8300_ioctl.o em8300_spu.o \
 		em8300_alsa.o em8300_params.o em8300_eeprom.o em8300_models.o

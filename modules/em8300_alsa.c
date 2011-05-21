@@ -58,6 +58,16 @@ typedef struct {
 #define EM8300_BLOCK_SIZE 4096
 #define EM8300_MID_BUFFER_SIZE (1024*1024)
 
+static int mpegaudio_command(struct em8300_s *em, int cmd)
+{
+	em8300_waitfor(em, ucregister(MA_Command), 0xffff, 0xffff);
+
+	pr_debug("em8300-%d: MA_Command: %d\n", em->instance, cmd);
+	write_ucregister(MA_Command, cmd);
+
+	return em8300_waitfor(em, ucregister(MA_Status), cmd, 0xffff);
+}
+
 static struct snd_pcm_hardware snd_em8300_playback_hw = {
 	.info = SNDRV_PCM_INFO_MMAP |
 		 SNDRV_PCM_INFO_INTERLEAVED |

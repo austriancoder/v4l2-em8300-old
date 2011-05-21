@@ -212,9 +212,13 @@ int em8300_require_ucode(struct em8300_s *em)
 	em8300_fifo_init(em,em->spfifo, SP_PCIStart, SP_PCIWrPtr, SP_PCIRdPtr, SP_PCISize, 0x800, FIFOTYPE_VIDEO);
 	em8300_spu_init(em);
 
+	/*
+	 * TODO init alsa
+	 */
+#if 0
 	if (em8300_audio_setup(em))
 		return 0;
-
+#endif
 	em8300_ioctl_enable_videoout(em, 0);
 
 	printk(KERN_NOTICE "em8300-%d: Microcode version 0x%02x loaded\n", em->instance, read_ucregister(MicroCodeVersion));

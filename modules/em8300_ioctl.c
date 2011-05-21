@@ -256,7 +256,7 @@ int em8300_ioctl_setplaymode(struct em8300_s *em, int mode)
 {
 	switch (mode) {
 	case EM8300_PLAYMODE_PLAY:
-		mpegaudio_command(em, MACOMMAND_PLAY);
+		//mpegaudio_command(em, MACOMMAND_PLAY);
 		if (em->playmode == EM8300_PLAYMODE_STOPPED) {
 			em8300_ioctl_enable_videoout(em, 1);
 		}
@@ -267,7 +267,7 @@ int em8300_ioctl_setplaymode(struct em8300_s *em, int mode)
 		em8300_video_setplaymode(em, mode);
 		break;
 	case EM8300_PLAYMODE_PAUSED:
-		mpegaudio_command(em, MACOMMAND_PAUSE);
+		//mpegaudio_command(em, MACOMMAND_PAUSE);
 		em8300_video_setplaymode(em, mode);
 		break;
 	default:

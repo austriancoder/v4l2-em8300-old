@@ -230,11 +230,6 @@ int em8300_i2c_init2(struct em8300_s *em);
 void em8300_i2c_exit(struct em8300_s *em);
 void em8300_clockgen_write(struct em8300_s *em, int abyte);
 
-/* em8300_audio.c */
-int em8300_audio_flush(struct em8300_s *em);
-int em8300_audio_setup(struct em8300_s *em);
-int mpegaudio_command(struct em8300_s *em, int cmd);
-
 /* em8300_ucode.c */
 void em8300_ucode_upload(struct em8300_s *em, void *ucode, int ucode_size);
 int em8300_require_ucode(struct em8300_s *em);
