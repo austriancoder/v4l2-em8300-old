@@ -49,7 +49,6 @@ typedef struct {
 	struct snd_card *card;
 	struct snd_pcm *pcm_analog;
 	struct snd_pcm *pcm_digital;
-	struct semaphore lock;
 	snd_em8300_pcm_indirect_t indirect;
 } em8300_alsa_t;
 
@@ -441,8 +440,6 @@ static int snd_em8300_create(struct snd_card *card, struct em8300_s *em, em8300_
 
 	memset(em8300_alsa, 0, sizeof(em8300_alsa_t));
 
-	sema_init(&em8300_alsa->lock, 1);
-
 	em8300_alsa->em = em;
 	em8300_alsa->card = card;
 
@@ -503,7 +500,7 @@ void em8300_alsa_disable_card(struct em8300_s *em)
 	if (em->alsa_card)
 		snd_card_free(em->alsa_card);
 }
-
+#if 0
 void em8300_alsa_audio_interrupt(struct em8300_s *em)
 {
 	if (em->alsa_card) {
@@ -514,3 +511,4 @@ void em8300_alsa_audio_interrupt(struct em8300_s *em)
 		}
 	}
 }
+#endif
