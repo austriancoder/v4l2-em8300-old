@@ -47,8 +47,6 @@ typedef void (*snd_em8300_pcm_indirect_copy_t)(struct snd_pcm_substream *substre
 typedef struct {
 	struct em8300_s *em;
 	struct snd_card *card;
-	struct snd_pcm *pcm_analog;
-	struct snd_pcm *pcm_digital;
 	snd_em8300_pcm_indirect_t indirect;
 } em8300_alsa_t;
 
@@ -330,7 +328,6 @@ static struct snd_pcm_ops snd_em8300_playback_ops = {
 static void snd_em8300_pcm_analog_free(struct snd_pcm *pcm)
 {
 	em8300_alsa_t *em8300_alsa = (em8300_alsa_t *)(pcm->private_data);
-	em8300_alsa->pcm_analog = NULL;
 	snd_pcm_lib_preallocate_free_for_all(pcm);
 }
 
@@ -359,8 +356,6 @@ static int snd_em8300_pcm_analog(em8300_alsa_t *em8300_alsa)
 
 	strcpy(pcm->name, "EM8300 DAC");
 
-	em8300_alsa->pcm_analog = pcm;
-
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
 					      snd_dma_pci_data(em->pci_dev),
 					      0,
@@ -372,7 +367,6 @@ static int snd_em8300_pcm_analog(em8300_alsa_t *em8300_alsa)
 static void snd_em8300_pcm_digital_free(struct snd_pcm *pcm)
 {
 	em8300_alsa_t *em8300_alsa = (em8300_alsa_t *)(pcm->private_data);
-	em8300_alsa->pcm_digital = NULL;
 	snd_pcm_lib_preallocate_free_for_all(pcm);
 }
 
@@ -400,8 +394,6 @@ static int snd_em8300_pcm_digital(em8300_alsa_t *em8300_alsa)
 	//	pcm->info_flags = 0;
 
 	strcpy(pcm->name, "EM8300 IEC958");
-
-	em8300_alsa->pcm_digital = pcm;
 
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
 					      snd_dma_pci_data(em->pci_dev),
