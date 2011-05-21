@@ -207,6 +207,7 @@ int em8300_require_ucode(struct em8300_s *em)
 	/*
 	 * TODO init alsa
 	 */
+	em8300_alsa_enable_card(em);
 #if 0
 	if (em8300_audio_setup(em))
 		return 0;

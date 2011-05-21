@@ -223,6 +223,11 @@ struct em8300_s
   Prototypes
 */
 
+/* em8300_alsa.c */
+void em8300_alsa_enable_card(struct em8300_s *em);
+void em8300_alsa_disable_card(struct em8300_s *em);
+void em8300_alsa_audio_interrupt(struct em8300_s *em);
+
 /* em8300_i2c.c */
 int em8300_i2c_init1(struct em8300_s *em);
 int em8300_i2c_init2(struct em8300_s *em);

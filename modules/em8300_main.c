@@ -79,6 +79,9 @@ static irqreturn_t em8300_irq(int irq, void *dev_id)
 		if (irqstatus & IRQSTATUS_VIDEO_FIFO)
 			em8300_fifo_check(em->mvfifo);
 
+		if (irqstatus & IRQSTATUS_AUDIO_FIFO)
+			em8300_alsa_audio_interrupt(em);
+
 		if (irqstatus & IRQSTATUS_VIDEO_VBL) {
 			em8300_fifo_check(em->spfifo);
 			em8300_video_check_ptsfifo(em);
@@ -116,6 +119,8 @@ static void release_em8300(struct em8300_s *em)
 
 	em8300_fifo_free(em->mvfifo);
 	em8300_fifo_free(em->spfifo);
+
+	em8300_alsa_disable_card(em);
 
 	/* free it */
 	free_irq(em->pci_dev->irq, em);

@@ -47,6 +47,7 @@ typedef void (*snd_em8300_pcm_indirect_copy_t)(struct snd_pcm_substream *substre
 typedef struct {
 	struct em8300_s *em;
 	struct snd_card *card;
+	struct snd_pcm_substream *substream;
 	snd_em8300_pcm_indirect_t indirect;
 } em8300_alsa_t;
 
@@ -117,12 +118,18 @@ static int snd_em8300_playback_open(struct snd_pcm_substream *substream)
 	}
 	write_ucregister(MA_Threshold, 6);
 
+	/* store current used substream - needed for interrupt handler */
+	em8300_alsa->substream = substream;
+
 	return 0;
 }
 
 static int snd_em8300_playback_close(struct snd_pcm_substream *substream)
 {
+	em8300_alsa_t *em8300_alsa = snd_pcm_substream_chip(substream);
+	em8300_alsa->substream = NULL;
 	/* TODO: check if we need to free any private data */
+
 	return 0;
 }
 
@@ -500,15 +507,17 @@ void em8300_alsa_disable_card(struct em8300_s *em)
 	if (em->alsa_card)
 		snd_card_free(em->alsa_card);
 }
-#if 0
+
 void em8300_alsa_audio_interrupt(struct em8300_s *em)
 {
-	if (em->alsa_card) {
-		em8300_alsa_t *em8300_alsa = (em8300_alsa_t *)(em->alsa_card->private_data);
-		if (em8300_alsa->substream) {
-//			printk("em8300-%d: calling snd_pcm_period_elapsed\n", em->instance);
-			snd_pcm_period_elapsed(em8300_alsa->substream);
-		}
+	em8300_alsa_t *em8300_alsa = NULL;
+
+	if (!em->alsa_card)
+		return;
+
+	em8300_alsa = (em8300_alsa_t *)(em->alsa_card->private_data);
+	if (em8300_alsa->substream) {
+//		printk("em8300-%d: calling snd_pcm_period_elapsed\n", em->instance);
+		snd_pcm_period_elapsed(em8300_alsa->substream);
 	}
 }
-#endif
