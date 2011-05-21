@@ -253,12 +253,6 @@ int em8300_i2c_init(struct em8300_s *em)
 		do_i2c_scan(i, &em->i2c_client);
 	}
 
-#if 0
-	/* add only bus 2 */
-	ret = i2c_bit_add_bus(&em->i2c_adap[1]);
-	if (ret)
-		return ret;
-#endif
 	{
 		struct i2c_board_info i2c_info;
 		const unsigned short eeprom_addr[] = { 0x50, I2C_CLIENT_END };
