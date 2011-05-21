@@ -25,6 +25,7 @@
 
 #include <linux/string.h>
 #include <linux/pci.h>
+#include <linux/delay.h>
 
 #include "em8300_reg.h"
 #include <linux/em8300.h>
