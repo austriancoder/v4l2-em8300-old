@@ -61,14 +61,14 @@ typedef struct {
 #define EM8300_MID_BUFFER_SIZE (1024*1024)
 
 static struct snd_pcm_hardware snd_em8300_playback_hw = {
-	.info = (
-		 SNDRV_PCM_INFO_MMAP |
+	.info = SNDRV_PCM_INFO_MMAP |
 		 SNDRV_PCM_INFO_INTERLEAVED |
 //		 SNDRV_PCM_INFO_BLOCK_TRANSFER |
 		 SNDRV_PCM_INFO_MMAP_VALID |
-		 SNDRV_PCM_INFO_PAUSE |
-		 0),
+		 SNDRV_PCM_INFO_PAUSE,
+
 	.rates = SNDRV_PCM_RATE_32000 | SNDRV_PCM_RATE_44100 | SNDRV_PCM_RATE_48000,
+
 	.rate_min = 32000,
 	.rate_max = 48000,
 	.channels_min = 2,
