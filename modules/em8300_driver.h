@@ -125,7 +125,6 @@ struct em8300_s
 
 	/* Fifos */
 	struct fifo_s *mvfifo;
-	struct fifo_s *mafifo;
 	struct fifo_s *spfifo;
 	int mtrr_reg;
 	

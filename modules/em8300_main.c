@@ -115,7 +115,6 @@ static void release_em8300(struct em8300_s *em)
 	write_register(RESET, 0);
 
 	em8300_fifo_free(em->mvfifo);
-	em8300_fifo_free(em->mafifo);
 	em8300_fifo_free(em->spfifo);
 
 	/* free it */
