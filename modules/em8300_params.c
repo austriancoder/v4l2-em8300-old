@@ -49,16 +49,6 @@ int card_model[EM8300_MAX] = { [0 ... EM8300_MAX-1] = -1 };
 module_param_array(card_model, int, NULL, 0444);
 MODULE_PARM_DESC(card_model, "Model number for the em8300-based card. -1 (default) means automatic detection; 0 means unknown model with manual setup.");
 
-#if defined(CONFIG_SND) || defined(CONFIG_SND_MODULE)
-char *alsa_id[EM8300_MAX] = { [0 ... EM8300_MAX-1] = NULL };
-module_param_array(alsa_id, charp, NULL, 0444);
-MODULE_PARM_DESC(alsa_id, "ID string for the audio part of the EM8300 chip (ALSA).");
-
-int alsa_index[EM8300_MAX] = { [0 ... EM8300_MAX-1] = -1 };
-module_param_array(alsa_index, int, NULL, 0444);
-MODULE_PARM_DESC(alsa_index, "Index value for the audio part of the EM8300 chip (ALSA).");
-#endif
-
 int stop_video[EM8300_MAX] = { [0 ... EM8300_MAX-1] = 0 };
 module_param_array(stop_video, bool, NULL, 0444);
 MODULE_PARM_DESC(stop_video, "Set this to 1 if you want to stop video output instead of black when there is nothing to display. Defaults to 0.");

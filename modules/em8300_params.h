@@ -32,14 +32,6 @@ extern int activate_loopback[];
 
 extern int card_model[];
 
-/* Number and name of the ALSA card to allocate (only used with the ALSA audio
-   driver.
-*/
-#if defined(CONFIG_SND) || defined(CONFIG_SND_MODULE)
-extern int alsa_index[];
-extern char *alsa_id[];
-#endif
-
 /* Option to disable the video output when there is nothing to display */
 extern int stop_video[];
 
