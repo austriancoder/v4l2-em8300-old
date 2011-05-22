@@ -1,0 +1,18 @@
++ send in patches for 8bit and 16bit bus formats for adv7175
++ extend adv7175 driver to support different bus formats
++ make use of adv7175 bus formats in em8300 driver (ADV717X_PIXELPORT_16BIT)
++ find a way to integrate pixel data adjustment in adv7175 driver
+  HSYNC to Pixel Data Adjust
+  these bits adjust the VSYNC pulsewidth.
+  This enables the HSYNC to be adjusted with respect to the
+  pixel data. This allows the Cr and Cb components to be
+  swapped. This adjustment is available in both master and slave
+  timing modes.
+
++ make use of videobuf2
++ is there a way to do a/v sync directly in the driver?
++ cleanup/add needed locking
++ check all error paths for resource leaks
++ work on own decoding api for v4l2 or use DVB api
++ how to integrate SPU?
+
