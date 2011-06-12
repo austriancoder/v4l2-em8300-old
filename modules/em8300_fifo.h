@@ -64,9 +64,6 @@ struct fifo_s {
 
 	char *fifobuffer;
 
-	int preprocess_ratio;
-	char *preprocess_buffer;
-
 	wait_queue_head_t wait;
 
 	struct semaphore lock;

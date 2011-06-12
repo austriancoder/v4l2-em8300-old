@@ -34,8 +34,6 @@ int em8300_fifo_init(struct em8300_s *em, struct fifo_s *f, int start, int wrptr
 	dma_addr_t phys;
 
 	f->em = em;
-	f->preprocess_ratio = 1;
-	f->preprocess_buffer = NULL;
 
 	f->writeptr = (unsigned *volatile) ucregister_ptr(wrptr);
 	f->readptr = (unsigned *volatile) ucregister_ptr(rdptr);
@@ -80,9 +78,6 @@ void em8300_fifo_free(struct fifo_s *f)
 	if (f) {
 		if (f->valid && f->fifobuffer) {
 			pci_free_consistent(f->em->pci_dev, f->nslots * f->slotsize, f->fifobuffer, f->phys_base);
-		}
-		if (f->valid && f->preprocess_buffer) {
-			kfree(f->preprocess_buffer);
 		}
 		kfree(f);
 	}
@@ -138,10 +133,10 @@ int em8300_fifo_write_nolock(struct fifo_s *fifo, int n, const char *userbuffer,
 	writeindex = ((int)readl(fifo->writeptr) - fifo->start) / fifo->slotptrsize;
 	freeslots = em8300_fifo_freeslots(fifo);
 	for (i = 0; i < freeslots && n; i++) {
-		copysize = n < fifo->slotsize / fifo->preprocess_ratio ? n : fifo->slotsize / fifo->preprocess_ratio;
+		copysize = n < fifo->slotsize ? n : fifo->slotsize;
 
 		writel(flags, &fifo->slots.v[writeindex].flags);
-		writel(copysize * fifo->preprocess_ratio, &fifo->slots.v[writeindex].slotsize);
+		writel(copysize, &fifo->slots.v[writeindex].slotsize);
 		break;
 
 
