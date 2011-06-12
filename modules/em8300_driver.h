@@ -188,9 +188,6 @@ struct em8300_s
 	int sp_ptsfifo_waiting;
 	int sp_mode;
 
-	/* Memory exported via mmap() */
-	struct list_head  memory;
-
 	int model;
 
 	struct em8300_config_s config;
@@ -274,18 +271,5 @@ int em8300_ioctl_getstatus(struct em8300_s *em, char *usermsg);
 void em8300_ioctl_enable_videoout(struct em8300_s *em, int mode);
 int em8300_ioctl_setplaymode(struct em8300_s *em, int mode);
 int em8300_ioctl_overlay_setmode(struct em8300_s *em,int val);
-
-/* em9010.c */
-int em9010_cabledetect(struct em8300_s *em);
-int em9010_calibrate_xoffset(struct em8300_s *em);
-int em9010_calibrate_yoffset(struct em8300_s *em);
-int em9010_init(struct em8300_s *em);
-int em9010_overlay_set_signalmode(struct em8300_s *em, int val);
-int em9010_overlay_update(struct em8300_s *em);
-int em9010_overlay_set_res(struct em8300_s *em, int xres, int yres);
-void sub_4288c(struct em8300_s *em, int pa, int pb, int pc, int pd, int pe, int pf,
-	       int pg, int ph);
-int em9010_get_attribute(struct em8300_s *em, int attribute);
-int em9010_set_attribute(struct em8300_s *em, int attribute, int value);
 
 #endif /*EM8300_DRIVER_H*/
