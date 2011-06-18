@@ -194,7 +194,7 @@ static int vidioc_s_ctrl(struct file *file, void *priv,
 static int vidioc_enum_fmt_vid_out(struct file *file, void *fh,
 				struct v4l2_fmtdesc *fmt)
 {
-	if (fmt->index >= 1)
+	if (fmt->index > 0)
 		return -EINVAL;
 
 	fmt->flags = V4L2_FMT_FLAG_COMPRESSED;
@@ -204,12 +204,44 @@ static int vidioc_enum_fmt_vid_out(struct file *file, void *fh,
 	return 0;
 }
 
+static int vidioc_try_fmt_vid_out(struct file *file, void *priv,
+				struct v4l2_format *f)
+{
+	if (f->fmt.pix != V4L2_PIX_FMT_MPEG)
+		return -EINVAL;
+
+	return 0;
+}
+
+static int vidioc_s_fmt_vid_out(struct file *file, void *fh,
+				struct v4l2_format *f)
+{
+	int ret = vidioc_try_fmt_vid_cap(file, priv, f);
+	if (ret < 0)
+		return ret;
+
+	/* TODO: setup dicom etc. */
+
+	return 0;
+}
+
+static int vidioc_g_fmt_vid_out(struct file *file, void *fh,
+				struct v4l2_format *f)
+{
+	f->fmt.pix.pixelformat = V4L2_PIX_FMT_MPEG;
+
+	/* TODO: width, height */
+}
+
 static const struct v4l2_ioctl_ops video_ioctl_ops = {
 	.vidioc_querycap 			= vidioc_querycap,
 	.vidioc_queryctrl			= vidioc_queryctrl,
 	.vidioc_g_ctrl				= vidioc_g_ctrl,
 	.vidioc_s_ctrl				= vidioc_s_ctrl,
 	.vidioc_enum_fmt_vid_out	= vidioc_enum_fmt_vid_out,
+	.vidioc_try_fmt_vid_cout	= vidioc_try_fmt_vid_cout,
+	.vidioc_s_fmt_vid_out  		= vidioc_s_fmt_vid_out,
+	.vidioc_g_fmt_vid_out		= vidioc_g_fmt_vid_out,
 };
 
 static const struct video_device em8300_video_template = {
