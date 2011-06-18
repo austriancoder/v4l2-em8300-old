@@ -239,7 +239,7 @@ static const struct v4l2_ioctl_ops video_ioctl_ops = {
 	.vidioc_g_ctrl				= vidioc_g_ctrl,
 	.vidioc_s_ctrl				= vidioc_s_ctrl,
 	.vidioc_enum_fmt_vid_out	= vidioc_enum_fmt_vid_out,
-	.vidioc_try_fmt_vid_cout	= vidioc_try_fmt_vid_cout,
+	.vidioc_try_fmt_vid_out		= vidioc_try_fmt_vid_out,
 	.vidioc_s_fmt_vid_out  		= vidioc_s_fmt_vid_out,
 	.vidioc_g_fmt_vid_out		= vidioc_g_fmt_vid_out,
 };
