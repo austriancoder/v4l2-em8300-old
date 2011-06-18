@@ -191,11 +191,25 @@ static int vidioc_s_ctrl(struct file *file, void *priv,
 	return 0;
 }
 
+static int vidioc_enum_fmt_vid_out(struct file *file, void *fh,
+				struct v4l2_fmtdesc *fmt)
+{
+	if (fmt->index >= 1)
+		return -EINVAL;
+
+	fmt->flags = V4L2_FMT_FLAG_COMPRESSED;
+	fmt->pixelformat = V4L2_PIX_FMT_MPEG;
+	strlcpy(fmt->description, "MPEG 1/2", sizeof(fmt->description));
+
+	return 0;
+}
+
 static const struct v4l2_ioctl_ops video_ioctl_ops = {
 	.vidioc_querycap 			= vidioc_querycap,
 	.vidioc_queryctrl			= vidioc_queryctrl,
 	.vidioc_g_ctrl				= vidioc_g_ctrl,
 	.vidioc_s_ctrl				= vidioc_s_ctrl,
+	.vidioc_enum_fmt_vid_out	= vidioc_enum_fmt_vid_out,
 };
 
 static const struct video_device em8300_video_template = {
