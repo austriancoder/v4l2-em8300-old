@@ -207,7 +207,7 @@ static int vidioc_enum_fmt_vid_out(struct file *file, void *fh,
 static int vidioc_try_fmt_vid_out(struct file *file, void *priv,
 				struct v4l2_format *f)
 {
-	if (f->fmt.pix != V4L2_PIX_FMT_MPEG)
+	if (f->fmt.pix.pixelformat != V4L2_PIX_FMT_MPEG)
 		return -EINVAL;
 
 	return 0;
@@ -216,7 +216,7 @@ static int vidioc_try_fmt_vid_out(struct file *file, void *priv,
 static int vidioc_s_fmt_vid_out(struct file *file, void *fh,
 				struct v4l2_format *f)
 {
-	int ret = vidioc_try_fmt_vid_cap(file, priv, f);
+	int ret = vidioc_try_fmt_vid_out(file, fh, f);
 	if (ret < 0)
 		return ret;
 
@@ -231,6 +231,7 @@ static int vidioc_g_fmt_vid_out(struct file *file, void *fh,
 	f->fmt.pix.pixelformat = V4L2_PIX_FMT_MPEG;
 
 	/* TODO: width, height */
+	return 0;
 }
 
 static const struct v4l2_ioctl_ops video_ioctl_ops = {
