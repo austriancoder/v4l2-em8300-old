@@ -95,6 +95,12 @@ struct em8300_config_s {
 	struct adv717x_model_config_s adv717x_model;
 };
 
+typedef struct {
+	int brightness;
+	int contrast;
+	int saturation;
+} em8300_bcs_t;
+
 struct em8300_s
 {
 	int chip_revision;
@@ -122,9 +128,7 @@ struct em8300_s
 	/* DICOM */
 	int dicom_vertoffset;
 	int dicom_horizoffset;
-	int dicom_brightness;
-	int dicom_contrast;
-	int dicom_saturation;
+	em8300_bcs_t bcs;
 	int dicom_tvout;
 	struct displaybuffer_info_s dbuf_info;
 	

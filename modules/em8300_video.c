@@ -148,13 +148,13 @@ static int vidioc_g_ctrl(struct file *file, void *priv,
 
 	switch (ctl->id) {
 	case V4L2_CID_CONTRAST:
-		val = em->dicom_contrast;
+		val = em->bcs.contrast;
 		break;
 	case V4L2_CID_BRIGHTNESS:
-		val = em->dicom_brightness;
+		val = em->bcs.brightness;
 		break;
 	case V4L2_CID_SATURATION:
-		val = em->dicom_saturation;
+		val = em->bcs.saturation;
 		break;
 	default:
 		return -EINVAL;
@@ -176,13 +176,13 @@ static int vidioc_s_ctrl(struct file *file, void *priv,
 
 	switch (ctl->id) {
 	case V4L2_CID_CONTRAST:
-		em8300_dicom_setBCS(em, em->dicom_brightness, val, em->dicom_saturation);
+		em8300_dicom_setBCS(em, em->bcs.brightness, val, em->bcs.saturation);
 		break;
 	case V4L2_CID_BRIGHTNESS:
-		em8300_dicom_setBCS(em, val, em->dicom_contrast, em->dicom_saturation);
+		em8300_dicom_setBCS(em, val, em->bcs.contrast, em->bcs.saturation);
 		break;
 	case V4L2_CID_SATURATION:
-		em8300_dicom_setBCS(em, em->dicom_brightness, em->dicom_contrast, val);
+		em8300_dicom_setBCS(em, em->bcs.brightness, em->bcs.contrast, val);
 		break;
 	default:
 		return -EINVAL;

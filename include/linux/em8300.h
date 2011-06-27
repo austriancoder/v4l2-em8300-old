@@ -37,12 +37,6 @@ typedef struct {
 } em8300_register_t;
 
 typedef struct {
-	int brightness;
-	int contrast;
-	int saturation;
-} em8300_bcs_t;
-
-typedef struct {
 	int color;
 	int contrast;
 	int top;

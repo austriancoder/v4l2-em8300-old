@@ -49,9 +49,9 @@ struct dicom_tvmode tvmodematrix[3] = {
 void em8300_dicom_setBCS(struct em8300_s *em, int brightness, int contrast, int saturation)
 {
 	int luma_factor, luma_offset, chroma_factor;
-	em->dicom_brightness = brightness;
-	em->dicom_contrast = contrast;
-	em->dicom_saturation = saturation;
+	em->bcs.brightness = brightness;
+	em->bcs.contrast = contrast;
+	em->bcs.saturation = saturation;
 
 	if (read_ucregister(DICOM_UpdateFlag) == 1) {
 		write_ucregister(DICOM_UpdateFlag, 0);
