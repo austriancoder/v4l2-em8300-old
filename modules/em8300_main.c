@@ -21,13 +21,11 @@
 #include <linux/version.h>
 #include <linux/module.h>
 #include <linux/pci.h>
-#include <linux/sound.h>
 #ifdef CONFIG_MTRR
 #include <asm/mtrr.h>
 #endif
 
 #include <linux/interrupt.h>
-#include <linux/atomic.h>
 
 
 #include "em8300_reg.h"
@@ -46,12 +44,8 @@ MODULE_AUTHOR("Henrik Johansson <henrikjo@post.utfors.se>");
 MODULE_DESCRIPTION("EM8300 MPEG-2 decoder");
 MODULE_SUPPORTED_DEVICE("em8300");
 MODULE_LICENSE("GPL");
-#ifdef MODULE_VERSION
-MODULE_VERSION(EM8300_VERSION);
-#endif
 
 static atomic_t em8300_instance = ATOMIC_INIT(0);
-static struct em8300_s *em8300[EM8300_MAX];
 
 static DEFINE_PCI_DEVICE_TABLE(em8300_ids) = {
 	{ PCI_VENDOR_ID_SIGMADESIGNS, PCI_DEVICE_ID_SIGMADESIGNS_EM8300,
@@ -124,8 +118,7 @@ static void release_em8300(struct em8300_s *em)
 	free_irq(em->pci_dev->irq, em);
 
 	/* unmap and free memory */
-	if (em->mem)
-		iounmap((unsigned *) em->mem);
+	iounmap((unsigned *) em->mem);
 
 	video_unregister_device(em->vdev);
 	v4l2_device_unregister(&em->v4l2_dev);
@@ -398,7 +391,6 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 		goto irq_error;
 	}
 
-	em8300[i] = em;
 	return 0;
 
 irq_error:
@@ -439,20 +431,14 @@ static void __exit em8300_exit(void)
 
 static int __init em8300_init(void)
 {
-	int err;
+	int ret;
 
-	/*memset(&em8300, 0, sizeof(em8300) * EM8300_MAX);*/
-
-	err = pci_register_driver(&em8300_driver);
-	if (err < 0) {
+	ret = pci_register_driver(&em8300_driver);
+	if (ret < 0) {
 		printk(KERN_ERR "em8300: unable to register PCI driver\n");
-		goto err_init;
 	}
 
-	return 0;
-
- err_init:
-	return err;
+	return ret;
 }
 
 module_init(em8300_init);
