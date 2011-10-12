@@ -208,13 +208,13 @@ static void em8300_i2c_setup_structs(struct em8300_s *em)
 	em->i2c_algo[0] = em8300_i2c_algo_template;
 	em->i2c_algo[1] = em8300_i2c_algo_template;
 
-	pdata = kmalloc(sizeof(struct i2c_bus_s), GFP_KERNEL);
+	pdata = kzalloc(sizeof(struct i2c_bus_s), GFP_KERNEL);
 	pdata->clock_pio = 0x10;
 	pdata->em = em;
 
 	em->i2c_algo[0].data = pdata;
 
-	pdata = kmalloc(sizeof(struct i2c_bus_s), GFP_KERNEL);
+	pdata = kzalloc(sizeof(struct i2c_bus_s), GFP_KERNEL);
 	pdata->clock_pio = 0x4;
 	pdata->em = em;
 

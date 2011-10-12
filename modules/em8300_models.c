@@ -102,7 +102,7 @@ int identify_model(struct em8300_s *em)
 	int ret;
 	int i;
 
-	buf = kmalloc(256, GFP_KERNEL);
+	buf = kzalloc(256, GFP_KERNEL);
 	if (buf == NULL)
 		return -ENOMEM;
 

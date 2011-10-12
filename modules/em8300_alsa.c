@@ -441,11 +441,9 @@ static int snd_em8300_create(struct snd_card *card, struct em8300_s *em, em8300_
 	if (rem8300_alsa)
 		*rem8300_alsa = NULL;
 
-	em8300_alsa = (em8300_alsa_t *)kmalloc(sizeof(em8300_alsa_t), GFP_KERNEL);
+	em8300_alsa = (em8300_alsa_t *)kzalloc(sizeof(em8300_alsa_t), GFP_KERNEL);
 	if (em8300_alsa == NULL)
 		return -ENOMEM;
-
-	memset(em8300_alsa, 0, sizeof(em8300_alsa_t));
 
 	em8300_alsa->em = em;
 	em8300_alsa->card = card;

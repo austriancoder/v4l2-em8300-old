@@ -85,10 +85,7 @@ void em8300_fifo_free(struct fifo_s *f)
 
 struct fifo_s *em8300_fifo_alloc()
 {
-	struct fifo_s *f = kmalloc(sizeof(struct fifo_s), GFP_KERNEL);
-	if (f) {
-		memset(f, 0, sizeof(struct fifo_s));
-	}
+	struct fifo_s *f = kzalloc(sizeof(struct fifo_s), GFP_KERNEL);
 	return f;
 }
 

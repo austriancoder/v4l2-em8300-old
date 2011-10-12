@@ -170,7 +170,7 @@ static int bt865_probe(struct i2c_client *client,
 	v4l_info(client, "chip found @ 0x%x (%s)\n",
 			client->addr << 1, client->adapter->name);
 
-	encoder = kmalloc(sizeof(struct bt865), GFP_KERNEL);
+	encoder = kzalloc(sizeof(struct bt865), GFP_KERNEL);
 	if (encoder == NULL)
 		return -ENOMEM;
 	sd = &encoder->sd;

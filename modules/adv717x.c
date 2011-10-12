@@ -537,7 +537,7 @@ static int adv7170_setup(struct i2c_client *client)
 
 	data->configlen = 27;
 	data->modes = 8;
-	data->conf = kmalloc(data->modes*sizeof(struct mode_config_s)
+	data->conf = kzalloc(data->modes*sizeof(struct mode_config_s)
 			     + 4*data->configlen*sizeof(unsigned char),
 			     GFP_KERNEL);
 	if (!data->conf)
@@ -587,7 +587,7 @@ static int adv7175a_setup(struct i2c_client *client)
 
 	data->configlen = 19;
 	data->modes = 8;
-	data->conf = kmalloc(data->modes*sizeof(struct mode_config_s)
+	data->conf = kzalloc(data->modes*sizeof(struct mode_config_s)
 			     + 4*data->configlen*sizeof(unsigned char),
 			     GFP_KERNEL);
 	if (!data->conf)
@@ -655,10 +655,9 @@ static int adv717x_probe(struct i2c_client *client,
 	}
 */
 
-	if (!(data = kmalloc(sizeof(struct adv717x_data_s), GFP_KERNEL))) {
+	if (!(data = kzalloc(sizeof(struct adv717x_data_s), GFP_KERNEL))) {
 		return -ENOMEM;
 	}
-	memset(data, 0, sizeof(struct adv717x_data_s));
 
 	i2c_set_clientdata(client, data);
 
