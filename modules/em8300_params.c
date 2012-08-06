@@ -27,23 +27,23 @@
  * Module params by Jonas Birm�� (birme@jpl.nu)
  */
 int dicom_other_pal[EM8300_MAX] = { [0 ... EM8300_MAX-1] = -1 };
-module_param_array(dicom_other_pal, bool, NULL, 0444);
+module_param_array(dicom_other_pal, int, NULL, 0444);
 MODULE_PARM_DESC(dicom_other_pal, "If this is set, then some internal register values are swapped for PAL and NTSC. Defaults to 1.");
 
 int dicom_fix[EM8300_MAX] = { [0 ... EM8300_MAX-1] = -1 };
-module_param_array(dicom_fix, bool, NULL, 0444);
+module_param_array(dicom_fix, int, NULL, 0444);
 MODULE_PARM_DESC(dicom_fix, "If this is set then some internal register values are changed. Fixes green screen problems for some. Defaults to 1.");
 
 int dicom_control[EM8300_MAX] = { [0 ... EM8300_MAX-1] = -1 };
-module_param_array(dicom_control, bool, NULL, 0444);
+module_param_array(dicom_control, int, NULL, 0444);
 MODULE_PARM_DESC(dicom_control, "If this is set then some internal register values are changed. Fixes green screen problems for some. Defaults to 1.");
 
 int bt865_ucode_timeout[EM8300_MAX] = { [0 ... EM8300_MAX-1] = -1 };
-module_param_array(bt865_ucode_timeout, bool, NULL, 0444);
+module_param_array(bt865_ucode_timeout, int, NULL, 0444);
 MODULE_PARM_DESC(bt865_ucode_timeout, "Set this to 1 if you have a bt865 and get timeouts when uploading the microcode. Defaults to 0.");
 
 int activate_loopback[EM8300_MAX] = { [0 ... EM8300_MAX-1] = -1 };
-module_param_array(activate_loopback, bool, NULL, 0444);
+module_param_array(activate_loopback, int, NULL, 0444);
 MODULE_PARM_DESC(activate_loopback, "If you lose video after loading the modules or uploading the microcode set this to 1. Defaults to 0.");
 
 int card_model[EM8300_MAX] = { [0 ... EM8300_MAX-1] = -1 };
@@ -51,5 +51,5 @@ module_param_array(card_model, int, NULL, 0444);
 MODULE_PARM_DESC(card_model, "Model number for the em8300-based card. -1 (default) means automatic detection; 0 means unknown model with manual setup.");
 
 int stop_video[EM8300_MAX] = { [0 ... EM8300_MAX-1] = 0 };
-module_param_array(stop_video, bool, NULL, 0444);
+module_param_array(stop_video, int, NULL, 0444);
 MODULE_PARM_DESC(stop_video, "Set this to 1 if you want to stop video output instead of black when there is nothing to display. Defaults to 0.");
