@@ -18,6 +18,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#include <linux/moduleparam.h>
 #include "em8300_params.h"
 #include <linux/em8300.h>
 #include "em8300_driver.h"
