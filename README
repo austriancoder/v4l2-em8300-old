@@ -1,7 +1,7 @@
 Git repo to clean up em8300 driver.
 
-- remove old 2.6 kernel stuff
---> will only compile with recent 2.6 kernel
+- remove old 2.6 kernel stuff --> will only compile with recent 2.6 kernel
+-- make use of devm_ functions
 
 - use kernles encoders for adv7xx and bt865
 -- we need to extend current adv7175 and adv7170 drivers
@@ -9,3 +9,4 @@ Git repo to clean up em8300 driver.
 -- add bt865 driver to mainline kernel
 
 - convert to use v4l2 interface
+-- make use of encoder interface
