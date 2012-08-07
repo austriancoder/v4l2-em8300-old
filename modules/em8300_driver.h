@@ -171,7 +171,7 @@ struct em8300_s
 	/* Control handler */
 	struct v4l2_ctrl_handler ctrl_handler;
 
-	ulong adr;
+	ulong addr;
 	volatile unsigned *mem;
 	ulong memsize;
 	

@@ -102,7 +102,7 @@ static void release_em8300(struct em8300_s *em)
 
 #ifdef CONFIG_MTRR
 	if (em->mtrr_reg)
-		mtrr_del(em->mtrr_reg, em->adr, em->memsize);
+		mtrr_del(em->mtrr_reg, em->addr, em->memsize);
 #endif
 
 	em8300_i2c_exit(em);
@@ -243,10 +243,10 @@ static int em8300_pci_setup(struct em8300_s *em, struct pci_dev *pdev,
 		return -EIO;
 	}
 
-	em->adr = pci_resource_start(pdev, 0);
+	em->addr = pci_resource_start(pdev, 0);
 	em->memsize = pci_resource_len(pdev, 0);
 
-	if (!request_mem_region(em->adr, em->memsize, "em8300 decoder")) {
+	if (!request_mem_region(em->addr, em->memsize, "em8300 decoder")) {
 		EM8300_ERR("Cannot request decoder memory region.\n");
 		return -EIO;
 	}
@@ -257,7 +257,7 @@ static int em8300_pci_setup(struct em8300_s *em, struct pci_dev *pdev,
 		   "irq: %d, latency: %d, memory: 0x%llx\n",
 		   pdev->device, pdev->revision, pdev->bus->number,
 		   PCI_SLOT(pdev->devfn), PCI_FUNC(pdev->devfn),
-		   pdev->irq, pci_latency, (u64)em->adr);
+		   pdev->irq, pci_latency, (u64)em->addr);
 
 	return 0;
 }
@@ -300,7 +300,7 @@ static int __devinit em8300_probe(struct pci_dev *pdev,
 	em->model = card_model[atomic_read(&em8300_instance)];
 
 	/* map io memory */
-	em->mem = ioremap_nocache(em->adr, em->memsize);
+	em->mem = ioremap_nocache(em->addr, em->memsize);
 	if (em->mem == NULL) {
 		EM8300_ERR("ioremap for memory region failed\n");
 		retval = -ENOMEM;
@@ -309,7 +309,7 @@ static int __devinit em8300_probe(struct pci_dev *pdev,
 
 	EM8300_INFO("mapped-memory at 0x%p\n", em->mem);
 #ifdef CONFIG_MTRR
-	em->mtrr_reg = mtrr_add(em->adr, em->memsize, MTRR_TYPE_UNCACHABLE, 1);
+	em->mtrr_reg = mtrr_add(em->addr, em->memsize, MTRR_TYPE_UNCACHABLE, 1);
 	if (em->mtrr_reg)
 		EM8300_INFO("using MTRR\n");
 #endif
@@ -340,7 +340,7 @@ static int __devinit em8300_probe(struct pci_dev *pdev,
 irq_error:
 #ifdef CONFIG_MTRR
 	if (em->mtrr_reg)
-		mtrr_del(em->mtrr_reg, em->adr, em->memsize);
+		mtrr_del(em->mtrr_reg, em->addr, em->memsize);
 #endif
 	iounmap(em->mem);
 
