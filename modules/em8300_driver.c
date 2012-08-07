@@ -424,11 +424,6 @@ struct pci_driver em8300_driver = {
 	.remove   = __devexit_p(em8300_remove),
 };
 
-static void __exit em8300_exit(void)
-{
-	pci_unregister_driver(&em8300_driver);
-}
-
 static int __init em8300_init(void)
 {
 	if (pci_register_driver(&em8300_driver)) {
@@ -437,6 +432,11 @@ static int __init em8300_init(void)
 	}
 
 	return 0;
+}
+
+static void __exit em8300_exit(void)
+{
+	pci_unregister_driver(&em8300_driver);
 }
 
 module_init(em8300_init);
