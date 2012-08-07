@@ -257,14 +257,6 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 {
 	struct em8300_s *em;
 	int result;
-	int i;
-
-	i = atomic_inc_return(&em8300_instance) - 1;
-	if (i >= EM8300_MAX) {
-		printk(KERN_ERR "em8300: cannot manage card %d, driver has a "
-		       "limit of 0 - %d\n", i, EM8300_MAX - 1);
-		return -ENOMEM;
-	}
 
 	em = kzalloc(sizeof(struct em8300_s), GFP_KERNEL);
 	if (em == NULL) {
@@ -272,18 +264,14 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 	}
 
 	em->pci_dev = pci_dev;
-	em->instance = i;
+	em->instance = v4l2_device_set_name(&em->v4l2_dev, "em8300",
+											&em8300_instance);
 
 	result = v4l2_device_register(&pci_dev->dev, &em->v4l2_dev);
 	if (result) {
-		printk(KERN_ERR "em8300: v4l2_device_register of card %d failed"
-				"\n", em->instance);
 		kfree(em);
 		return result;
 	}
-
-	snprintf(em->v4l2_dev.name, sizeof(em->v4l2_dev.name), "em8300-%d",
-				em->instance);
 
 	/* setup video_device */
 	em8300_register_video(em);

@@ -199,9 +199,7 @@ struct em8300_s
 	int model;
 
 	struct em8300_config_s config;
-
-	/* To support different options for different cards */
-	unsigned int instance;
+	u16 instance;
 };
 
 #define TIMEDIFF(a,b) a.tv_usec - b.tv_usec + \
