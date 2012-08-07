@@ -283,7 +283,7 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 	}
 
 	/* Specify default values if card is not identified */
-	memset(em->config, 0, sizeof(struct em8300_config_s));
+	memset(&em->config, 0, sizeof(struct em8300_config_s));
 	em->config.adv717x_model.pixeldata_adjust_ntsc = 1;
 	em->config.adv717x_model.pixeldata_adjust_pal = 1;
 
