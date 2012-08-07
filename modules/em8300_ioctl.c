@@ -34,6 +34,7 @@
 #include "em8300_fifo.h"
 
 #include "em8300_params.h"
+#include "em8300_models.h"
 
 int em8300_control_ioctl(struct em8300_s *em, int cmd, unsigned long arg)
 {
@@ -282,4 +283,207 @@ int em8300_ioctl_setspumode(struct em8300_s *em, int mode)
 {
 	em->sp_mode = mode;
 	return 0;
+}
+
+static const struct v4l2_queryctrl no_ctl = {
+	.name  = "42",
+	.flags = V4L2_CTRL_FLAG_DISABLED,
+};
+
+static const struct v4l2_queryctrl em8300_ctls[] = {
+	{
+		.id            = V4L2_CID_BRIGHTNESS,
+		.name          = "Brightness",
+		.minimum       = 0,
+		.maximum       = 1000,
+		.step          = 1,
+		.default_value = 500,
+		.type          = V4L2_CTRL_TYPE_INTEGER,
+	}, {
+		.id            = V4L2_CID_CONTRAST,
+		.name          = "Contrast",
+		.minimum       = 0,
+		.maximum       = 1000,
+		.step          = 1,
+		.default_value = 500,
+		.type          = V4L2_CTRL_TYPE_INTEGER,
+	}, {
+		.id            = V4L2_CID_SATURATION,
+		.name          = "Saturation",
+		.minimum       = 0,
+		.maximum       = 1000,
+		.step          = 1,
+		.default_value = 500,
+		.type          = V4L2_CTRL_TYPE_INTEGER,
+	}
+};
+static const int EM8300_CTLS = ARRAY_SIZE(em8300_ctls);
+
+/* Must be sorted from low to high control ID! */
+const u32 em8300_user_ctrls[] = {
+	V4L2_CID_BRIGHTNESS,
+	V4L2_CID_CONTRAST,
+	V4L2_CID_SATURATION,
+	0
+};
+
+static const u32 * const ctrl_classes[] = {
+	em8300_user_ctrls,
+	NULL
+};
+
+static int vidioc_querycap(struct file *file, void  *priv,
+					struct v4l2_capability *cap)
+{
+	struct em8300_s *em = video_drvdata(file);
+
+	strcpy(cap->driver, "em8300");
+	strlcpy(cap->card, known_models[em->model].name, sizeof(cap->card));
+	sprintf(cap->bus_info, "PCI:%s", pci_name(em->pci_dev));
+	cap->version = 0;
+	cap->capabilities =
+			V4L2_CAP_VIDEO_OUTPUT |
+			V4L2_CAP_READWRITE;
+	return 0;
+}
+
+static int em8300_ctrl_query(struct v4l2_queryctrl *qctrl)
+{
+	int i;
+
+	if (qctrl->id < V4L2_CID_BASE || qctrl->id >= V4L2_CID_LASTP1)
+		return -EINVAL;
+
+	for (i = 0; i < EM8300_CTLS; i++)
+		if (em8300_ctls[i].id == qctrl->id)
+			break;
+
+	if (i == EM8300_CTLS) {
+		*qctrl = no_ctl;
+		return 0;
+	}
+
+	*qctrl = em8300_ctls[i];
+	return 0;
+}
+
+
+static int vidioc_queryctrl(struct file *file, void *priv,
+				struct v4l2_queryctrl *qctrl)
+{
+	qctrl->id = v4l2_ctrl_next(ctrl_classes, qctrl->id);
+	if (unlikely(qctrl->id == 0))
+		return -EINVAL;
+
+	return em8300_ctrl_query(qctrl);
+}
+
+static int vidioc_g_ctrl(struct file *file, void *priv,
+				struct v4l2_control *ctl)
+{
+	struct em8300_s *em = video_drvdata(file);
+	int  val;
+
+	switch (ctl->id) {
+	case V4L2_CID_CONTRAST:
+		val = em->bcs.contrast;
+		break;
+	case V4L2_CID_BRIGHTNESS:
+		val = em->bcs.brightness;
+		break;
+	case V4L2_CID_SATURATION:
+		val = em->bcs.saturation;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	if (val < 0)
+		return val;
+
+	ctl->value = val;
+
+	return 0;
+}
+
+static int vidioc_s_ctrl(struct file *file, void *priv,
+				struct v4l2_control *ctl)
+{
+	struct em8300_s *em = video_drvdata(file);
+	int val = ctl->value;
+
+	switch (ctl->id) {
+	case V4L2_CID_CONTRAST:
+		em8300_dicom_setBCS(em, em->bcs.brightness, val, em->bcs.saturation);
+		break;
+	case V4L2_CID_BRIGHTNESS:
+		em8300_dicom_setBCS(em, val, em->bcs.contrast, em->bcs.saturation);
+		break;
+	case V4L2_CID_SATURATION:
+		em8300_dicom_setBCS(em, em->bcs.brightness, em->bcs.contrast, val);
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int vidioc_enum_fmt_vid_out(struct file *file, void *fh,
+				struct v4l2_fmtdesc *fmt)
+{
+	if (fmt->index > 0)
+		return -EINVAL;
+
+	fmt->flags = V4L2_FMT_FLAG_COMPRESSED;
+	fmt->pixelformat = V4L2_PIX_FMT_MPEG;
+	strlcpy(fmt->description, "MPEG 1/2", sizeof(fmt->description));
+
+	return 0;
+}
+
+static int vidioc_try_fmt_vid_out(struct file *file, void *priv,
+				struct v4l2_format *f)
+{
+	if (f->fmt.pix.pixelformat != V4L2_PIX_FMT_MPEG)
+		return -EINVAL;
+
+	return 0;
+}
+
+static int vidioc_s_fmt_vid_out(struct file *file, void *fh,
+				struct v4l2_format *f)
+{
+	int ret = vidioc_try_fmt_vid_out(file, fh, f);
+	if (ret < 0)
+		return ret;
+
+	/* TODO: setup dicom etc. */
+
+	return 0;
+}
+
+static int vidioc_g_fmt_vid_out(struct file *file, void *fh,
+				struct v4l2_format *f)
+{
+	f->fmt.pix.pixelformat = V4L2_PIX_FMT_MPEG;
+
+	/* TODO: width, height */
+	return 0;
+}
+
+static const struct v4l2_ioctl_ops em8300_ioctl_ops = {
+	.vidioc_querycap 			= vidioc_querycap,
+	.vidioc_queryctrl			= vidioc_queryctrl,
+	.vidioc_g_ctrl				= vidioc_g_ctrl,
+	.vidioc_s_ctrl				= vidioc_s_ctrl,
+	.vidioc_enum_fmt_vid_out	= vidioc_enum_fmt_vid_out,
+	.vidioc_try_fmt_vid_out		= vidioc_try_fmt_vid_out,
+	.vidioc_s_fmt_vid_out  		= vidioc_s_fmt_vid_out,
+	.vidioc_g_fmt_vid_out		= vidioc_g_fmt_vid_out,
+};
+
+void em8300_set_funcs(struct video_device *vdev)
+{
+        vdev->ioctl_ops = &em8300_ioctl_ops;
 }
