@@ -267,8 +267,7 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 	}
 
 	em = kzalloc(sizeof(struct em8300_s), GFP_KERNEL);
-	if (!em) {
-		printk(KERN_ERR "em8300: kzalloc failed - out of memory!\n");
+	if (em == NULL) {
 		return -ENOMEM;
 	}
 
