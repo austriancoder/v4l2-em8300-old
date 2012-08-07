@@ -254,7 +254,7 @@ static int em8300_pci_setup(struct pci_dev *pci_dev)
 	return 0;
 }
 
-static int __devinit em8300_probe(struct pci_dev *pci_dev,
+static int __devinit em8300_probe(struct pci_dev *pdev,
 				  const struct pci_device_id *pci_id)
 {
 	struct em8300_s *em;
@@ -264,11 +264,11 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 	if (em == NULL)
 		return -ENOMEM;
 
-	em->pci_dev = pci_dev;
+	em->pci_dev = pdev;
 	em->instance = v4l2_device_set_name(&em->v4l2_dev, "em8300",
 											&em8300_instance);
 
-	retval = v4l2_device_register(&pci_dev->dev, &em->v4l2_dev);
+	retval = v4l2_device_register(&pdev->dev, &em->v4l2_dev);
 	if (retval) {
 		kfree(em);
 		return retval;
@@ -279,8 +279,8 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 	/* setup video_device */
 	em8300_register_video(em);
 
-	pci_set_drvdata(pci_dev, em);
-	retval = em8300_pci_setup(pci_dev);
+	pci_set_drvdata(pdev, em);
+	retval = em8300_pci_setup(pdev);
 	if (retval != 0) {
 		printk(KERN_ERR "em8300-%d: pci setup failed\n", em->instance);
 		goto mem_free;
@@ -293,8 +293,8 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 
 	em->model = card_model[atomic_read(&em8300_instance)];
 
-	pr_info("em8300-%d: EM8300 %x (rev %d) ", em->instance, pci_dev->device, em->pci_revision);
-	pr_info("bus: %d, devfn: %d, irq: %d, ", pci_dev->bus->number, pci_dev->devfn, pci_dev->irq);
+	pr_info("em8300-%d: EM8300 %x (rev %d) ", em->instance, pdev->device, em->pci_revision);
+	pr_info("bus: %d, devfn: %d, irq: %d, ", pdev->bus->number, pdev->devfn, pdev->irq);
 	pr_info("memory: 0x%08lx.\n", em->adr);
 
 	/* map io memory */
@@ -316,7 +316,7 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 	init_waitqueue_head(&em->vbi_wait);
 	init_waitqueue_head(&em->sp_ptsfifo_wait);
 
-	retval = request_irq(pci_dev->irq, em8300_irq,
+	retval = request_irq(pdev->irq, em8300_irq,
 						IRQF_SHARED | IRQF_DISABLED,
 						em->v4l2_dev.name, (void *)em);
 
