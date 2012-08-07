@@ -282,57 +282,8 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 		goto mem_free;
 	}
 
-	/*
-	 * Specify default values if card is not identified.
-	 */
-	em->config.model.use_bt865 =
-		0;
-#ifdef CONFIG_EM8300_DICOMPAL
-	em->config.model.dicom_other_pal =
-		1;
-#else
-	em->config.model.dicom_other_pal =
-		0;
-#endif
-#ifdef CONFIG_EM8300_DICOMFIX
-	em->config.model.dicom_fix =
-		1;
-#else
-	em->config.model.dicom_fix =
-		0;
-#endif
-#ifdef CONFIG_EM8300_DICOMCTRL
-	em->config.model.dicom_control =
-		1;
-#else
-	em->config.model.dicom_control =
-		0;
-#endif
-#ifdef CONFIG_EM8300_UCODETIMEOUT
-	em->config.model.bt865_ucode_timeout =
-		1;
-#else
-	em->config.model.bt865_ucode_timeout =
-		0;
-#endif
-#ifdef CONFIG_EM8300_LOOPBACK
-	em->config.model.activate_loopback =
-		1;
-#else
-	em->config.model.activate_loopback =
-		0;
-#endif
-
-#ifdef CONFIG_ADV717X_PIXELPORT16BIT
-	em->config.adv717x_model.pixelport_16bit = 1;
-#else
-	em->config.adv717x_model.pixelport_16bit = 0;
-#endif
-#ifdef CONFIG_ADV717X_PIXELPORTPAL
-	em->config.adv717x_model.pixelport_other_pal = 1;
-#else
-	em->config.adv717x_model.pixelport_other_pal = 0;
-#endif
+	/* Specify default values if card is not identified */
+	memset(em->config, 0, sizeof(struct em8300_config_s));
 	em->config.adv717x_model.pixeldata_adjust_ntsc = 1;
 	em->config.adv717x_model.pixeldata_adjust_pal = 1;
 
