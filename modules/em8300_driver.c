@@ -231,25 +231,34 @@ static int init_em8300(struct em8300_s *em)
 	return 0;
 }
 
-static int em8300_pci_setup(struct pci_dev *pci_dev)
+static int em8300_pci_setup(struct em8300_s *em, struct pci_dev *pdev,
+		  const struct pci_device_id *pci_id)
 {
-	struct em8300_s *em = pci_get_drvdata(pci_dev);
-	unsigned char revision;
-	int rc = 0;
+	unsigned char pci_latency;
 
-	rc = pci_enable_device(pci_dev);
-	if (rc < 0) {
-		printk(KERN_ERR "em8300-%d: Unable to enable PCI device\n", em->instance);
-		return rc;
+	EM8300_DEBUG_INFO("Enabling pci device\n");
+
+	if (pci_enable_device(pdev)) {
+		EM8300_ERR("Can't enable device!\n");
+		return -EIO;
 	}
 
-	pci_set_master(pci_dev);
+	em->adr = pci_resource_start(pdev, 0);
+	em->memsize = pci_resource_len(pdev, 0);
+	em->pci_revision = pdev->revision;
 
-	em->adr = pci_resource_start(pci_dev, 0);
-	em->memsize = pci_resource_len(pci_dev, 0);
+	if (!request_mem_region(em->adr, em->memsize, "em8300 decoder")) {
+		EM8300_ERR("Cannot request decoder memory region.\n");
+		return -EIO;
+	}
 
-	pci_read_config_byte(pci_dev, PCI_CLASS_REVISION, &revision);
-	em->pci_revision = revision;
+	pci_read_config_byte(pdev, PCI_LATENCY_TIMER, &pci_latency);
+
+	EM8300_DEBUG_INFO("%d (rev %d) at %02x:%02x.%x, "
+		   "irq: %d, latency: %d, memory: 0x%llx\n",
+		   pdev->device, pdev->revision, pdev->bus->number,
+		   PCI_SLOT(pdev->devfn), PCI_FUNC(pdev->devfn),
+		   pdev->irq, pci_latency, (u64)em->adr);
 
 	return 0;
 }
@@ -276,15 +285,13 @@ static int __devinit em8300_probe(struct pci_dev *pdev,
 
 	EM8300_INFO("Initializing card %d\n", em->instance);
 
+	/* PCI Device Setup */
+	retval = em8300_pci_setup(em, pdev, pci_id);
+	if (retval != 0)
+		goto mem_free;
+
 	/* setup video_device */
 	em8300_register_video(em);
-
-	pci_set_drvdata(pdev, em);
-	retval = em8300_pci_setup(pdev);
-	if (retval != 0) {
-		printk(KERN_ERR "em8300-%d: pci setup failed\n", em->instance);
-		goto mem_free;
-	}
 
 	/* Specify default values if card is not identified */
 	memset(&em->config, 0, sizeof(struct em8300_config_s));
