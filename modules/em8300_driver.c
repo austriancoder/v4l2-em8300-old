@@ -274,6 +274,8 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 		return retval;
 	}
 
+	EM8300_INFO("Initializing card %d\n", em->instance);
+
 	/* setup video_device */
 	em8300_register_video(em);
 
@@ -298,16 +300,16 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 	/* map io memory */
 	em->mem = ioremap_nocache(em->adr, em->memsize);
 	if (em->mem == NULL) {
-		printk(KERN_ERR "em8300-%d: ioremap for memory region failed\n", em->instance);
+		EM8300_ERR("ioremap for memory region failed\n");
 		retval = -ENOMEM;
 		goto mem_free;
 	}
 
-	pr_info("em8300-%d: mapped-memory at 0x%p\n", em->instance, em->mem);
+	EM8300_INFO("mapped-memory at 0x%p\n", em->mem);
 #ifdef CONFIG_MTRR
 	em->mtrr_reg = mtrr_add(em->adr, em->memsize, MTRR_TYPE_UNCACHABLE, 1);
 	if (em->mtrr_reg)
-		pr_info("em8300-%d: using MTRR\n", em->instance);
+		EM8300_INFO("using MTRR\n");
 #endif
 
 	init_waitqueue_head(&em->video_ptsfifo_wait);
