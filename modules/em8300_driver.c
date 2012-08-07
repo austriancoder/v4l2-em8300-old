@@ -245,7 +245,6 @@ static int em8300_pci_setup(struct em8300_s *em, struct pci_dev *pdev,
 
 	em->adr = pci_resource_start(pdev, 0);
 	em->memsize = pci_resource_len(pdev, 0);
-	em->pci_revision = pdev->revision;
 
 	if (!request_mem_region(em->adr, em->memsize, "em8300 decoder")) {
 		EM8300_ERR("Cannot request decoder memory region.\n");
@@ -299,10 +298,6 @@ static int __devinit em8300_probe(struct pci_dev *pdev,
 	em->config.adv717x_model.pixeldata_adjust_pal = 1;
 
 	em->model = card_model[atomic_read(&em8300_instance)];
-
-	pr_info("em8300-%d: EM8300 %x (rev %d) ", em->instance, pdev->device, em->pci_revision);
-	pr_info("bus: %d, devfn: %d, irq: %d, ", pdev->bus->number, pdev->devfn, pdev->irq);
-	pr_info("memory: 0x%08lx.\n", em->adr);
 
 	/* map io memory */
 	em->mem = ioremap_nocache(em->adr, em->memsize);

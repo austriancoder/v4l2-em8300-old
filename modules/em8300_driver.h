@@ -160,7 +160,6 @@ typedef struct {
 struct em8300_s
 {
 	int chip_revision;
-	int pci_revision;
 	
 	int nonblock[4];
 	
