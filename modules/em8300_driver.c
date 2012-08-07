@@ -431,14 +431,12 @@ static void __exit em8300_exit(void)
 
 static int __init em8300_init(void)
 {
-	int ret;
-
-	ret = pci_register_driver(&em8300_driver);
-	if (ret < 0) {
-		printk(KERN_ERR "em8300: unable to register PCI driver\n");
+	if (pci_register_driver(&em8300_driver)) {
+		printk(KERN_ERR "em8300: Error detecting PCI card\n");
+		return -ENODEV;
 	}
 
-	return ret;
+	return 0;
 }
 
 module_init(em8300_init);
