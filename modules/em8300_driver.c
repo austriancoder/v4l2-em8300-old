@@ -293,7 +293,8 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 	pr_info("bus: %d, devfn: %d, irq: %d, ", pci_dev->bus->number, pci_dev->devfn, pci_dev->irq);
 	pr_info("memory: 0x%08lx.\n", em->adr);
 
-	em->mem = ioremap(em->adr, em->memsize);
+	/* map io memory */
+	em->mem = ioremap_nocache(em->adr, em->memsize);
 	if (em->mem == NULL) {
 		printk(KERN_ERR "em8300-%d: ioremap for memory region failed\n", em->instance);
 		retval = -ENOMEM;
