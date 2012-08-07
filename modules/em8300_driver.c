@@ -36,6 +36,8 @@
 #include "em8300_models.h"
 #include "em8300_version.h"
 
+int em8300_debug;
+
 #if !defined(CONFIG_I2C_ALGOBIT) && !defined(CONFIG_I2C_ALGOBIT_MODULE)
 #error "This needs the I2C Bit Banging Interface in your Kernel"
 #endif

@@ -48,6 +48,61 @@
 #include <media/v4l2-chip-ident.h>
 #include <media/v4l2-ctrls.h>
 
+
+/* debugging */
+extern int em8300_debug;
+
+#define EM8300_DBGFLG_WARN    (1 << 0)
+#define EM8300_DBGFLG_INFO    (1 << 1)
+#define EM8300_DBGFLG_MB      (1 << 2)
+#define EM8300_DBGFLG_IOCTL   (1 << 3)
+#define EM8300_DBGFLG_FILE    (1 << 4)
+#define EM8300_DBGFLG_DMA     (1 << 5)
+#define EM8300_DBGFLG_IRQ     (1 << 6)
+#define EM8300_DBGFLG_DEC     (1 << 7)
+#define EM8300_DBGFLG_YUV     (1 << 8)
+#define EM8300_DBGFLG_I2C     (1 << 9)
+/* Flag to turn on high volume debugging */
+#define EM8300_DBGFLG_HIGHVOL (1 << 10)
+
+#define EM8300_DEBUG(x, type, fmt, args...) \
+	do { \
+		if ((x) & em8300_debug) \
+			v4l2_info(&em->v4l2_dev, " " type ": " fmt , ##args);	\
+	} while (0)
+#define EM8300_DEBUG_WARN(fmt, args...)  EM8300_DEBUG(EM8300_DBGFLG_WARN,  "warn",  fmt , ## args)
+#define EM8300_DEBUG_INFO(fmt, args...)  EM8300_DEBUG(EM8300_DBGFLG_INFO,  "info",  fmt , ## args)
+#define EM8300_DEBUG_MB(fmt, args...)    EM8300_DEBUG(EM8300_DBGFLG_MB,    "mb",    fmt , ## args)
+#define EM8300_DEBUG_DMA(fmt, args...)   EM8300_DEBUG(EM8300_DBGFLG_DMA,   "dma",   fmt , ## args)
+#define EM8300_DEBUG_IOCTL(fmt, args...) EM8300_DEBUG(EM8300_DBGFLG_IOCTL, "ioctl", fmt , ## args)
+#define EM8300_DEBUG_FILE(fmt, args...)  EM8300_DEBUG(EM8300_DBGFLG_FILE,  "file",  fmt , ## args)
+#define EM8300_DEBUG_I2C(fmt, args...)   EM8300_DEBUG(EM8300_DBGFLG_I2C,   "i2c",   fmt , ## args)
+#define EM8300_DEBUG_IRQ(fmt, args...)   EM8300_DEBUG(EM8300_DBGFLG_IRQ,   "irq",   fmt , ## args)
+#define EM8300_DEBUG_DEC(fmt, args...)   EM8300_DEBUG(EM8300_DBGFLG_DEC,   "dec",   fmt , ## args)
+#define EM8300_DEBUG_YUV(fmt, args...)   EM8300_DEBUG(EM8300_DBGFLG_YUV,   "yuv",   fmt , ## args)
+
+#define EM8300_DEBUG_HIGH_VOL(x, type, fmt, args...) \
+	do { \
+		if (((x) & em8300_debug) && (em8300_debug & EM8300_DBGFLG_HIGHVOL)) 	\
+			v4l2_info(&em->v4l2_dev, " " type ": " fmt , ##args);	\
+	} while (0)
+#define EM8300_DEBUG_HI_WARN(fmt, args...)  EM8300_DEBUG_HIGH_VOL(EM8300_DBGFLG_WARN,  "warn",  fmt , ## args)
+#define EM8300_DEBUG_HI_INFO(fmt, args...)  EM8300_DEBUG_HIGH_VOL(EM8300_DBGFLG_INFO,  "info",  fmt , ## args)
+#define EM8300_DEBUG_HI_MB(fmt, args...)    EM8300_DEBUG_HIGH_VOL(EM8300_DBGFLG_MB,    "mb",    fmt , ## args)
+#define EM8300_DEBUG_HI_DMA(fmt, args...)   EM8300_DEBUG_HIGH_VOL(EM8300_DBGFLG_DMA,   "dma",   fmt , ## args)
+#define EM8300_DEBUG_HI_IOCTL(fmt, args...) EM8300_DEBUG_HIGH_VOL(EM8300_DBGFLG_IOCTL, "ioctl", fmt , ## args)
+#define EM8300_DEBUG_HI_FILE(fmt, args...)  EM8300_DEBUG_HIGH_VOL(EM8300_DBGFLG_FILE,  "file",  fmt , ## args)
+#define EM8300_DEBUG_HI_I2C(fmt, args...)   EM8300_DEBUG_HIGH_VOL(EM8300_DBGFLG_I2C,   "i2c",   fmt , ## args)
+#define EM8300_DEBUG_HI_IRQ(fmt, args...)   EM8300_DEBUG_HIGH_VOL(EM8300_DBGFLG_IRQ,   "irq",   fmt , ## args)
+#define EM8300_DEBUG_HI_DEC(fmt, args...)   EM8300_DEBUG_HIGH_VOL(EM8300_DBGFLG_DEC,   "dec",   fmt , ## args)
+#define EM8300_DEBUG_HI_YUV(fmt, args...)   EM8300_DEBUG_HIGH_VOL(EM8300_DBGFLG_YUV,   "yuv",   fmt , ## args)
+
+/* Standard kernel messages */
+#define EM8300_ERR(fmt, args...)      v4l2_err(&em->v4l2_dev, fmt , ## args)
+#define EM8300_WARN(fmt, args...)     v4l2_warn(&em->v4l2_dev, fmt , ## args)
+#define EM8300_INFO(fmt, args...)     v4l2_info(&em->v4l2_dev, fmt , ## args)
+
+
 struct dicom_s {
 	int luma;
 	int chroma;
