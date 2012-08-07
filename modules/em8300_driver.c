@@ -424,7 +424,7 @@ struct pci_driver em8300_driver = {
 	.remove   = __devexit_p(em8300_remove),
 };
 
-static int __init em8300_init(void)
+static int __init module_start(void)
 {
 	if (pci_register_driver(&em8300_driver)) {
 		printk(KERN_ERR "em8300: Error detecting PCI card\n");
@@ -434,10 +434,10 @@ static int __init em8300_init(void)
 	return 0;
 }
 
-static void __exit em8300_exit(void)
+static void __exit module_cleanup(void)
 {
 	pci_unregister_driver(&em8300_driver);
 }
 
-module_init(em8300_init);
-module_exit(em8300_exit);
+module_init(module_start);
+module_exit(module_cleanup);
