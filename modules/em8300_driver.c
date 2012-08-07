@@ -421,7 +421,7 @@ struct pci_driver em8300_driver = {
 	.name     = "Sigma Designs EM8300",
 	.id_table = em8300_ids,
 	.probe    = em8300_probe,
-	.remove   = __devexit_p(em8300_remove),
+	.remove   = em8300_remove,
 };
 
 static int __init module_start(void)
