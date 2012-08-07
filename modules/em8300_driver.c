@@ -256,29 +256,28 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 				  const struct pci_device_id *pci_id)
 {
 	struct em8300_s *em;
-	int result;
+	int retval;
 
 	em = kzalloc(sizeof(struct em8300_s), GFP_KERNEL);
-	if (em == NULL) {
+	if (em == NULL)
 		return -ENOMEM;
-	}
 
 	em->pci_dev = pci_dev;
 	em->instance = v4l2_device_set_name(&em->v4l2_dev, "em8300",
 											&em8300_instance);
 
-	result = v4l2_device_register(&pci_dev->dev, &em->v4l2_dev);
-	if (result) {
+	retval = v4l2_device_register(&pci_dev->dev, &em->v4l2_dev);
+	if (retval) {
 		kfree(em);
-		return result;
+		return retval;
 	}
 
 	/* setup video_device */
 	em8300_register_video(em);
 
 	pci_set_drvdata(pci_dev, em);
-	result = em8300_pci_setup(pci_dev);
-	if (result != 0) {
+	retval = em8300_pci_setup(pci_dev);
+	if (retval != 0) {
 		printk(KERN_ERR "em8300-%d: pci setup failed\n", em->instance);
 		goto mem_free;
 	}
@@ -344,9 +343,9 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 	pr_info("memory: 0x%08lx.\n", em->adr);
 
 	em->mem = ioremap(em->adr, em->memsize);
-	if (!em->mem) {
+	if (em->mem == NULL) {
 		printk(KERN_ERR "em8300-%d: ioremap for memory region failed\n", em->instance);
-		result = -ENOMEM;
+		retval = -ENOMEM;
 		goto mem_free;
 	}
 
@@ -361,11 +360,11 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 	init_waitqueue_head(&em->vbi_wait);
 	init_waitqueue_head(&em->sp_ptsfifo_wait);
 
-	result = request_irq(pci_dev->irq, em8300_irq,
+	retval = request_irq(pci_dev->irq, em8300_irq,
 						IRQF_SHARED | IRQF_DISABLED,
 						em->v4l2_dev.name, (void *)em);
 
-	if (result == -EINVAL) {
+	if (retval == -EINVAL) {
 		printk(KERN_ERR "em8300-%d: Bad irq number or handler\n", em->instance);
 		goto irq_error;
 	}
@@ -374,7 +373,7 @@ static int __devinit em8300_probe(struct pci_dev *pci_dev,
 
 	/* load fw */
 	if (!em8300_require_ucode(em)) {
-		result = -ENOTTY;
+		retval = -ENOTTY;
 		goto irq_error;
 	}
 
@@ -390,7 +389,7 @@ irq_error:
 mem_free:
 	v4l2_device_unregister(&em->v4l2_dev);
 	kfree(em);
-	return result;
+	return retval;
 }
 
 static void __devexit em8300_remove(struct pci_dev *pci_dev)
