@@ -174,8 +174,7 @@ struct em8300_s
 	ulong addr;
 	volatile unsigned *mem;
 	ulong memsize;
-	
-	struct mutex ioctl_mutex;
+
 	int playmode;
 
 	/* Fifos */
