@@ -46,6 +46,7 @@
 #include <media/v4l2-common.h>
 #include <media/v4l2-ioctl.h>
 #include <media/v4l2-chip-ident.h>
+#include <media/v4l2-ctrls.h>
 
 struct dicom_s {
 	int luma;
@@ -112,6 +113,9 @@ struct em8300_s
 	struct v4l2_device v4l2_dev;
 	struct v4l2_subdev *encoder;
 	struct video_device *vdev;
+
+	/* Control handler */
+	struct v4l2_ctrl_handler ctrl_handler;
 
 	ulong adr;
 	volatile unsigned *mem;

@@ -347,88 +347,6 @@ static int vidioc_querycap(struct file *file, void  *priv,
 	return 0;
 }
 
-static int em8300_ctrl_query(struct v4l2_queryctrl *qctrl)
-{
-	int i;
-
-	if (qctrl->id < V4L2_CID_BASE || qctrl->id >= V4L2_CID_LASTP1)
-		return -EINVAL;
-
-	for (i = 0; i < EM8300_CTLS; i++)
-		if (em8300_ctls[i].id == qctrl->id)
-			break;
-
-	if (i == EM8300_CTLS) {
-		*qctrl = no_ctl;
-		return 0;
-	}
-
-	*qctrl = em8300_ctls[i];
-	return 0;
-}
-
-
-static int vidioc_queryctrl(struct file *file, void *priv,
-				struct v4l2_queryctrl *qctrl)
-{
-	qctrl->id = v4l2_ctrl_next(ctrl_classes, qctrl->id);
-	if (unlikely(qctrl->id == 0))
-		return -EINVAL;
-
-	return em8300_ctrl_query(qctrl);
-}
-
-static int vidioc_g_ctrl(struct file *file, void *priv,
-				struct v4l2_control *ctl)
-{
-	struct em8300_s *em = video_drvdata(file);
-	int  val;
-
-	switch (ctl->id) {
-	case V4L2_CID_CONTRAST:
-		val = em->bcs.contrast;
-		break;
-	case V4L2_CID_BRIGHTNESS:
-		val = em->bcs.brightness;
-		break;
-	case V4L2_CID_SATURATION:
-		val = em->bcs.saturation;
-		break;
-	default:
-		return -EINVAL;
-	}
-
-	if (val < 0)
-		return val;
-
-	ctl->value = val;
-
-	return 0;
-}
-
-static int vidioc_s_ctrl(struct file *file, void *priv,
-				struct v4l2_control *ctl)
-{
-	struct em8300_s *em = video_drvdata(file);
-	int val = ctl->value;
-
-	switch (ctl->id) {
-	case V4L2_CID_CONTRAST:
-		em8300_dicom_setBCS(em, em->bcs.brightness, val, em->bcs.saturation);
-		break;
-	case V4L2_CID_BRIGHTNESS:
-		em8300_dicom_setBCS(em, val, em->bcs.contrast, em->bcs.saturation);
-		break;
-	case V4L2_CID_SATURATION:
-		em8300_dicom_setBCS(em, em->bcs.brightness, em->bcs.contrast, val);
-		break;
-	default:
-		return -EINVAL;
-	}
-
-	return 0;
-}
-
 static int vidioc_enum_fmt_vid_out(struct file *file, void *fh,
 				struct v4l2_fmtdesc *fmt)
 {
@@ -474,9 +392,6 @@ static int vidioc_g_fmt_vid_out(struct file *file, void *fh,
 
 static const struct v4l2_ioctl_ops em8300_ioctl_ops = {
 	.vidioc_querycap 			= vidioc_querycap,
-	.vidioc_queryctrl			= vidioc_queryctrl,
-	.vidioc_g_ctrl				= vidioc_g_ctrl,
-	.vidioc_s_ctrl				= vidioc_s_ctrl,
 	.vidioc_enum_fmt_vid_out	= vidioc_enum_fmt_vid_out,
 	.vidioc_try_fmt_vid_out		= vidioc_try_fmt_vid_out,
 	.vidioc_s_fmt_vid_out  		= vidioc_s_fmt_vid_out,
